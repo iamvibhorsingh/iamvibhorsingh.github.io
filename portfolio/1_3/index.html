@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+	<style>
+		svg {	
+			background: white;
+		}
+		        h1 {
+            background-color: #9516b8;
+            color:white;
+            padding: 5px;
+        }
+		h2
+		{
+			color: white;
+		}
+		.mesh {
+			fill:none;
+			stroke: black;
+			stroke-width: 0.5px;
+		}
+		
+		.land {
+			fill: gray;
+				}
+		.A { background: #1f77b4;}
+		.B { background: #ff7f0e;}
+		.C { background: #2ca02c;}
+		.D { background: #d62728;}
+		.E { background: #9467bd;}
+
+		.key-dot {
+		    display: inline-block;
+		    height: 20px;
+		    margin-right: .5em;
+		    width: 20px;
+		    color: black;
+
+		}
+		.LEGEND_class{
+			font-size: 12px;
+			color: black;
+		}
+
+		.background_color
+		{
+			background-color: white;
+		}
+		
+		div.tooltip { 
+          position: absolute;     
+          text-align: center;     
+          width: auto;          
+          height: auto;         
+          padding: 2px;       
+          font: 12px sans-serif;    
+          background: AliceBlue; 
+          border: 0px;    
+          border-radius: 8px;     
+          pointer-events: none;     
+        }
+	</style>	
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="https://d3js.org/topojson.v1.min.js"></script>	
+</head>
+<body class="background_color">
+<h1 align=center>Visualization 3</h1
+    <p><ul> a) Are there any major differences in how the top 5 most frequent purposes of disbursements distribute geographically in terms of  countries that receive donations? 
+			<br><li>Majority countries in the world receive donations for industrial development. Countries in west europe tend to receive more money for Air Transport and eastern countries of europe receive
+more for Power generation. Other purposes don't really follow a trend</li>
+		  </ul>
+		<ul>b) Are there countries that tend to receive more of certain types of donations than others?
+			<br><li>Canada as well as developed countries like Iceland, Germany etc receive a lot of money for Air Transport. </li>
+        </ul>
+    </p>
+    <script type="text/javascript">
+var width = 1500;
+	height = 650;
+
+
+var projection = d3.geoMercator().center([-10,50]).scale(170);
+
+
+var path = d3.geoPath().projection(projection);
+
+var svg = d3.select("body").append("svg")
+	.attr("width", width)
+	.attr("height", height)
+	.call(d3.zoom().scaleExtent([1, 2]).on("zoom", function () {
+        container.attr("transform", d3.event.transform)
+      }));
+	  
+var container = d3.select("#Map")
+ 
+
+
+var g1 = svg.append("g");
+		
+ d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function(error, world) {
+   
+	g1.insert("path", ".land")
+		.datum(topojson.feature(world, world.objects.countries))
+		.attr("class", "land")
+		.attr("d", path);
+		
+	 g1.append("path")
+      .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+      .attr("class", "mesh")
+      .attr("d", path);
+
+});
+
+var g2 = svg.append("g");
+
+var arc = d3.arc()
+			.innerRadius(0)
+			.outerRadius(7);
+			
+var pie = d3.pie()
+			.sort(null)
+			.value(function(d) { return d; });
+			
+var color = d3.schemeCategory10;
+console.log(color);
+
+d3.csv("data_for_visualization3.csv", function(error, water) {
+      
+	var marks = g2.selectAll("g")
+		.data(water)
+		.enter()
+		.append("g")
+		.attr("transform",function(d) { return "translate("+projection([d.Long,d.Lat])+")" })
+		.attr("id", function (d,i) { return "chart"+i; })
+		.append("g").attr("class","pies");
+	
+	marks.append("circle")
+		.attr("r", 3)
+        .style("fill", "red");
+	
+	var pies = marks.selectAll(".pies")
+		.data(function(d) {console.log(d.data); return pie(d.data.split(['-'])); }) // I'm unsure why I need the leading 0.
+		.enter()
+		.append('g')
+		.attr('class','arc');
+	
+	pies.append("path")
+	  .attr('d',arc)
+      .attr("fill",function(d,i){
+           return color[i];      
+      });
+});
+</script
+<h3> <b>Legend </b></h3>
+<div class="LEGEND_class"> <b class="country-name"><span class="key-dot D"></span>Industrial Development</b> </div>
+     <div class="LEGEND_class"> <b class="country-name"><span class="key-dot E"></span>Rescheduling and Refinancing</b> </div>
+     <div class="LEGEND_class"> <b class="country-name"><span class="key-dot B"></span>Air Transport</b> </div>
+     <div class="LEGEND_class"> <b class="country-name"><span class="key-dot C"></span>Power Generation/non-Renewable Sources</b></div>
+      <div class="LEGEND_class"> <b class="country-name"><span class="key-dot A"></span>Rail Transport</b> </div>
+</body>

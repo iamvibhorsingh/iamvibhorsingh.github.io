@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+    
+    body {
+            font-family: Helvetica, Arial, sans-serif
+        }
+
+                h1 {
+            background-color: #9516b8;
+            color:white;
+            padding: 5px;
+        }
+    h2 {
+        font-size: 22px;
+        font: Arial;
+    }
+
+.bar--positive {
+  fill: red;
+}
+
+.bar--negative {
+  fill: green;
+}
+    
+    .svg text{
+        font: 2px sans-serif;
+    }
+
+.axis text {
+  font: 12px sans-serif;
+}
+    
+    .grid .tick {
+    stroke: #f7f368;
+    opacity: 0.1;
+}
+.grid path {
+      stroke-width: 1;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+    
+    .mainView{
+            display: flex;
+            flex-direction: row;
+        }
+
+    .tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: 120px;					
+    height: 30px;					
+    padding: 2px;				
+    font: 13px sans-serif;		
+    background: #6cb1cc;	
+    border: solid 1px #f5f5f5;		
+    border-radius: 3px;			
+    pointer-events: none;			
+}
+    
+</style>
+<body>
+    <h1 align=center>Visualization 1</h1>
+	<p> a) How do the countries compare in terms of how much they receive and donate from other countries? 
+
+		<ul>
+          <li>The graph below answers that question for all 48 countries</li>
+		  </ul>
+	b) Are there countries that donate much more than they receive or receive much more than they donate?
+        <ul>
+          <li>US and Japan donated a lot more than it receives. India and Thailand received a lot more than they donated</li>
+        </ul>
+    </p>
+    <h2>Amount donated and received for each country.</h2>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script>
+
+var margin = {top: 10, right: 30, bottom: 40, left: 100},
+    width = 1000 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+var x = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.ordinal()
+    .rangeRoundBands([0, height], 0.1);
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    .tickFormat(Math.abs);
+    
+function make_xaxis() {
+    return d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+}
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickPadding(6);
+    
+var myAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickSize(0);
+    
+var tooltip = d3.select("body")
+    .append("div")
+    .attr("class", "tooltip")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden");
+    
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.csv("data.csv", type, function(error, data) {
+  x.domain(d3.extent(data, function(d) { return d.value; })).nice();
+  y.domain(data.map(function(d) { return d.name; }));
+    
+
+svg.selectAll(".bar")
+      .data(data)
+    .enter().append("rect")
+      .attr("class", function(d) { return "bar bar--" + (d.value < 0 ? "negative" : "positive"); })
+      .attr("x", function(d) { return x(Math.min(0, d.value)); })
+      .attr("y", function(d) { return y(d.name); })
+      .attr("width", function(d) { return Math.abs(x(d.value) - x(0)); })
+      .attr("height", y.rangeBand())
+    .on("mouseover", function(d){return tooltip.style("visibility", "visible").html(d.name + "<br/>" + "$" + Math.abs(d.value) + " B");})
+    .on("mousemove", function(d){return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px")
+                                                .html(d.name + "<br/>" + "$" + Math.abs(d.value) + " B");})
+    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+      
+    
+svg.append("text")
+    .attr('x', -(height / 2) + 70)
+    .attr('y', -150)
+    .attr('transform', 'rotate(-90)')
+    .attr('text-anchor', 'middle')
+    .text('Countries')
+
+svg.append('text')
+    .attr('x', width / 2 + 40)
+    .attr('y', height + 35)
+    .attr('text-anchor', 'middle')
+    .text('Amount (in Billion $)')
+    
+svg.append("g")
+    .attr("class", "grid")
+    .attr("transform", "translate(0," + height + ")")
+    .call(make_xaxis()
+         .tickSize(-height, 0, 0)
+         .tickFormat(""))
+  
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  var middleAxis = svg.append("g")
+      .attr("class", "my axis")
+      .attr("transform", "translate(" + x(0) + ",0)")
+      .call(myAxis);
+    
+    middleAxis.selectAll("text").remove();
+    
+    svg.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(" + ",0)")
+      .call(yAxis);
+});
+    
+svg.append("circle").attr("cx",width - 75).attr("cy",0).attr("r", 6).style("fill", "red")
+svg.append("circle").attr("cx",width - 75).attr("cy",15).attr("r", 6).style("fill", "green")
+svg.append("text").attr("x", width - 63).attr("y", 0).text("Received").style("font-size", "15px").attr("alignment-baseline","middle")
+svg.append("text").attr("x", width - 60).attr("y", 15).text("Donated").style("font-size", "15px").attr("alignment-baseline","middle")
+
+function type(d) {
+  d.value = +d.value;
+  return d;
+}
+
+</script>

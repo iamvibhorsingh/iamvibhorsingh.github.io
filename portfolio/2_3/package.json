@@ -1,0 +1,14 @@
+{
+  "name": "693d7b50b79c29ff",
+  "main": "693d7b50b79c29ff@1454.js",
+  "version": "1454.0.0",
+  "homepage": "https://observablehq.com/d/693d7b50b79c29ff",
+  "author": {
+    "name": "Vibhor Singh",
+    "url": "https://observablehq.com/@iamvibhorsingh"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}
