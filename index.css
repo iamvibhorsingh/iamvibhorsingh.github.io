@@ -1,3 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Modern color scheme */
+:root {
+  --primary-color: #3B82F6;
+  --background-dark: #111827;
+  --background-light: #1F2937;
+  --text-light: #F9FAFB;
+  --text-muted: #9CA3AF;
+  --border-color: #374151;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url("https://images.unsplash.com/photo-1544411047-c491e34a24e0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjF9&auto=format&fit=crop&w=1950&q=80") center center;
+  background-size: cover;
+}
+
+/* Update spinner style */
+#spinner {
+  border: 12px solid #fff;
+  border-bottom: 12px solid var(--primary-color);
+}
+
+/* Update middle section */
+#middle {
+  color: var(--text-light);
+}
+
+#middle h1 {
+  color: var(--primary-color);
+  font-size: 70px;
+  font-weight: 700;
+}
+
+#middle h2 {
+  font-size: 24px;
+  margin-top: 10px;
+  color: var(--text-muted);
+}
+
+/* Update containers */
+.container {
+  background: var(--background-light);
+  color: var(--text-light);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.container h1 {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 15px;
+  margin-bottom: 30px;
+}
+
+.container p {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Social icons */
+.social {
+  color: var(--text-muted);
+  transition: color 0.3s;
+}
+
+.social:hover {
+  color: var(--primary-color);
+}
+
+/* Buttons */
+.btn_one, .btn_two {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn_one:hover {
+  color: var(--primary-color);
+}
+
+.btn_two {
+  color: var(--primary-color);
+}
+
+/* Form elements */
+input, textarea {
+  background-color: rgba(31, 41, 55, 0.7) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+  color: var(--text-light) !important;
+  transition: border-color 0.3s;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--primary-color) !important;
+  outline: none;
+}
+
+/* Navigation improvements */
+#about, #work, #contact {
+  background: transparent;
+  transition: background 0.3s;
+  border-radius: 10px;
+}
+
+#about:hover, #work:hover, #contact:hover {
+  background: rgba(59, 130, 246, 0.5);
+}
+
+/* Project cards */
+#work_container div {
+  background: rgba(31, 41, 55, 0.7);
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s;
+}
+
+#work_container div:hover {
+  transform: translateY(-5px);
+}
+
+#work_container h2 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+/* Go-to-top button */
+.go-top {
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  padding: 10px 15px;
+  transition: background 0.3s;
+}
+
+.go-top:hover {
+  background: #2563EB;
+}
+
+/* Fix for particles */
+#particles-js {
+  z-index: 0;
+}
 
 @import url('https://fonts.googleapis.com/css?family=Josefin+Sans');
 
@@ -720,5 +867,4 @@ body {
     #box div {
         width:100%;
     }
-
-}
+}}
