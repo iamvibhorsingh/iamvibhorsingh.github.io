@@ -39,20 +39,20 @@ setTimeout(function() {
 }, 1500);
 
 // Show/hide sections
-function showabout() {
-    document.getElementById('about_container').style.display = 'block';
-    document.getElementById('about_container').classList.add('animate__animated', 'animate__slideInLeft');
-    setTimeout(function() {
-        document.getElementById('about_container').classList.remove('animate__slideInLeft');
-    }, 800);
+function showabout(){
+    $("#about_container").css("display","inherit");
+    $("#about_container").addClass("animated slideInLeft");
+    setTimeout(function(){
+        $("#about_container").removeClass("animated slideInLeft");
+    },800);
 }
 
-function closeabout() {
-    document.getElementById('about_container').classList.add('animate__animated', 'animate__slideOutLeft');
-    setTimeout(function() {
-        document.getElementById('about_container').classList.remove('animate__slideOutLeft');
-        document.getElementById('about_container').style.display = 'none';
-    }, 800);
+function closeabout(){
+    $("#about_container").addClass("animated slideOutLeft");
+    setTimeout(function(){
+        $("#about_container").removeClass("animated slideOutLeft");
+        $("#about_container").css("display","none");
+    },800);
 }
 
 function showwork() {
