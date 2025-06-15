@@ -8,6 +8,7 @@
 */
 
 let map, rsidebar, lsidebar, drawControl, drawnItems = null;
+let bounds = null; // Global bounds variable
 
 // Where we keep the big list of proj defs from the server
 let proj4defs = null;
@@ -316,10 +317,10 @@ throw {
 })(); // end FormatSniffer
 
 
-function addLayer(layer, name, title, zIndex, on) {
-    if (on) {
+function addLayer(layer, name, title, zIndex, on, callback) {
+    if (layer && on) {
         layer.setZIndex(zIndex).addTo(map);
-    } else {
+    } else if (layer) {
         layer.setZIndex(zIndex);
     }
     // Create a simple layer switcher that toggles layers on and off.
@@ -338,12 +339,19 @@ function addLayer(layer, name, title, zIndex, on) {
         e.preventDefault();
         e.stopPropagation();
 
-        if (map.hasLayer(layer)) {
-            map.removeLayer(layer);
-            this.className = '';
-        } else {
-            map.addLayer(layer);
-            this.className = 'enabled';
+        if (callback) {
+            // For custom callback functions (like satellite toggle)
+            callback();
+            this.className = this.className === 'enabled' ? '' : 'enabled';
+        } else if (layer) {
+            // For regular layer toggle
+            if (map.hasLayer(layer)) {
+                map.removeLayer(layer);
+                this.className = '';
+            } else {
+                map.addLayer(layer);
+                this.className = 'enabled';
+            }
         }
     };
     item.appendChild(link);
@@ -351,53 +359,73 @@ function addLayer(layer, name, title, zIndex, on) {
 };
 
 function formatBounds(bounds, proj) {
-    const gdal = $("input[name='gdal-checkbox']").prop('checked');
-    const lngLat = $("input[name='coord-order']").prop('checked');
+    // Use default values if form elements are not initialized yet
+    const gdal = $("input[name='gdal-checkbox']").prop('checked') || false;
+    const lngLatOrder = $("input[name='coord-order']:checked").val() === 'lng-lat';
 
     let formattedBounds = '';
     let southwest = bounds.getSouthWest();
     let northeast = bounds.getNorthEast();
+    
     let xmin = 0;
     let ymin = 0;
     let xmax = 0;
     let ymax = 0;
+    
     if (proj == '4326') {
         xmin = southwest.lng.toFixed(6);
         ymin = southwest.lat.toFixed(6);
         xmax = northeast.lng.toFixed(6);
         ymax = northeast.lat.toFixed(6);
     } else {
-        let proj_to_use = null;
-        if (typeof(projdefs[proj]) !== 'undefined') {
-            // we have it already, then grab it and use it...
-            proj_to_use = projdefs[proj];
-        } else {
-            // We have not used this one yet... make it and store it...
-            projdefs[proj] = new L.Proj.CRS(proj, proj4defs[proj][1]);
-            proj_to_use = projdefs[proj];
+        try {
+            let proj_to_use = null;
+            if (typeof(projdefs[proj]) !== 'undefined') {
+                proj_to_use = projdefs[proj];
+            } else if (proj4defs && proj4defs[proj]) {
+                projdefs[proj] = new L.Proj.CRS(proj, proj4defs[proj][1]);
+                proj_to_use = projdefs[proj];
+            } else {
+                // Fallback to 4326 if projection not available
+                xmin = southwest.lng.toFixed(6);
+                ymin = southwest.lat.toFixed(6);
+                xmax = northeast.lng.toFixed(6);
+                ymax = northeast.lat.toFixed(6);
+            }
+            
+            if (proj_to_use) {
+                southwest = proj_to_use.project(southwest);
+                northeast = proj_to_use.project(northeast);
+                xmin = southwest.x.toFixed(4);
+                ymin = southwest.y.toFixed(4);
+                xmax = northeast.x.toFixed(4);
+                ymax = northeast.y.toFixed(4);
+            }
+        } catch (error) {
+            console.warn('Projection error, falling back to 4326:', error);
+            // Fallback to 4326
+            xmin = southwest.lng.toFixed(6);
+            ymin = southwest.lat.toFixed(6);
+            xmax = northeast.lng.toFixed(6);
+            ymax = northeast.lat.toFixed(6);
         }
-        southwest = proj_to_use.project(southwest)
-        northeast = proj_to_use.project(northeast)
-        xmin = southwest.x.toFixed(4);
-        ymin = southwest.y.toFixed(4);
-        xmax = northeast.x.toFixed(4);
-        ymax = northeast.y.toFixed(4);
     }
 
     if (gdal) {
-        if (lngLat) {
-            formattedBounds = xmin+','+ymin+','+xmax+','+ymax;
+        if (lngLatOrder) {
+            formattedBounds = xmin+','+ymin+','+xmax+','+ymax; // lng,lat,lng,lat
         } else {
-            formattedBounds = ymin+','+xmin+','+ymax+','+xmax;
+            formattedBounds = ymin+','+xmin+','+ymax+','+xmax; // lat,lng,lat,lng
         }
     } else {
-        if (lngLat) {
-            formattedBounds = xmin+' '+ymin+' '+xmax+' '+ymax;
+        if (lngLatOrder) {
+            formattedBounds = xmin+' '+ymin+' '+xmax+' '+ymax; // lng lat lng lat
         } else {
-            formattedBounds = ymin+' '+xmin+' '+ymax+' '+xmax;
+            formattedBounds = ymin+' '+xmin+' '+ymax+' '+xmax; // lat lng lat lng
         }
     }
-    return formattedBounds
+    
+    return formattedBounds;
 }
 
 function formatTile(point,zoom) {
@@ -407,40 +435,54 @@ function formatTile(point,zoom) {
 }
 
 function formatPoint(point, proj) {
-    const gdal = $("input[name='gdal-checkbox']").prop('checked');
-    const lngLat = $("input[name='coord-order']").prop('checked');
+    // Use default values if form elements are not initialized yet
+    const gdal = $("input[name='gdal-checkbox']").prop('checked') || false;
+    const lngLatOrder = $("input[name='coord-order']:checked").val() === 'lng-lat';
 
     let formattedPoint = '';
-    let x, y; // Declare x and y here to make them available throughout the function
+    let x, y;
 
     if (proj == '4326') {
-        x = point.lng.toFixed(6); // Assign value, don't declare
-        y = point.lat.toFixed(6); // Assign value, don't declare
+        x = point.lng.toFixed(6);
+        y = point.lat.toFixed(6);
     } else {
-        let proj_to_use = null;
-        if (typeof(projdefs[proj]) !== 'undefined') {
-            proj_to_use = projdefs[proj];
-        } else {
-            projdefs[proj] = new L.Proj.CRS(proj, proj4defs[proj][1]);
-            proj_to_use = projdefs[proj];
+        try {
+            let proj_to_use = null;
+            if (typeof(projdefs[proj]) !== 'undefined') {
+                proj_to_use = projdefs[proj];
+            } else if (proj4defs && proj4defs[proj]) {
+                projdefs[proj] = new L.Proj.CRS(proj, proj4defs[proj][1]);
+                proj_to_use = projdefs[proj];
+            } else {
+                // Fallback to 4326 if projection not available
+                x = point.lng.toFixed(6);
+                y = point.lat.toFixed(6);
+            }
+            
+            if (proj_to_use) {
+                point = proj_to_use.project(point);
+                x = point.x.toFixed(4);
+                y = point.y.toFixed(4);
+            }
+        } catch (error) {
+            console.warn('Projection error, falling back to 4326:', error);
+            // Fallback to 4326
+            x = point.lng.toFixed(6);
+            y = point.lat.toFixed(6);
         }
-        point = proj_to_use.project(point);
-        x = point.x.toFixed(4); // Assign value
-        y = point.y.toFixed(4); // Assign value
     }
 
-    // FIX: Changed "formattedBounds" to the correct variable "formattedPoint"
     if (gdal) {
-        if (lngLat) {
-            formattedPoint = x + ',' + y;
+        if (lngLatOrder) {
+            formattedPoint = x + ',' + y; // lng,lat
         } else {
-            formattedPoint = y + ',' + x;
+            formattedPoint = y + ',' + x; // lat,lng
         }
     } else {
-        if (lngLat) {
-            formattedPoint = x + ' ' + y;
+        if (lngLatOrder) {
+            formattedPoint = x + ' ' + y; // lng lat
         } else {
-            formattedPoint = y + ' ' + x;
+            formattedPoint = y + ' ' + x; // lat lng
         }
     }
     return formattedPoint;
@@ -458,7 +500,32 @@ function validateStringAsBounds(bounds) {
              parseFloat(splitBounds[1]) < parseFloat(splitBounds[3])))
 }
 
+function getFormattedBox(format) {
+    const b = bounds.getBounds();
+    if (!b.isValid()) return "Draw a box first.";
+
+    const sw = b.getSouthWest();
+    const ne = b.getNorthEast();
+    const xmin = sw.lng;
+    const ymin = sw.lat;
+    const xmax = ne.lng;
+    const ymax = ne.lat;
+
+    switch (format) {
+        case 'wkt':
+            return `POLYGON((${xmin} ${ymin}, ${xmax} ${ymin}, ${xmax} ${ymax}, ${xmin} ${ymax}, ${xmin} ${ymin}))`;
+        case 'geojson-bbox':
+            return `[${xmin}, ${ymin}, ${xmax}, ${ymax}]`;
+        case 'leaflet':
+            return `[[${ymin}, ${xmin}], [${ymax}, ${xmax}]]`;
+        default:
+            return "Unknown format.";
+    }
+}
+
 $(function() { // Modern equivalent of $(document).ready
+    console.log('BBox Finder: Starting initialization...');
+    
     /*
     **
     ** make sure all textarea inputs
@@ -474,50 +541,214 @@ $(function() { // Modern equivalent of $(document).ready
     // We will put the token in the tile layer URL.
 
     // Initialize the map using standard Leaflet
-    // Initialize the map using standard Leaflet
+    console.log('BBox Finder: Initializing map...');
     map = L.map('map').setView([0, 0], 3);
 
     // Add the tile layer using a modern Mapbox style URL and your token
-    L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    const streetLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 18,
         id: 'mapbox/streets-v11',
         tileSize: 512,
         zoomOffset: -1,
         accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3YwNnZmMTVkcDJrcHVtdzdxbmZwOSJ9.sL9lIQQbsyg3VQ4kkV_yZQ'
-    }).addTo(map);
+    });
+
+    // Add satellite layer
+    const satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+        attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 18,
+        id: 'mapbox/satellite-v9',
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3YwNnZmMTVkcDJrcHVtdzdxbmZwOSJ9.sL9lIQQbsyg3VQ4kkV_yZQ'
+    });
+
+    // Start with street view
+    streetLayer.addTo(map);
+    let currentLayer = 'street';
+    
+    console.log('BBox Finder: Map and tile layer added');
+
+    // Add help content to left sidebar
+    $('#lsidebar textarea').val(`BBox Finder Help
+
+This tool helps you find bounding boxes for geographic areas.
+
+QUICK FEATURES:
+• Type EPSG codes (27700, 4326, etc.) and press Enter to change projections
+• Paste GeoJSON, WKT, or bbox coordinates in "Enter Coordinates" 
+• Right-click coordinates to copy them instantly
+• Search locations using the search box (top-left)
+• Toggle satellite view with 🛰️ button
+• Switch coordinate order: Lng,Lat ↔ Lat,Lng
+• Enable GDAL format for comma-separated coordinates
+
+HOW TO USE:
+1. Use the drawing tools to draw shapes on the map
+2. Coordinates appear at the bottom automatically
+3. Use coordinate format options to change display
+4. Copy coordinates using the copy buttons
+
+DRAWING TOOLS:
+- Rectangle: Draw rectangular bounding boxes
+- Circle: Draw circular areas  
+- Polygon: Draw custom polygons
+- Polyline: Draw lines
+- Marker: Place point markers
+
+COORDINATE FORMATS:
+- Lng,Lat vs Lat,Lng: Change coordinate order
+- GDAL format: Use comma separators instead of spaces
+- Multiple projections: Change EPSG code for different coordinate systems
+
+SEARCH & NAVIGATION:
+- Search box: Find any location worldwide
+- My location: GPS positioning with IP fallback
+- Satellite toggle: Switch between street and satellite imagery
+
+PASTE DATA:
+Click "Enter Coordinates" to paste:
+• GeoJSON features and geometries
+• WKT (Well-Known Text) geometries  
+• Bounding box coordinates (xmin,ymin,xmax,ymax)
+• ogrinfo extent output
+
+The map supports multiple projections - change the EPSG code and press Enter.`)
 
     // Force the map to redraw itself after the page has loaded.
     setTimeout(function() {
         map.invalidateSize();
+        console.log('BBox Finder: Map size invalidated');
     }, 100);
 
-    /* --- TEMPORARILY DISABLED FOR TESTING ---
+    // --- Add Geosearch control after map initialization ---
+    // Wait longer to ensure all libraries are fully loaded
+    setTimeout(function() {
+        console.log('BBox Finder: Attempting to initialize GeoSearch...');
+        
+        // Check if we should skip GeoSearch (can be controlled via URL parameter)
+        const urlParams = new URLSearchParams(window.location.search);
+        const skipSearch = urlParams.get('nosearch') === 'true';
+        
+        if (skipSearch) {
+            console.log('GeoSearch disabled via URL parameter (?nosearch=true)');
+            return;
+        }
+        
+        // First, let's see what's actually available
+        console.log('Available objects:', {
+            GeoSearch: typeof GeoSearch,
+            windowGeoSearch: typeof window.GeoSearch,
+            leafletVersion: L.version
+        });
+        
+        try {
+            // Check if map is properly initialized first
+            if (!map || !map.getContainer()) {
+                console.warn('Map not properly initialized, skipping GeoSearch');
+                return;
+            }
+            
+            // Simple initialization test first
+            if (typeof GeoSearch === 'undefined') {
+                throw new Error('GeoSearch library not loaded');
+            }
+            
+            // Try the most basic initialization possible
+            console.log('Trying basic GeoSearch initialization...');
+            const provider = new GeoSearch.OpenStreetMapProvider();
+            const searchControl = new GeoSearch.GeoSearchControl({
+                provider: provider
+            });
+            
+            // Test if the control is valid before adding
+            if (!searchControl || typeof searchControl.addTo !== 'function') {
+                throw new Error('Invalid search control created');
+            }
+            
+            map.addControl(searchControl);
+            console.log('BBox Finder: GeoSearch control added successfully');
+            
+            // Add event listeners for search results
+            map.on('geosearch/showlocation', function(result) {
+                console.log('Search result found:', result);
+            });
+            
+        } catch (error) {
+            console.error('GeoSearch initialization failed:', error);
+            console.log('The application will continue without search functionality.');
+            console.log('You can navigate the map manually using mouse/touch controls.');
+            console.log('To retry with different settings, add ?nosearch=true to URL to disable completely.');
+            
+            // Show fallback manual search
+            $('#manual-search').show();
+            console.log('Manual search input enabled as fallback');
+        }
+    }, 1000);
 
-    rsidebar = L.control.sidebar('rsidebar', {
-        position: 'right',
-        closeButton: true
-    });
-    rsidebar.on( "sidebar-show", function(){
-        $("#map .leaflet-tile-loaded").addClass( "blurred" );
-    });
-    rsidebar.on( "sidebar-hide", function(){
-        $('#map .leaflet-tile-loaded').removeClass('blurred');
-        $('#map .leaflet-tile-loaded').addClass('unblurred');
-        setTimeout( function(){
-            $('#map .leaflet-tile-loaded').removeClass('unblurred');
-        },7000);
-    });
-
-    map.addControl(rsidebar);
-
-
-    lsidebar = L.control.sidebar('lsidebar', {
-        position: 'left'
-    });
-
-    map.addControl(lsidebar);
-    --- END OF TEMPORARILY DISABLED BLOCK --- */
+    // Fallback manual search functionality
+    function setupManualSearch() {
+        $('#search-btn').on('click', function() {
+            performManualSearch();
+        });
+        
+        $('#location-search').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                performManualSearch();
+            }
+        });
+    }
+    
+    function performManualSearch() {
+        const query = $('#location-search').val().trim();
+        if (!query) {
+            alert('Please enter a location to search for');
+            return;
+        }
+        
+        console.log('Manual search for:', query);
+        
+        // Use Nominatim API directly
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`;
+        
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const lat = parseFloat(result.lat);
+                    const lon = parseFloat(result.lon);
+                    
+                    console.log('Search result:', result);
+                    
+                    // Move map to location
+                    map.setView([lat, lon], 15);
+                    
+                    // Add a temporary marker
+                    const marker = L.marker([lat, lon]).addTo(map);
+                    marker.bindPopup(`<b>${result.display_name}</b>`).openPopup();
+                    
+                    // Remove marker after 10 seconds
+                    setTimeout(() => {
+                        map.removeLayer(marker);
+                    }, 10000);
+                    
+                    // Clear search input
+                    $('#location-search').val('');
+                    
+                } else {
+                    alert('Location not found. Please try a different search term.');
+                }
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                alert('Search failed. Please check your internet connection and try again.');
+            });
+    }
+    
+    // Setup manual search
+    setupManualSearch();
 
     // Add in a crosshair for the map
     const crosshairIcon = L.icon({
@@ -531,14 +762,25 @@ $(function() { // Modern equivalent of $(document).ready
     // Initialize the FeatureGroup to store editable layers
     drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
+    console.log('BBox Finder: FeatureGroup added to map');
 
     // Initialize the draw control and pass it the FeatureGroup of editable layers
     drawControl = new L.Control.Draw({
+        draw: {
+            polyline: true,
+            polygon: true,
+            circle: true,
+            rectangle: true,
+            marker: true,
+            circlemarker: true
+        },
         edit: {
-            featureGroup: drawnItems
+            featureGroup: drawnItems,
+            remove: true
         }
     });
     map.addControl(drawControl);
+    console.log('BBox Finder: Draw control added to map');
 
     /*
     **
@@ -549,7 +791,7 @@ $(function() { // Modern equivalent of $(document).ready
     **
     */
     let startBounds = new L.LatLngBounds([0.0,0.0],[0.0,0.0]);
-    const bounds = new L.Rectangle(startBounds,
+    bounds = new L.Rectangle(startBounds,
         {
             fill : false,
             opacity : 1.0,
@@ -569,36 +811,75 @@ $(function() { // Modern equivalent of $(document).ready
         const ymax = northeast.lat.toFixed(6);
         location.hash = ymin+','+xmin+','+ymax+','+xmax;
     });
-    map.addLayer(bounds)
+    map.addLayer(bounds);
+    console.log('BBox Finder: Bounds rectangle added to map');
     map.on('draw:created', function (e) {
         drawnItems.addLayer(e.layer);
-        bounds.setBounds(drawnItems.getBounds())
-        $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
-        $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
-        if (!e.geojson &&
-            !((drawnItems.getLayers().length == 1) && (drawnItems.getLayers()[0] instanceof L.Marker))) {
-            map.fitBounds(bounds.getBounds());
-        } else {
-            if ((drawnItems.getLayers().length == 1) && (drawnItems.getLayers()[0] instanceof L.Marker)) {
-                map.panTo(drawnItems.getLayers()[0].getLatLng());
+        
+        // Try to get bounds directly from the layer first
+        let layerBounds = null;
+        
+        try {
+            if (e.layer.getBounds) {
+                layerBounds = e.layer.getBounds();
+            } else if (e.layer.getLatLng) {
+                // For markers/circles, create bounds around the point
+                const center = e.layer.getLatLng();
+                const radius = e.layer.getRadius ? e.layer.getRadius() / 111319.9 : 0.001; // Convert to degrees
+                layerBounds = L.latLngBounds(
+                    [center.lat - radius, center.lng - radius],
+                    [center.lat + radius, center.lng + radius]
+                );
+            } else {
+                // Fallback to drawnItems bounds
+                layerBounds = drawnItems.getBounds();
             }
+            
+            if (layerBounds && layerBounds.isValid()) {
+                // Update the display directly without using the bounds rectangle
+                const wgs84Coords = formatBounds(layerBounds, '4326');
+                const projCoords = formatBounds(layerBounds, currentproj);
+                
+                $('#boxbounds').text(wgs84Coords);
+                $('#boxboundsmerc').text(projCoords);
+                
+                // Also update the bounds rectangle for visual feedback
+                bounds.setBounds(layerBounds);
+                
+                // Handle map fitting for non-marker shapes
+                if (e.layerType !== 'marker' && e.layerType !== 'circlemarker') {
+                    map.fitBounds(layerBounds);
+                }
+            } else {
+                $('#boxbounds').text('Could not calculate bounds');
+                $('#boxboundsmerc').text('Could not calculate bounds');
+            }
+            
+        } catch (error) {
+            console.error('Error in draw:created handler:', error);
+            $('#boxbounds').text('Error: ' + error.message);
+            $('#boxboundsmerc').text('Error: ' + error.message);
         }
     });
 
     map.on('draw:deleted', function (e) {
+        console.log('BBox Finder: Draw deleted event fired', e);
         e.layers.eachLayer(function (l) {
             drawnItems.removeLayer(l);
         });
+        
         if (drawnItems.getLayers().length > 0 &&
             !((drawnItems.getLayers().length == 1) && (drawnItems.getLayers()[0] instanceof L.Marker))) {
-            bounds.setBounds(drawnItems.getBounds())
+            bounds.setBounds(drawnItems.getBounds());
             $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
             $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
             map.fitBounds(bounds.getBounds());
         } else {
+            // No layers left, clear the bounding box display
+            $('#boxbounds').text('No bounding box drawn');
+            $('#boxboundsmerc').text('No bounding box drawn');
+            // Reset bounds to empty
             bounds.setBounds(new L.LatLngBounds([0.0,0.0],[0.0,0.0]));
-            $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
-            $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
             if (drawnItems.getLayers().length == 1) {
                 map.panTo(drawnItems.getLayers()[0].getLatLng());
             }
@@ -606,28 +887,44 @@ $(function() { // Modern equivalent of $(document).ready
     });
 
     map.on('draw:edited', function (e) {
-        bounds.setBounds(drawnItems.getBounds())
-        $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
-        $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
-        map.fitBounds(bounds.getBounds());
+        console.log('BBox Finder: Draw edited event fired', e);
+        if (drawnItems.getLayers().length > 0) {
+            bounds.setBounds(drawnItems.getBounds());
+            $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
+            $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
+            map.fitBounds(bounds.getBounds());
+        }
     });
 
     function display() {
         $('.zoomlevel').text(map.getZoom().toString());
-        $('.tilelevel').text(formatTile(new L.LatLng(0, 0),map.getZoom()));
+        $('.tilelevel').text(formatTile(map.getCenter(), map.getZoom()));
         $('#mapbounds').text(formatBounds(map.getBounds(),'4326'));
         $('#mapboundsmerc').text(formatBounds(map.getBounds(),currentproj));
         $('#center').text(formatPoint(map.getCenter(),'4326'));
         $('#centermerc').text(formatPoint(map.getCenter(),currentproj));
-        $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
-        $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
-        $('#mousepos').text(formatPoint(new L.LatLng(0, 0),'4326'));
-        $('#mouseposmerc').text(formatPoint(new L.LatLng(0, 0),currentproj));
+        
+        // Only set "No bounding box drawn" if there are no drawn items
+        // This prevents overriding existing bounding box coordinates
+        if (drawnItems.getLayers().length === 0) {
+            $('#boxbounds').text('No bounding box drawn');
+            $('#boxboundsmerc').text('No bounding box drawn');
+        }
+        // If there are drawn items, leave the existing coordinates alone
+        
+        $('#mousepos').text(formatPoint(map.getCenter(),'4326')); // Start with center
+        $('#mouseposmerc').text(formatPoint(map.getCenter(),currentproj));
     }
-    display();
+    
+    // Call display after a short delay to ensure map is fully initialized
+    setTimeout(function() {
+        display();
+        console.log('BBox Finder: Initial coordinate display updated');
+    }, 200);
 
     map.on('move', function(e) {
         crosshair.setLatLng(map.getCenter());
+        display();
     });
 
     map.on('mousemove', function(e) {
@@ -636,16 +933,29 @@ $(function() { // Modern equivalent of $(document).ready
         $('.tilelevel').text(formatTile(e.latlng,map.getZoom()));
         $('#mousepos').text(formatPoint(e.latlng,'4326'));
         $('#mouseposmerc').text(formatPoint(e.latlng,currentproj));
+        
+        // Update map and center coordinates but preserve bounding box coordinates
         $('#mapbounds').text(formatBounds(map.getBounds(),'4326'));
         $('#mapboundsmerc').text(formatBounds(map.getBounds(),currentproj));
         $('#center').text(formatPoint(map.getCenter(),'4326'));
         $('#centermerc').text(formatPoint(map.getCenter(),currentproj));
     });
+    
     map.on('zoomend', function(e) {
         $('.tilelevel').text(formatTile(currentmouse,map.getZoom()));
         $('.zoomlevel').text(map.getZoom().toString());
         $('#mapbounds').text(formatBounds(map.getBounds(),'4326'));
         $('#mapboundsmerc').text(formatBounds(map.getBounds(),currentproj));
+        
+        // Update other coordinates but preserve bounding box if it exists
+        $('#center').text(formatPoint(map.getCenter(),'4326'));
+        $('#centermerc').text(formatPoint(map.getCenter(),currentproj));
+        
+        // Only reset bounding box if no items are drawn
+        if (drawnItems.getLayers().length === 0) {
+            $('#boxbounds').text('No bounding box drawn');
+            $('#boxboundsmerc').text('No bounding box drawn');
+        }
     });
 
     // --- START: Modern Clipboard API Implementation ---
@@ -690,27 +1000,194 @@ $(function() { // Modern equivalent of $(document).ready
     });
     // --- END: Modern Clipboard API Implementation ---
 
+    // --- Handlers for new output format buttons ---
+    $('#copy-wkt').on('click', function() {
+        const output = getFormattedBox('wkt');
+        navigator.clipboard.writeText(output).then(() => alert('WKT copied!'));
+    });
+
+    $('#copy-geojson-bbox').on('click', function() {
+        const output = getFormattedBox('geojson-bbox');
+        navigator.clipboard.writeText(output).then(() => alert('GeoJSON BBox copied!'));
+    });
+
+    $('#copy-leaflet-array').on('click', function() {
+        const output = getFormattedBox('leaflet');
+        navigator.clipboard.writeText(output).then(() => alert('Leaflet array copied!'));
+    });
 
     // handle create-geojson click events
-    $('#create-geojson').click(function(){
-        rsidebar.toggle();
-        $('#create-geojson a').toggleClass('enabled');
-    });
-    // close right sidebar with leaflet's "X"
-    $('.right a.close').click(function(){
-        $('#create-geojson a').toggleClass('enabled');
+    $('#create-geojson button').click(function(){
+        const isEnabled = $('#create-geojson button').hasClass('enabled');
+        if (isEnabled) {
+            $('#create-geojson button').removeClass('enabled');
+            $('#rsidebar').hide();
+        } else {
+            $('#create-geojson button').addClass('enabled');
+            $('#rsidebar').show();
+        }
     });
 
     // handle help button click events
-    $('#help').click(function(){
-        lsidebar.toggle();
-        $('#help button').toggleClass('enabled');
-    });
-    // close left sidebar with leaflet's "X"
-    $('.left a.close').click(function(){
-        $('#help button').toggleClass('enabled');
+    $('#help button').click(function(){
+        const isEnabled = $('#help button').hasClass('enabled');
+        if (isEnabled) {
+            $('#help button').removeClass('enabled');
+            $('#lsidebar').hide();
+        } else {
+            $('#help button').addClass('enabled');
+            $('#lsidebar').show();
+        }
     });
 
+    // handle geolocation click events
+    $('#geolocation button').click( function(){
+        $('#geolocation button').addClass('active');
+        
+        // Check if geolocation is supported
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by this browser.');
+            $('#geolocation button').removeClass('active');
+            return;
+        }
+        
+        // Check if we're on HTTPS (required for geolocation in many browsers)
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            alert('Geolocation requires HTTPS. Please access this site over HTTPS for location features to work.');
+            $('#geolocation button').removeClass('active');
+            return;
+        }
+        
+        // First try to get permission status if available
+        if (navigator.permissions) {
+            navigator.permissions.query({name: 'geolocation'}).then(function(result) {
+                if (result.state === 'denied') {
+                    alert('Location access is blocked. Please enable location permissions in your browser settings and try again.');
+                    $('#geolocation button').removeClass('active');
+                    return;
+                }
+                // If permission is granted or prompt, proceed with geolocation
+                attemptGeolocation();
+            }).catch(function() {
+                // If permissions API not available, just try geolocation
+                attemptGeolocation();
+            });
+        } else {
+            // If permissions API not available, just try geolocation
+            attemptGeolocation();
+        }
+        
+        function attemptGeolocation() {
+            console.log('Attempting geolocation...');
+            
+            // Use Leaflet's built-in locate method with enhanced options
+            map.locate({
+                setView: true, 
+                maxZoom: 16,
+                timeout: 15000, // Increased timeout
+                maximumAge: 300000, // Accept cached position up to 5 minutes old
+                enableHighAccuracy: false // Start with low accuracy for faster response
+            });
+            
+            // Remove active class after timeout
+            setTimeout(function() {
+                $('#geolocation button').removeClass('active');
+            }, 15000);
+        }
+    });
+    
+    // Add geolocation event handlers
+    map.on('locationfound', function(e) {
+        console.log('Location found:', e.latlng);
+        
+        // Add a temporary marker at the user's location
+        const locationMarker = L.marker(e.latlng).addTo(map);
+        locationMarker.bindPopup(`You are here!<br/>Accuracy: ${Math.round(e.accuracy)} meters`).openPopup();
+        
+        // Remove the marker after 10 seconds
+        setTimeout(() => {
+            map.removeLayer(locationMarker);
+        }, 10000);
+        
+        $('#geolocation button').removeClass('active');
+    });
+    
+    // Fallback IP-based geolocation function
+    function tryIPGeolocation() {
+        console.log('Trying IP-based geolocation fallback...');
+        
+        // Try ipapi.co first (no API key required)
+        fetch('https://ipapi.co/json/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.latitude && data.longitude) {
+                    console.log('IP geolocation successful:', data);
+                    const latlng = L.latLng(data.latitude, data.longitude);
+                    map.setView(latlng, 10);
+                    
+                    const locationMarker = L.marker(latlng).addTo(map);
+                    locationMarker.bindPopup(`Approximate location based on IP<br/>City: ${data.city}, ${data.country_name}<br/>Note: This is less accurate than GPS`).openPopup();
+                    
+                    setTimeout(() => {
+                        map.removeLayer(locationMarker);
+                    }, 15000);
+                    
+                    $('#geolocation button').removeClass('active');
+                } else {
+                    throw new Error('No location data from IP service');
+                }
+            })
+            .catch(error => {
+                console.error('IP geolocation failed:', error);
+                // Try alternative service
+                fetch('https://api.ipify.org?format=json')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Use a simpler approach - just show a message
+                        alert('Could not determine your location automatically. Please use the search box in the top-left to find a location, or navigate the map manually.');
+                        $('#geolocation button').removeClass('active');
+                    })
+                    .catch(() => {
+                        alert('Location services are not available. Please use the search box in the top-left to find a location, or navigate the map manually.');
+                        $('#geolocation button').removeClass('active');
+                    });
+            });
+    }
+    
+    map.on('locationerror', function(e) {
+        console.error('Location error details:', {
+            code: e.code,
+            message: e.message,
+            type: e.type
+        });
+        
+        let errorMessage = 'GPS location failed. ';
+        
+        switch(e.code) {
+            case 1: // PERMISSION_DENIED
+                errorMessage += 'Location access was denied. Please enable location permissions in your browser settings.';
+                $('#geolocation button').removeClass('active');
+                alert(errorMessage);
+                break;
+            case 2: // POSITION_UNAVAILABLE
+                errorMessage += 'GPS signal unavailable. Trying approximate location...';
+                console.log(errorMessage);
+                // Try IP-based geolocation as fallback
+                tryIPGeolocation();
+                break;
+            case 3: // TIMEOUT
+                errorMessage += 'GPS request timed out. Trying approximate location...';
+                console.log(errorMessage);
+                // Try IP-based geolocation as fallback
+                tryIPGeolocation();
+                break;
+            default:
+                errorMessage += 'An unknown error occurred. Trying approximate location...';
+                console.log(errorMessage + ' Error: ' + e.message);
+                // Try IP-based geolocation as fallback
+                tryIPGeolocation();
+        }
+    });
 
     // toggle #info-box
     $('#info-toggle-button').click(function(){
@@ -732,38 +1209,43 @@ $(function() { // Modern equivalent of $(document).ready
         if(active){
             //do nothing
         } else {
-            $('#wgslabel, #projlabel').toggleClass('active');
+            $('#wgslabel, #projlabel').toggleClass('active');   
             $('#wgscoords, #projcoords').toggle();
         }
 
 
     });
 
-    // handle geolocation click events
-    $('#geolocation').click( function(){
-        map.locate({setView: true, maxZoom: 8});
-        $('#geolocation a').toggleClass('active');
-	    $('#geolocation a').toggleClass('active', 350);
-    });
-
-
-
     $('button#add').on( 'click', function(){
-        const sniffer = FormatSniffer( { data :  $('div#rsidebar textarea').val() } );
+        const sniffer = FormatSniffer( { data :  $('#rsidebar textarea').val() } );
         const is_valid = sniffer.sniff();
         if (is_valid) {
-            rsidebar.hide();
-	        $('#create-geojson a').toggleClass('enabled');
+            $('#create-geojson button').toggleClass('enabled');
             map.fitBounds(bounds.getBounds());
         }
     });
     $('button#clear').on( 'click', function(){
-        $('div#rsidebar textarea').val('');
+        $('#rsidebar textarea').val('');
     });
 
     // Add in a layer to overlay the tile bounds of the google grid
-    const tiles = new L.tileLayer('/images/tile.png', {});
-    addLayer(tiles, '', "Google tile boundaries", 10, false)
+    const tiles = new L.tileLayer('images/tile.png', {});
+    addLayer(tiles, '', "Google tile boundaries", 10, false);
+
+    // Add satellite view toggle
+    addLayer(null, '🛰️', "Toggle satellite view", 11, false, function() {
+        if (currentLayer === 'street') {
+            map.removeLayer(streetLayer);
+            map.addLayer(satelliteLayer);
+            currentLayer = 'satellite';
+            console.log('Switched to satellite view');
+        } else {
+            map.removeLayer(satelliteLayer);
+            map.addLayer(streetLayer);
+            currentLayer = 'street';
+            console.log('Switched to street view');
+        }
+    });
 
     // Modernized data loading with fetch
     fetch("proj/proj4defs.json")
@@ -796,6 +1278,68 @@ $(function() { // Modern equivalent of $(document).ready
             $('#projection').on('click', function() {
                 $("#projection").autocomplete("search", currentproj);
             });
+            
+            // Add Enter key and blur event handlers for manual EPSG input
+            $('#projection').on('keypress blur', function(e) {
+                if (e.type === 'keypress' && e.which !== 13) {
+                    return; // Only process Enter key for keypress events
+                }
+                
+                const inputValue = $(this).val().trim();
+                if (inputValue && inputValue !== currentproj) {
+                    console.log('Attempting to change projection to:', inputValue);
+                    
+                    // Check if it's a known projection
+                    if (proj4defs && proj4defs[inputValue]) {
+                        console.log('Found projection in database:', proj4defs[inputValue][0]);
+                        $('#projlabel').text(`EPSG:${inputValue} - ${proj4defs[inputValue][0]}`);
+                        currentproj = inputValue;
+                        
+                        // Update all coordinate displays
+                        $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
+                        $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
+                        $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
+                        $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
+                        
+                        // Update bounding box coordinates if they exist
+                        if (drawnItems.getLayers().length > 0) {
+                            const layerBounds = drawnItems.getBounds();
+                            if (layerBounds.isValid()) {
+                                $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
+                            }
+                        }
+                        
+                        console.log('Projection changed successfully to:', inputValue);
+                    } else {
+                        // Unknown projection - show warning but still try to use it
+                        console.warn('Unknown projection:', inputValue);
+                        $('#projlabel').text(`EPSG:${inputValue} - Unknown projection`);
+                        currentproj = inputValue;
+                        
+                        // Try to update coordinates anyway (might work with proj4js)
+                        try {
+                            $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
+                            $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
+                            $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
+                            $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
+                            
+                            if (drawnItems.getLayers().length > 0) {
+                                const layerBounds = drawnItems.getBounds();
+                                if (layerBounds.isValid()) {
+                                    $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
+                                }
+                            }
+                            console.log('Unknown projection applied successfully');
+                        } catch (error) {
+                            console.error('Failed to apply unknown projection:', error);
+                            alert(`EPSG:${inputValue} is not supported. Please use a supported projection code like 3857, 4326, or 27700.`);
+                            // Revert to previous projection
+                            $(this).val(currentproj);
+                        }
+                    }
+                }
+            });
+            
             // Set labels for output... left always 4326, right is proj selection
             $('#wgslabel').text('EPSG:4326 - ' + proj4defs['4326'][0]);
             $('#projlabel').text('EPSG:3857 - ' + proj4defs['3857'][0]);
@@ -805,25 +1349,36 @@ $(function() { // Modern equivalent of $(document).ready
         });
 
     const initialBBox = location.hash ? location.hash.replace(/^#/,'') : null;
-    if (initialBBox) {
-        if (validateStringAsBounds(initialBBox)) {
-            const splitBounds = initialBBox.split(',');
-            startBounds = new L.LatLngBounds([splitBounds[0],splitBounds[1]],
-                                             [splitBounds[2],splitBounds[3]]);
-            const lyr = new L.Rectangle( startBounds );
-            const evt = {
-                layer : lyr,
-                layerType : "polygon",
-            }
-            map.fire( 'draw:created', evt );
-        } else {
-            bounds.setBounds(bounds.getBounds());
-        }
-    } else {
-        bounds.setBounds(bounds.getBounds());
+    if (initialBBox && validateStringAsBounds(initialBBox)) {
+        // Only load bounding box from URL hash if user explicitly wants it
+        // (This feature is disabled by default to avoid automatic loading)
+        console.log('BBox Finder: URL hash detected but automatic loading is disabled');
     }
+    
+    // Initialize bounds with empty rectangle (not visible)
+    // bounds.setBounds() is not called here to avoid automatic bounding box display
 
-    $("input").click(function() {
-        display();
-    });
+    // Re-render display on any format change to update all coordinates
+    $("#coord-format").on('change', function() {
+        console.log('Coordinate format changed');
+        
+        // Update all displayed coordinates with new format
+        $('#mapbounds').text(formatBounds(map.getBounds(),'4326'));
+        $('#mapboundsmerc').text(formatBounds(map.getBounds(),currentproj));
+        $('#center').text(formatPoint(map.getCenter(),'4326'));
+        $('#centermerc').text(formatPoint(map.getCenter(),currentproj));
+        $('#mousepos').text(formatPoint(currentmouse,'4326'));
+        $('#mouseposmerc').text(formatPoint(currentmouse,currentproj));
+        
+        // Update bounding box coordinates if they exist
+        if (drawnItems.getLayers().length > 0) {
+            const layerBounds = drawnItems.getBounds();
+            if (layerBounds.isValid()) {
+                $('#boxbounds').text(formatBounds(layerBounds,'4326'));
+                $('#boxboundsmerc').text(formatBounds(layerBounds,currentproj));
+            }
+                  }
+      });
+
+    console.log('BBox Finder: All event handlers attached');
 });
