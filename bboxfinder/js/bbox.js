@@ -551,7 +551,7 @@ $(function() { // Modern equivalent of $(document).ready
         id: 'mapbox/streets-v11',
         tileSize: 512,
         zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3YwNnZmMTVkcDJrcHVtdzdxbmZwOSJ9.sL9lIQQbsyg3VQ4kkV_yZQ'
+        accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3lxM2R3MTcybzJpcHdhanU1dTB5dCJ9.vBNwuEDJXfsxT-lfLNCbWA'
     });
 
     // Add satellite layer
@@ -561,7 +561,7 @@ $(function() { // Modern equivalent of $(document).ready
         id: 'mapbox/satellite-v9',
         tileSize: 512,
         zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3YwNnZmMTVkcDJrcHVtdzdxbmZwOSJ9.sL9lIQQbsyg3VQ4kkV_yZQ'
+        accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3lxM2R3MTcybzJpcHdhanU1dTB5dCJ9.vBNwuEDJXfsxT-lfLNCbWA'
     });
 
     // Start with street view
