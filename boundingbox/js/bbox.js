@@ -896,6 +896,7 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
         if (drawnItems.getLayers().length > 0) {
             bounds.setBounds(drawnItems.getBounds());
             activeBounds = drawnItems.getBounds().clone();
+            $('#download-png').show();
             $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
             $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
             map.fitBounds(bounds.getBounds());
