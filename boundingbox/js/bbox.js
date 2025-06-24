@@ -9,6 +9,7 @@
 
 let map, rsidebar, lsidebar, drawControl, drawnItems = null;
 let bounds = null; // Global bounds variable
+let activeBounds = null; // To store the bounds for PNG download
 
 // Where we keep the big list of proj defs from the server
 let proj4defs = null;
@@ -845,6 +846,8 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
                 
                 // Also update the bounds rectangle for visual feedback
                 bounds.setBounds(layerBounds);
+                activeBounds = layerBounds.clone();
+                $('#download-png').show();
                 
                 // Handle map fitting for non-marker shapes
                 if (e.layerType !== 'marker' && e.layerType !== 'circlemarker') {
@@ -880,6 +883,8 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
             $('#boxboundsmerc').text('No bounding box drawn');
             // Reset bounds to empty
             bounds.setBounds(new L.LatLngBounds([0.0,0.0],[0.0,0.0]));
+            $('#download-png').hide();
+            activeBounds = null;
             if (drawnItems.getLayers().length == 1) {
                 map.panTo(drawnItems.getLayers()[0].getLatLng());
             }
@@ -890,6 +895,7 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
         console.log('BBox Finder: Draw edited event fired', e);
         if (drawnItems.getLayers().length > 0) {
             bounds.setBounds(drawnItems.getBounds());
+            activeBounds = drawnItems.getBounds().clone();
             $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
             $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
             map.fitBounds(bounds.getBounds());
@@ -1014,6 +1020,65 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
     $('#copy-leaflet-array').on('click', function() {
         const output = getFormattedBox('leaflet');
         navigator.clipboard.writeText(output).then(() => alert('Leaflet array copied!'));
+    });
+
+    $('#download-png').on('click', function() {
+        if (!activeBounds) {
+            alert("Please draw or select a bounding box first.");
+            return;
+        }
+    
+        // Temporarily hide map controls for a cleaner screenshot
+        $('.leaflet-control-container, #map-ui, #map-ui-proj').hide();
+    
+        html2canvas(document.getElementById('map'), {
+            useCORS: true, // Important for map tiles from other domains
+            logging: false
+        }).then(function(canvas) {
+            // Show controls again
+            $('.leaflet-control-container, #map-ui, #map-ui-proj').show();
+    
+            try {
+                // Get the pixel coordinates of the bounding box
+                const nw = map.latLngToContainerPoint(activeBounds.getNorthWest());
+                const se = map.latLngToContainerPoint(activeBounds.getSouthEast());
+    
+                const cropWidth = se.x - nw.x;
+                const cropHeight = se.y - nw.y;
+    
+                if (cropWidth <= 0 || cropHeight <= 0) {
+                    throw new Error("Invalid bounding box dimensions for capture.");
+                }
+    
+                // Create a new canvas to hold the cropped image
+                const croppedCanvas = document.createElement('canvas');
+                croppedCanvas.width = cropWidth;
+                croppedCanvas.height = cropHeight;
+                const croppedCtx = croppedCanvas.getContext('2d');
+    
+                // Crop the original canvas
+                croppedCtx.drawImage(canvas,
+                    nw.x, nw.y, // Start clipping from top-left of bounds
+                    cropWidth, cropHeight, // Dimensions of clipped area
+                    0, 0, // Place the clipped area at top-left of new canvas
+                    cropWidth, cropHeight // Dimensions of drawn area
+                );
+    
+                // Create a link to download the image
+                const link = document.createElement('a');
+                link.download = 'map_capture.png';
+                link.href = croppedCanvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                console.error('Error during canvas cropping:', error);
+                alert('Could not create image from the bounding box. Please ensure the box is visible on the map.');
+            }
+    
+        }).catch(function(error) {
+            console.error('html2canvas failed:', error);
+            $('.leaflet-control-container, #map-ui, #map-ui-proj').show();
+            alert('Could not capture map image. See browser console for more details.');
+        });
     });
 
     // handle create-geojson click events
