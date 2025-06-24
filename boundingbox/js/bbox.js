@@ -837,6 +837,8 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
             }
             
             if (layerBounds && layerBounds.isValid()) {
+                $('#download-png').show();
+
                 // Update the display directly without using the bounds rectangle
                 const wgs84Coords = formatBounds(layerBounds, '4326');
                 const projCoords = formatBounds(layerBounds, currentproj);
@@ -847,7 +849,6 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
                 // Also update the bounds rectangle for visual feedback
                 bounds.setBounds(layerBounds);
                 activeBounds = new L.LatLngBounds(layerBounds.getSouthWest(), layerBounds.getNorthEast());
-                $('#download-png').show();
                 
                 // Handle map fitting for non-marker shapes
                 if (e.layerType !== 'marker' && e.layerType !== 'circlemarker') {
@@ -894,10 +895,10 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
     map.on('draw:edited', function (e) {
         console.log('BBox Finder: Draw edited event fired', e);
         if (drawnItems.getLayers().length > 0) {
+            $('#download-png').show(); // Ensure button is visible after an edit
             bounds.setBounds(drawnItems.getBounds());
             const newBounds = drawnItems.getBounds();
             activeBounds = new L.LatLngBounds(newBounds.getSouthWest(), newBounds.getNorthEast());
-            $('#download-png').show(); // Ensure button is visible after an edit
             $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
             $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
             map.fitBounds(bounds.getBounds());
