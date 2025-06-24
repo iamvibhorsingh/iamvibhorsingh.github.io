@@ -8,7 +8,8 @@
 */
 
 let map, rsidebar, lsidebar, drawControl, drawnItems = null;
-let bounds = null; // Global bounds variable
+let bounds = null; // Global bounds variable for the visual black box
+let activeScreenshotLayer = null; // The specific layer to be used for the screenshot
 let activeBounds = null; // To store the bounds for PNG download
 
 // Where we keep the big list of proj defs from the server
@@ -815,93 +816,87 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
     map.addLayer(bounds);
     console.log('BBox Finder: Bounds rectangle added to map');
     map.on('draw:created', function (e) {
-        drawnItems.addLayer(e.layer);
-        
-        // Try to get bounds directly from the layer first
-        let layerBounds = null;
-        
-        try {
-            if (e.layer.getBounds) {
-                layerBounds = e.layer.getBounds();
-            } else if (e.layer.getLatLng) {
-                // For markers/circles, create bounds around the point
-                const center = e.layer.getLatLng();
-                const radius = e.layer.getRadius ? e.layer.getRadius() / 111319.9 : 0.001; // Convert to degrees
-                layerBounds = L.latLngBounds(
-                    [center.lat - radius, center.lng - radius],
-                    [center.lat + radius, center.lng + radius]
-                );
-            } else {
-                // Fallback to drawnItems bounds
-                layerBounds = drawnItems.getBounds();
-            }
-            
-            if (layerBounds && layerBounds.isValid()) {
-                $('#download-png').show();
+        const layer = e.layer;
+        drawnItems.addLayer(layer);
 
-                // Update the display directly without using the bounds rectangle
-                const wgs84Coords = formatBounds(layerBounds, '4326');
-                const projCoords = formatBounds(layerBounds, currentproj);
-                
-                $('#boxbounds').text(wgs84Coords);
-                $('#boxboundsmerc').text(projCoords);
-                
-                // Also update the bounds rectangle for visual feedback
-                bounds.setBounds(layerBounds);
-                activeBounds = new L.LatLngBounds(layerBounds.getSouthWest(), layerBounds.getNorthEast());
-                
-                // Handle map fitting for non-marker shapes
-                if (e.layerType !== 'marker' && e.layerType !== 'circlemarker') {
-                    map.fitBounds(layerBounds);
-                }
-            } else {
-                $('#boxbounds').text('Could not calculate bounds');
-                $('#boxboundsmerc').text('Could not calculate bounds');
-            }
+        // Only Rectangles and Polygons can become the active screenshot layer.
+        if (layer instanceof L.Rectangle || layer instanceof L.Polygon) {
+            activeScreenshotLayer = layer;
+            $('#download-png').show();
             
-        } catch (error) {
-            console.error('Error in draw:created handler:', error);
-            $('#boxbounds').text('Error: ' + error.message);
-            $('#boxboundsmerc').text('Error: ' + error.message);
+            try {
+                const screenshotBounds = activeScreenshotLayer.getBounds();
+                activeBounds = new L.LatLngBounds(screenshotBounds.getSouthWest(), screenshotBounds.getNorthEast());
+
+                bounds.setBounds(screenshotBounds);
+                $('#boxbounds').text(formatBounds(screenshotBounds, '4326'));
+                $('#boxboundsmerc').text(formatBounds(screenshotBounds, currentproj));
+                map.fitBounds(screenshotBounds);
+
+            } catch (error) {
+                console.error('Error in draw:created handler for box:', error);
+            }
         }
     });
 
     map.on('draw:deleted', function (e) {
-        console.log('BBox Finder: Draw deleted event fired', e);
+        let activeLayerWasDeleted = false;
         e.layers.eachLayer(function (l) {
+            if (l === activeScreenshotLayer) {
+                activeLayerWasDeleted = true;
+            }
             drawnItems.removeLayer(l);
         });
-        
-        if (drawnItems.getLayers().length > 0 &&
-            !((drawnItems.getLayers().length == 1) && (drawnItems.getLayers()[0] instanceof L.Marker))) {
-            bounds.setBounds(drawnItems.getBounds());
-            $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
-            $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
-            map.fitBounds(bounds.getBounds());
+    
+        if (activeLayerWasDeleted) {
+            activeScreenshotLayer = null; 
+            const remainingLayers = drawnItems.getLayers();
+
+            if (remainingLayers.length > 0) {
+                for (let i = remainingLayers.length - 1; i >= 0; i--) {
+                    if (remainingLayers[i] instanceof L.Rectangle || remainingLayers[i] instanceof L.Polygon) {
+                        activeScreenshotLayer = remainingLayers[i];
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (activeScreenshotLayer) {
+            const screenshotBounds = activeScreenshotLayer.getBounds();
+            activeBounds = new L.LatLngBounds(screenshotBounds.getSouthWest(), screenshotBounds.getNorthEast());
+            bounds.setBounds(screenshotBounds);
+            $('#boxbounds').text(formatBounds(screenshotBounds,'4326'));
+            $('#boxboundsmerc').text(formatBounds(screenshotBounds,currentproj));
+            map.fitBounds(screenshotBounds);
         } else {
-            // No layers left, clear the bounding box display
+            activeBounds = null;
+            $('#download-png').hide();
             $('#boxbounds').text('No bounding box drawn');
             $('#boxboundsmerc').text('No bounding box drawn');
-            // Reset bounds to empty
             bounds.setBounds(new L.LatLngBounds([0.0,0.0],[0.0,0.0]));
-            $('#download-png').hide();
-            activeBounds = null;
-            if (drawnItems.getLayers().length == 1) {
-                map.panTo(drawnItems.getLayers()[0].getLatLng());
-            }
         }
     });
 
     map.on('draw:edited', function (e) {
-        console.log('BBox Finder: Draw edited event fired', e);
-        if (drawnItems.getLayers().length > 0) {
-            $('#download-png').show(); // Ensure button is visible after an edit
-            bounds.setBounds(drawnItems.getBounds());
-            const newBounds = drawnItems.getBounds();
-            activeBounds = new L.LatLngBounds(newBounds.getSouthWest(), newBounds.getNorthEast());
-            $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
-            $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
-            map.fitBounds(bounds.getBounds());
+        const layers = e.layers.getLayers();
+        if (layers.length > 0) {
+            const editedLayer = layers[layers.length - 1];
+            
+            if (editedLayer instanceof L.Rectangle || editedLayer instanceof L.Polygon) {
+                 activeScreenshotLayer = editedLayer;
+            }
+        }
+    
+        if (activeScreenshotLayer) {
+            $('#download-png').show();
+            const screenshotBounds = activeScreenshotLayer.getBounds();
+            activeBounds = new L.LatLngBounds(screenshotBounds.getSouthWest(), screenshotBounds.getNorthEast());
+    
+            bounds.setBounds(screenshotBounds);
+            $('#boxbounds').text(formatBounds(screenshotBounds,'4326'));
+            $('#boxboundsmerc').text(formatBounds(screenshotBounds,currentproj));
+            map.fitBounds(screenshotBounds);
         }
     });
 
