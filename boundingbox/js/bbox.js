@@ -846,7 +846,7 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
                 
                 // Also update the bounds rectangle for visual feedback
                 bounds.setBounds(layerBounds);
-                activeBounds = layerBounds.clone();
+                activeBounds = new L.LatLngBounds(layerBounds.getSouthWest(), layerBounds.getNorthEast());
                 $('#download-png').show();
                 
                 // Handle map fitting for non-marker shapes
@@ -895,8 +895,9 @@ The map supports multiple projections - change the EPSG code and press Enter.`)
         console.log('BBox Finder: Draw edited event fired', e);
         if (drawnItems.getLayers().length > 0) {
             bounds.setBounds(drawnItems.getBounds());
-            activeBounds = drawnItems.getBounds().clone();
-            $('#download-png').show();
+            const newBounds = drawnItems.getBounds();
+            activeBounds = new L.LatLngBounds(newBounds.getSouthWest(), newBounds.getNorthEast());
+            $('#download-png').show(); // Ensure button is visible after an edit
             $('#boxbounds').text(formatBounds(bounds.getBounds(),'4326'));
             $('#boxboundsmerc').text(formatBounds(bounds.getBounds(),currentproj));
             map.fitBounds(bounds.getBounds());
