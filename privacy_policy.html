@@ -1,73 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Privacy Policy for Smart Context Extension</title>
+  <title>Privacy Policy - LookStuffUp</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
       line-height: 1.6;
       color: #333;
-      background-color: #f8f9fa;
+      background-color: #f4f4f4;
       margin: 0;
       padding: 2em;
       display: flex;
       justify-content: center;
     }
     .container {
-      max-width: 800px;
+      max-width: 700px;
       background-color: #fff;
-      padding: 2em 3em;
+      padding: 2em;
       border-radius: 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     h1, h2 {
       color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 0.3em;
     }
-    strong {
-      color: #34495e;
+    p, li {
+      color: #555;
     }
-    a {
-      color: #3498db;
+    code {
+      background-color: #eee;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .last-updated {
+        color: #777;
+        font-size: 0.9em;
+        margin-bottom: 2em;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Privacy Policy for Smart Context Extension</h1>
-    <p><strong>Last Updated:</strong> 6/23/2025</p>
-    
-    <p>Thank you for using Smart Context. We are committed to protecting your privacy. This policy explains what information the extension handles and why.</p>
+    <h1>Privacy Policy for LookStuffUp</h1>
+    <p class="last-updated">Last Updated: October 26, 2023</p>
+
+    <p>Thank you for using LookStuffUp. We are committed to protecting your privacy. This policy explains what information the extension handles and why.</p>
 
     <h2>The Short Version</h2>
-    <p>We, the developers of Smart Context, do not collect, store, or have access to any of your personal information, search queries, or browsing history. Your data is your own.</p>
+    <p>We, the developers of LookStuffUp, do not collect, store, or have access to any of your personal information, search queries, or browsing history. Your data is your own. The extension is designed to be completely private.</p>
 
     <h2>Information Handled by the Extension</h2>
-    <p>To provide you with contextual information, the extension needs to handle two types of data:</p>
-    
-    <ol>
-      <li><strong>Highlighted Text:</strong> When you highlight text on a webpage, that selected text is sent to third-party services (like DuckDuckGo, Wikipedia, or Google) to get relevant search results. This text is sent directly from your browser to the service and is never stored by the extension or seen by us.</li>
-      
-      <li><strong>Optional API Keys:</strong> If you choose to use the enhanced Google Search feature, you must provide your own Google API Key and Search Engine ID. These keys are stored exclusively on your local computer using Chrome's secure storage (`chrome.storage.sync`). They are only used to communicate with the Google Search API and are never transmitted to our servers. We do not have access to these keys.</li>
-    </ol>
-    
-    <h2>Third-Party Services</h2>
-    <p>The extension sends the text you highlight to the following services to perform a search. We recommend reviewing their privacy policies to understand how they handle your data:</p>
+    <p>To provide you with contextual information, the extension needs to handle two types of data locally on your computer:</p>
     <ul>
-      <li><a href="https://duckduckgo.com/privacy" target="_blank">DuckDuckGo</a></li>
-      <li><a href="https://foundation.wikimedia.org/wiki/Privacy_policy" target="_blank">Wikipedia (Wikimedia Foundation)</a></li>
-      <li><a href="https://policies.google.com/privacy" target="_blank">Google</a> (only if you provide an API key)</li>
+        <li><strong>Highlighted Text:</strong> When you highlight text on a webpage, that selected text is sent to various third-party services to get relevant search results. This text is sent directly from your browser to the service provider. This data is never stored by the extension, and it is never seen by or transmitted to us.</li>
+        <li><strong>Optional API Keys:</strong> If you choose to use the enhanced Google Search feature, you can provide your own Google API Key and Programmable Search Engine ID. These keys are stored exclusively on your local computer using your browser's secure, synced storage (<code>chrome.storage.sync</code> for Chrome or <code>browser.storage.sync</code> for Firefox). They are only used to communicate directly with the Google Search API from your browser and are never transmitted to our servers. We do not and cannot access these keys.</li>
+    </ul>
+
+    <h2>Third-Party Services</h2>
+    <p>The extension sends the text you highlight directly to the following third-party services to perform a search. We are not responsible for the privacy practices of these services. We recommend reviewing their privacy policies to understand how they handle your data:</p>
+    <ul>
+        <li><strong>Google</strong> (only if you provide an API key) - <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a></li>
+        <li><strong>DuckDuckGo</strong> - <a href="https://duckduckgo.com/privacy" target="_blank">Privacy Policy</a></li>
+        <li><strong>Wikipedia (Wikimedia Foundation)</strong> - <a href="https://meta.wikimedia.org/wiki/Privacy_policy" target="_blank">Privacy Policy</a></li>
+        <li><strong>Wiktionary (Wikimedia Foundation)</strong> - <a href="https://meta.wikimedia.org/wiki/Privacy_policy" target="_blank">Privacy Policy</a></li>
+        <li><strong>DictionaryAPI.dev</strong> - <a href="https://dictionaryapi.dev/privacy" target="_blank">Privacy Policy</a></li>
     </ul>
 
     <h2>Data Security</h2>
-    <p>We have designed the extension to process everything either on your device or directly with the third-party APIs. No data passes through servers that we control.</p>
+    <p>We have designed the extension to process everything either on your device or directly between your browser and the third-party APIs. No data passes through servers that we control.</p>
 
     <h2>Changes to This Policy</h2>
-    <p>If we update the extension in a way that changes how your data is handled, we will update this policy accordingly.</p>
+    <p>If we update the extension in a way that materially changes how your data is handled, we will update this policy accordingly.</p>
 
     <h2>Contact Us</h2>
-    <p>If you have any questions about this privacy policy, please contact us at: contact@vibhorsingh.com</p>
+    <p>If you have any questions about this privacy policy, please contact us at: <a href="mailto:contact@vibhorsingh.com">contact@vibhorsingh.com</a></p>
   </div>
 </body>
 </html> 
