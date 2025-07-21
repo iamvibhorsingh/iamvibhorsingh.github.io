@@ -43,22 +43,36 @@
 <body>
   <div class="container">
     <h1>Privacy Policy for LookStuffUp</h1>
-    <p class="last-updated">Last Updated: July 19, 2025</p>
+    <p class="last-updated">Last Updated: July 22, 2024</p>
 
-    <p>Thank you for using LookStuffUp. We are committed to protecting your privacy. This policy explains what information the extension handles and why.</p>
+    <p>Thank you for using LookStuffUp. I am committed to protecting your privacy. This policy explains what information the extension handles and why in a simple manner. No BS or unnecessary legal jargon.</p>
 
     <h2>The Short Version</h2>
-    <p>We, the developers of LookStuffUp, do not collect, store, or have access to any of your personal information, search queries, or browsing history. Your data is your own. The extension is designed to be completely private.</p>
+    <p>I, the developer of LookStuffUp, do not collect, store, or have access to any of your personal information, search queries, or browsing history. Your data is your own.</p>
+    <p>The extension is designed to be completely private and mostly on-device. The Summarize and Translate features process your text directly on your device, and nothing is sent to external servers. For the Lookup feature, highlighted text is sent directly to third-party services from your browser, but it is never seen by me.</p>
+
+    <h2>On-Device AI Features: Summarization and Translation</h2>
+    <p>LookStuffUp now includes experimental features for summarizing and translating text. These features are designed with privacy as the highest priority.</p>
+    <ul>
+        <li><strong>On-Device Processing:</strong> When you use the "Summarize" or "Translate" tabs, the highlighted text is processed entirely on your local computer using Google's built-in AI models provided by the Chrome browser (such as Gemini Nano).</li>
+        <li><strong>No Data Transmission:</strong> For these features, your text is never sent to Google, our servers, or any other third-party service. The entire process happens locally, ensuring your information remains completely private.</li>
+        <li><strong>Experimental Nature:</strong> Please note that these are experimental Chrome features that require manual activation in your browser's settings to function.</li>
+    </ul>
 
     <h2>Information Handled by the Extension</h2>
     <p>To provide you with contextual information, the extension needs to handle two types of data locally on your computer:</p>
     <ul>
-        <li><strong>Highlighted Text:</strong> When you highlight text on a webpage, that selected text is sent to various third-party services to get relevant search results. This text is sent directly from your browser to the service provider. This data is never stored by the extension, and it is never seen by or transmitted to us.</li>
-        <li><strong>Optional API Keys:</strong> If you choose to use the enhanced Google Search feature, you can provide your own Google API Key and Programmable Search Engine ID. These keys are stored exclusively on your local computer using your browser's secure, synced storage (<code>chrome.storage.sync</code> for Chrome or <code>browser.storage.sync</code> for Firefox). They are only used to communicate directly with the Google Search API from your browser and are never transmitted to our servers. We do not and cannot access these keys.</li>
+        <li><strong>Highlighted Text:</strong>
+            <ul>
+                <li>For the Lookup feature, the text you highlight is sent directly from your browser to various third-party services to get relevant search results. This data is never stored by the extension, and it is never seen by or transmitted to me.</li>
+                <li>For the Summarize and Translate features, please see the "On-Device AI Features" section above.</li>
+            </ul>
+        </li>
+        <li><strong>Optional API Keys:</strong> If you choose to use the enhanced Google Search feature for lookups, you can provide your own Google API Key and Programmable Search Engine ID. These keys are stored exclusively on your local computer using your browser's secure, synced storage. They are only used to communicate directly with the Google Search API from your browser and are never transmitted to our servers.</li>
     </ul>
 
-    <h2>Third-Party Services</h2>
-    <p>The extension sends the text you highlight directly to the following third-party services to perform a search. We are not responsible for the privacy practices of these services. We recommend reviewing their privacy policies to understand how they handle your data:</p>
+    <h2>Third-Party Services (for the Lookup Feature Only)</h2>
+    <p>The "Lookup" feature sends the text you highlight directly to the following third-party services. I am not responsible for the privacy practices of these services and recommend reviewing their privacy policies:</p>
     <ul>
         <li><strong>Google</strong> (only if you provide an API key) - <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a></li>
         <li><strong>DuckDuckGo</strong> - <a href="https://duckduckgo.com/privacy" target="_blank">Privacy Policy</a></li>
@@ -68,10 +82,10 @@
     </ul>
 
     <h2>Data Security</h2>
-    <p>We have designed the extension to process everything either on your device or directly between your browser and the third-party APIs. No data passes through servers that we control.</p>
+    <p>I have designed the extension to process everything either on your device (for AI features) or directly between your browser and third-party APIs (for the Lookup feature). No data passes through servers that I control.</p>
 
     <h2>Changes to This Policy</h2>
-    <p>If we update the extension in a way that materially changes how your data is handled, we will update this policy accordingly.</p>
+    <p>If I update the extension in a way that materially changes how your data is handled, I will update this policy accordingly.</p>
 
     <h2>Contact Us</h2>
     <p>If you have any questions about this privacy policy, please contact us at: <a href="mailto:contact@vibhorsingh.com">contact@vibhorsingh.com</a></p>
