@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LookStuffUp: Google API Guide</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #f9f9f9;
+        }
+        header {
+            text-align: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #34495e;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        .step {
+            background-color: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .step strong {
+            color: #2980b9;
+            font-weight: 600;
+        }
+        ol {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 15px;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+            color: #c0392b;
+        }
+        .note {
+            background-color: #e8f6fd;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .important {
+            background-color: #fef9e7;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🔑 LookStuffUp: Google API Credentials Guide</h1>
+        <p>Follow these steps to get a Google API Key and Search Engine ID for the LookStuffUp extension.</p>
+    </header>
+
+    <main>
+        <section id="api-key">
+            <h2>Part 1: Get Your API Key 🗝️</h2>
+            <div class="step">
+                <p>An <strong>API Key</strong> allows the LookStuffUp extension to make search requests to Google on your behalf. It's your personal key to unlock Google's search power within the extension.</p>
+                <ol>
+                    <li>First, you need a Google Cloud project. If you don't have one, don't worry! Google will help you create one. Go to the <strong><a href="https://console.cloud.google.com/apis/library/customsearch.googleapis.com" target="_blank">Custom Search API page</a></strong>.</li>
+                    <li>The page will prompt you to select or create a project. Once your project is ready, you'll see a big blue <strong>"Enable"</strong> button. Click it.</li>
+                    <li>After a moment, the page will refresh. Now, look for the <strong>"Credentials"</strong> tab on the left-hand menu and click it.</li>
+                    <li>At the top of the credentials page, click the <strong>"+ CREATE CREDENTIALS"</strong> button and choose <strong>"API key"</strong> from the dropdown list.</li>
+                    <li>A window will pop up showing your new API key. This is it! Click the copy icon next to the key, and then paste it into the "API Key" field in the LookStuffUp extension's options.</li>
+                </ol>
+            </div>
+            <div class="important">
+                <strong>Keep it Secret, Keep it Safe!</strong> Your API key is sensitive. Don't share it publicly. It's a good idea to "Restrict" your key later on from the same Credentials page to prevent others from using it.
+            </div>
+        </section>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 40px 0;">
+
+        <section id="search-engine-id">
+            <h2>Part 2: Create Your Search Engine & Get its ID 🔎</h2>
+            <div class="step">
+                <p>Next, you need a <strong>Search Engine ID</strong>. This tells LookStuffUp *what* websites you want the results to come from. You can create a search engine that looks through the whole web, or one that only searches specific websites you choose.</p>
+                <ol>
+                    <li>Go to the <strong><a href="https://programmablesearchengine.google.com/controlpanel/create" target="_blank">Programmable Search Engine</a></strong> page and click the blue <strong>"Add"</strong> button.</li>
+                    <li>
+                        You'll see a form like the one in the image. Let's fill it out:
+                        <div style="text-align: center; margin: 20px 0;">
+                            <img src="portfolio/images/search_engine.png" alt="Create search engine form" style="max-width: 100%; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
+                        </div>
+                        <ul>
+                            <li><strong>Name your search engine:</strong> Give it a simple name you'll remember, like "My Web Search" or "Recipe Site Search."</li>
+                            <li><strong>What to search?:</strong> This is the most important setting.
+                                <br>- To search the <em>entire web</em> (like a normal Google search), choose the <strong>"Search the entire web"</strong> option. This is the easiest choice to start with.
+                                <br>- To search only <em>specific websites</em>, enter a web address (like `www.wikipedia.org`) in the box and click "Add". You can add multiple sites.
+                            </li>
+                            <li><strong>Settings:</strong> You can turn on "Image search" if you want to find pictures, and it's a good idea to leave "SafeSearch" on to filter explicit results.</li>
+                            <li><strong>Security Check:</strong> Tick the box that says "I'm not a robot."</li>
+                        </ul>
+                    </li>
+                    <li>Once the form is filled out, click the blue <strong>"Create"</strong> button at the bottom.</li>
+                    <li>Success! You'll be taken to a new page. In the <strong>"Basic Information"</strong> section, look for your <strong>"Search engine ID"</strong>.</li>
+                    <li>This ID is a long string of letters and numbers. Click the "Copy to clipboard" button to copy it, and paste it into the "Search Engine ID" field in the LookStuffUp extension's options. This ID is also known as your `cx` number.</li>
+                </ol>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>🎉 Congratulations! You now have your <strong>API Key</strong> and your <strong>Search Engine ID</strong>. You're all set to use LookStuffUp!</p>
+    </footer>
+
+</body>
+</html>
