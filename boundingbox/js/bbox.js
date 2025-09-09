@@ -615,8 +615,7 @@ Click "Enter Coordinates" to paste:
 • WKT (Well-Known Text) geometries  
 • Bounding box coordinates (xmin,ymin,xmax,ymax)
 • ogrinfo extent output
-
-The map supports multiple projections - change the EPSG code and press Enter.`)
+`)
 
     // Force the map to redraw itself after the page has loaded.
     setTimeout(function() {
