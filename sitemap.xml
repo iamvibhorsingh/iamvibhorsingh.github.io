@@ -2,12 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://iamvibhorsingh.github.io/</loc>
-    <lastmod>2025-07-19</lastmod>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>1.00</priority>
   </url>
   <url>
+    <loc>https://chromewebstore.google.com/detail/lookstuffup/boagbbfpkdeklbfneiegcdgmfofckhfc</loc>
+    <lastmod>2025-09-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://arxiv.org/abs/2006.14644</loc>
+    <lastmod>2020-06-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
     <loc>https://iamvibhorsingh.github.io/portfolio/</loc>
-    <lastmod>2025-07-19</lastmod>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
@@ -42,8 +56,9 @@
   </url>
   <url>
     <loc>https://iamvibhorsingh.github.io/boundingbox/</loc>
-    <lastmod>2020-01-01</lastmod>
-    <priority>0.70</priority>
+    <lastmod>2025-10-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://iamvibhorsingh.github.io/portfolio/1_1/</loc>
