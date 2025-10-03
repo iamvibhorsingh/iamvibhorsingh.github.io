@@ -35,7 +35,7 @@ const APP_DEPENDENCIES = JSON.stringify(
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
-  base: "./",
+  base: "/supercharged-overpass/",
   optimizeDeps: {
     exclude: ["leaflet"]
   },
@@ -45,7 +45,8 @@ export default defineConfig(() => ({
       input: [
         resolve(__dirname, "index.html"),
         resolve(__dirname, "land.html"),
-        resolve(__dirname, "map.html")
+        resolve(__dirname, "map.html"),
+        resolve(__dirname, "quiz.html")
       ]
     }
   },

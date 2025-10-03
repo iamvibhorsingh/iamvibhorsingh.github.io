@@ -1,0 +1,1631 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta
+      http-equiv="content-type"
+      content="text/html; charset=utf-8"
+      lang="en"
+    />
+    <meta name="viewport" content="width=device-width" />
+    <title>Supercharged Overpass - Enhanced OSM Query Tool</title>
+    <link rel="icon" href="turbo.svg" type="image/svg+xml" />
+    <!-- https://developers.facebook.com/docs/sharing/webmasters -->
+    <meta property="og:title" content="Supercharged Overpass - Enhanced OSM Query Tool" />
+    <meta
+      property="og:description"
+      content="Supercharged Overpass: An enhanced OSM query tool with Geo-Fingerprint, Query History, and Street View integration. Built on overpass turbo. Perfect for GeoGuessr players!"
+    />
+  </head>
+  <body>
+    <!-- Layout -->
+    <nav class="navbar is-light" role="navigation" aria-label="main navigation" style="flex-wrap: wrap;">
+      <div class="navbar-brand">
+        <a class="navbar-item" href="index.html">
+          <strong style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Supercharged</strong> overpass
+          <img
+            src="turbo.svg"
+            style="margin-top: -8px"
+            alt="Supercharged Overpass logo"
+          />
+        </a>
+      </div>
+      
+      <div class="navbar-start" style="flex: 1; overflow-x: auto;">
+        <div class="navbar-item">
+          <div class="buttons has-addons">
+            <button
+              class="t button is-success"
+              accesskey="1"
+              data-ide-handler="click:onRunClick"
+              title=""
+              data-t="[title]nav.run_tt"
+              data-shortcut="Ctrl+Enter"
+            >
+              <span class="icon">
+                <span class="fas fa-play"></span>
+              </span>
+              <span class="t" data-t="nav.run">Run</span>
+            </button>
+            <button
+              id="rerender-button"
+              class="t button"
+              data-ide-handler="click:onRerenderClick"
+              title=""
+              data-t="[title]nav.rerender_tt"
+              style="display: none"
+            >
+              <span class="icon">
+                <span class="fas fa-sync-alt"></span>
+              </span>
+            </button>
+            <button
+              class="t button"
+              accesskey=""
+              data-ide-handler="click:onClearClick"
+              title=""
+              data-t="[title]nav.clear_tt"
+            >
+              <span class="icon">
+                <span class="fas fa-trash"></span>
+              </span>
+              <span class="t" data-t="nav.clear">Clear</span>
+            </button>
+            <button
+              class="t button"
+              accesskey="2"
+              data-ide-handler="click:onShareClick"
+              title=""
+              data-t="[title]nav.share_tt"
+            >
+              <span class="icon">
+                <span class="fas fa-share-alt"></span>
+              </span>
+              <span class="t" data-t="nav.share">Share</span>
+            </button>
+            <button
+              class="t button"
+              accesskey="3"
+              data-ide-handler="click:onExportClick"
+              title=""
+              data-t="[title]nav.export_tt"
+              data-shortcut="Ctrl+E"
+            >
+              <span class="icon">
+                <span class="fas fa-external-link-alt"></span>
+              </span>
+              <span class="t" data-t="nav.export">Export</span>
+            </button>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <div class="buttons has-addons">
+            <button
+              class="t button"
+              accesskey="4"
+              data-ide-handler="click:onFfsClick"
+              title=""
+              data-t="[title]nav.wizard_tt"
+              data-shortcut="Ctrl+I"
+            >
+              <span class="icon">
+                <span class="fas fa-magic"></span>
+              </span>
+              <span class="t" data-t="nav.wizard">Wizard</span>
+            </button>
+            <button
+              class="button"
+              accesskey="5"
+              data-ide-handler="click:onGeoFingerprintClick"
+              title="Find locations by combining visual clues"
+              data-shortcut="Ctrl+G"
+            >
+              <span class="icon">
+                <span class="fas fa-map-marker-alt"></span>
+              </span>
+              <span>Geo-Fingerprint</span>
+            </button>
+            <button
+              class="t button"
+              accesskey=""
+              data-ide-handler="click:onStylerClick"
+              title=""
+              id="styler-button"
+              data-t="[title]nav.styler_tt"
+              data-shortcut="Ctrl+K"
+            >
+              <span class="icon">
+                <span class="fas fa-palette"></span>
+              </span>
+              <span class="t" data-t="nav.styler">Style</span>
+            </button>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <div class="buttons has-addons">
+            <button
+              class="button"
+              data-ide-handler="click:onQueryHistoryClick"
+              title="View recent queries"
+              data-shortcut="Ctrl+Shift+H"
+            >
+              <span class="icon">
+                <span class="fas fa-history"></span>
+              </span>
+              <span>History</span>
+            </button>
+            <button
+              class="t button"
+              accesskey="5"
+              data-ide-handler="click:onSaveClick"
+              title=""
+              data-t="[title]nav.save_tt"
+              data-shortcut="Ctrl+S"
+            >
+              <span class="icon">
+                <span class="fas fa-save"></span>
+              </span>
+              <span class="t" data-t="nav.save">Save</span>
+            </button>
+            <button
+              class="t button"
+              accesskey=""
+              id="logout"
+              data-ide-handler="click:onLogoutClick"
+              title=""
+              data-t="[title]nav.logout_tt"
+            >
+              <span class="icon">
+                <span class="fas fa-sign-out-alt"></span>
+              </span>
+              <span class="t" data-t="nav.logout">Log out</span>
+            </button>
+            <button
+              class="t button"
+              accesskey="6"
+              data-ide-handler="click:onLoadClick"
+              title=""
+              data-t="[title]nav.load_tt"
+              data-shortcut="Ctrl+O"
+            >
+              <span class="icon">
+                <span class="fas fa-folder-open"></span>
+              </span>
+              <span class="t" data-t="nav.load">Load</span>
+            </button>
+          </div>
+        </div>
+        <div class="navbar-item">
+          <div class="buttons has-addons">
+            <button
+              class="t button"
+              accesskey="9"
+              data-ide-handler="click:onSettingsClick"
+              title=""
+              data-t="[title]nav.settings_tt"
+            >
+              <span class="icon">
+                <span class="fas fa-cog"></span>
+              </span>
+              <span class="t" data-t="nav.settings">Settings</span>
+            </button>
+            <button
+              class="t button"
+              accesskey="0"
+              data-ide-handler="click:onHelpClick"
+              title=""
+              data-t="[title]nav.help_tt"
+              data-shortcut="Ctrl+H"
+            >
+              <span class="icon">
+                <span class="fas fa-question"></span>
+              </span>
+              <span class="t" data-t="nav.help">Help</span>
+            </button>
+            <a
+              class="button is-success is-light"
+              href="quiz.html"
+              title="Test your GeoGuessr skills with OSM data"
+            >
+              <span class="icon">
+                <span class="fas fa-trophy"></span>
+              </span>
+              <span>Quiz Mode</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="tabs is-toggle">
+            <ul>
+              <li class="is-active Map">
+                <a class="t" title="" data-t="[title]tabs.map_tt;tabs.map">
+                  Map
+                </a>
+              </li>
+              <li class="Data">
+                <a class="t" title="" data-t="[title]tabs.data_tt;tabs.data">
+                  Data
+                </a>
+              </li>
+              <li class="Table"><a href="#table" data-t="nav.table">Table</a></li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="editor">
+      <!-- CodeMirror goes here -->
+      <textarea></textarea>
+    </div>
+    <div id="dataviewer">
+      <div id="map"></div>
+      <div id="data"></div>
+      <div id="table">
+        <div id="table-container"></div>
+      </div>
+
+    </div>
+
+    <!-- Wait spinner -->
+    <div class="modal is-active" id="loading-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-content">
+        <div class="box">
+          <progress class="progress is-small is-dark" max="100"></progress>
+          <div class="wait-info">
+            <h4>Supercharged Overpass loading...</h4>
+            <ul class="plain"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dialogs -->
+    <!-- Help -->
+    <div class="modal dialog" id="help-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-question"></span>
+            </span>
+            <span class="t" data-t="[html]help.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onHelpClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="content">
+            <div class="notification is-info is-light">
+              <h3 style="color: #2366d1;"><strong>🚀 Supercharged Overpass</strong></h3>
+              <p style="margin-bottom: 0.5rem; color: #363636;">
+                This is <strong>Supercharged Overpass</strong>, an enhanced version of <a href="https://overpass-turbo.eu" target="_blank">overpass turbo</a> 
+                with powerful new features for GeoGuessr players and OSM enthusiasts. Made by <a href="https://vibhorsingh.com" target="_blank">Vibhor Singh</a>.
+              </p>
+              <p style="margin-bottom: 0; color: #363636;">
+                <strong>New Features:</strong> Geo-Fingerprint Tool, Query History, Street View Integration, Quiz Mode
+              </p>
+            </div>
+            
+            <h3>Introduction</h3>
+            <div class="content">
+              <p>
+                <strong>Supercharged Overpass</strong> is an enhanced web-based data mining tool for 
+                <a href="https://www.openstreetmap.org" target="_blank">OpenStreetMap</a>. 
+                It's supercharged with features designed for GeoGuessr players and location enthusiasts.
+              </p>
+              <p>
+                With Supercharged Overpass, you can run <a href="https://wiki.openstreetmap.org/wiki/Overpass_API" target="_blank">Overpass API</a> 
+                queries and analyze the resulting OSM data interactively on a map. Plus, you get powerful new tools like 
+                Geo-Fingerprint for visual location searches and integrated Street View for instant verification.
+              </p>
+              <p>
+                Built on the foundation of <a href="https://overpass-turbo.eu" target="_blank">overpass turbo</a> 
+                by Martin Raifer, this enhanced version maintains full compatibility while adding game-changing features.
+                Learn more about <a href="https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL" target="_blank">Overpass queries</a> 
+                in the OSM wiki.
+              </p>
+            </div>
+            <h3>Overpass Queries</h3>
+            <div>
+              <p>
+                Overpass API allows you to query for OSM data using your own search criteria. 
+                It has a specifically crafted <a href="https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL" target="_blank">query language</a>.
+              </p>
+              <p>In addition to regular Overpass API queries, you can use these handy shortcuts in Supercharged Overpass:</p>
+              <ul>
+                <li>
+                  <code>{{bbox}}</code> &mdash;
+                  bounding box coordinates of the current map view
+                </li>
+                <li>
+                  <code>{{center}}</code> &mdash;
+                  map center coordinates
+                </li>
+                <li>
+                  <code>{{date:…}}</code> &mdash;
+                  ISO 8601 date-time-string a certain time interval ago (e.g. "24 hours")
+                </li>
+                <li>
+                  <code>{{style:…}}</code> &mdash;
+                  defines a <a href="https://wiki.openstreetmap.org/wiki/Overpass_turbo/MapCSS" target="_blank">MapCSS stylesheet</a>
+                </li>
+                <li>
+                  Arbitrary shortcuts can be defined by putting <i>{{shortcut=value}}</i> somewhere in the script.
+                </li>
+              </ul>
+              <p>
+                More shortcuts and usage examples can be found in the 
+                <a href="https://wiki.openstreetmap.org/wiki/Overpass_turbo/Extended_Overpass_Queries" target="_blank">OSM wiki</a>.
+              </p>
+            </div>
+            <h3>Using Supercharged Overpass</h3>
+            <div>
+              <h4>Sharing</h4>
+              <p>
+                You can share your queries by using the <em>Share</em> tool. It provides a link with the 
+                current map state and query. If <em>include current map state</em> is enabled, the current 
+                zoom level and map center will also be shared.
+              </p>
+              <h4>Saving & Loading</h4>
+              <p>
+                Use the <em>Save</em> and <em>Load</em> buttons to manage your queries. Queries are automatically 
+                saved to your Query History (last 30 queries). You can also save queries to your OSM account 
+                or export them as files.
+              </p>
+              <h4>Keyboard Shortcuts</h4>
+              <ul>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>Enter</kbd> &mdash;
+                  Run the current query
+                </li>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>I</kbd> &mdash;
+                  Open the Query Wizard
+                </li>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>G</kbd> &mdash;
+                  Open Geo-Fingerprint Tool (NEW!)
+                </li>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> &mdash;
+                  Open Query History (NEW!)
+                </li>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>K</kbd> &mdash;
+                  Style results by tag
+                </li>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>O</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd> &mdash;
+                  Load / Save queries
+                </li>
+                <li>
+                  <kbd>Ctrl</kbd>+<kbd>H</kbd> &mdash;
+                  Show this help dialog
+                </li>
+              </ul>
+              
+              <h4>🆕 Supercharged Features</h4>
+              <ul>
+                <li><strong>Geo-Fingerprint Tool:</strong> Find locations by combining visual clues without writing code</li>
+                <li><strong>Query History:</strong> Automatically saves your last 30 queries locally in your browser</li>
+                <li><strong>Street View Integration:</strong> Click any result to open Google Street View, Mapillary, or KartaView</li>
+                <li><strong>Quiz Mode:</strong> Test your OSM knowledge with interactive quizzes</li>
+              </ul>
+            </div>
+            <h3>Map Key</h3>
+            <div>
+              <img
+                src="map-key.png"
+                alt="Example of map key colors"
+              />
+              <p>
+                The above image shows how OSM data types are color-coded on the map: 
+                nodes (points), ways (lines), and areas are displayed in different colors to help you 
+                identify different types of features at a glance.
+              </p>
+            </div>
+            <h3>Export Data</h3>
+            <div>
+              <p>
+                You can export your query results in various formats using the <em>Export</em> button.
+              </p>
+              <h4>Export as Image</h4>
+              <p>
+                Save the current map view as a PNG or SVG image. Perfect for documentation or presentations.
+              </p>
+              <h4>Export Query & Data</h4>
+              <p>
+                Export your query or the resulting data in formats like GeoJSON, GPX, KML, or raw OSM data. 
+                You can also convert to other formats using the built-in converter.
+              </p>
+            </div>
+            <h3>About</h3>
+            <div>
+              <div class="box" style="background: #f8f9fa; border-left: 4px solid #2366d1;">
+                <h4 style="color: #2366d1;"><strong style="color: #2366d1 !important;">About Supercharged Overpass</strong></h4>
+                <p style="color: #363636;">
+                  Supercharged Overpass is built on top of <a href="https://github.com/tyrasd/overpass-turbo" target="_blank">overpass turbo</a> 
+                  by Martin Raifer and contributors. This enhanced version adds powerful features for GeoGuessr players and location enthusiasts
+                  while maintaining full compatibility with the original tool.
+                </p>
+                <p style="margin-bottom: 0; color: #2366d1 !important;">
+                  <strong style="color: #000000;">License: </strong> MIT License (same as overpass turbo)<br>
+                  <strong style="color: #000000;">Original Project: </strong> <a href="https://overpass-turbo.eu" target="_blank" style="text-decoration: underline;">overpass-turbo.eu</a><br>
+                  <strong style="color: #000000;">Source Code: </strong> <a href="https://github.com/iamvibhorsingh/Supercharged-overpass" target="_blank" style="text-decoration: underline;">github.com/iamvibhorsingh/Supercharged-overpass</a>
+                </p>
+              </div>
+              <a href="https://overpass-api.de">
+                <img
+                  style="float: right"
+                  src="https://wiki.openstreetmap.org/w/images/b/b3/Powered_by_Overpass_API.png"
+                  alt="powered by Overpass API"
+              /></a>
+              <p>
+                Supercharged Overpass is maintained as an enhanced fork with new features for GeoGuessr 
+                players and location enthusiasts. The core functionality and compatibility with the 
+                original overpass turbo are preserved.
+              </p>
+              <h4>💬 Feedback & Issues</h4>
+              <p>
+                For issues related to Supercharged features (Geo-Fingerprint, Query History, Street View), 
+                please report them on <a href="https://github.com/iamvibhorsingh/Supercharged-overpass/issues" target="_blank">GitHub</a>. 
+                For core overpass turbo functionality, refer to the <a href="https://github.com/tyrasd/overpass-turbo" target="_blank">original project</a>.
+              </p>
+              <h4>📦 Source Code</h4>
+              <p>
+                This tool is available at <a href="https://github.com/iamvibhorsingh/Supercharged-overpass" target="_blank">github.com/iamvibhorsingh/Supercharged-overpass</a> 
+                and is built on <a href="https://github.com/tyrasd/overpass-turbo" target="_blank">overpass turbo</a>. 
+                Released under the MIT License with all enhancements maintaining compatibility with the original codebase.
+              </p>
+            </div>
+            <h3>Attribution & Credits</h3>
+            <div>
+              <h4>Data Sources</h4>
+              <ul class="plain">
+                <li>
+                  Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors
+                </li>
+                <li>
+                  Data mining by
+                  <a href="https://overpass-api.de/">Overpass API</a>
+                </li>
+                <li>
+                  Map tiles © <a href="https://openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors
+                </li>
+                <li>
+                  Search provided by
+                  <a href="https://wiki.openstreetmap.org/wiki/Nominatim" target="_blank">Nominatim</a>
+                </li>
+                <li>
+                  Street View by Google Maps, Mapillary, and KartaView
+                </li>
+              </ul>
+              <h4>Software & Libraries</h4>
+              <ul class="plain">
+                <li>
+                  Map powered by
+                  <a href="https://leafletjs.com/">Leaflet</a>
+                </li>
+                <li>
+                  Editor powered by
+                  <a href="https://codemirror.net/">CodeMirror</a>
+                </li>
+                <li>
+                  Based on <a href="https://github.com/tyrasd/overpass-turbo" target="_blank">overpass turbo</a> by Martin Raifer
+                </li>
+                <li>
+                  Other libraries:
+                  <span id="overpass-turbo-dependencies"></span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button class="button" data-ide-handler="click:onHelpClose">
+                  <span class="t" data-t="dialog.close">Close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="modal dialog" id="settings-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-cog"></span>
+            </span>
+            <span class="t" data-t="[html]settings.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onSettingsClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="box">
+            <h3 class="subtitle t" data-t="settings.section.general"></h3>
+            <div class="field">
+              <label class="label" for="ui_language">
+                <span class="t" data-t="settings.ui_lang"></span>
+              </label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="text"
+                  name="ui_language"
+                  value=""
+                  id="ui_language"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="server">
+                <span class="t" data-t="settings.server"></span>
+              </label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="text"
+                  name="server"
+                  value=""
+                  id="server"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="no_autorepair" />
+                  <span class="t" data-t="settings.disable_autorepair"></span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="disable_warning_huge_data" />
+                  <span
+                    class="t"
+                    data-t="settings.disable_warning_huge_data"
+                  ></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="box">
+            <h3 class="subtitle t" data-t="settings.section.editor"></h3>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="use_rich_editor" />
+                  <span class="t" data-t="settings.enable_rich_editor"></span>
+                </label>
+              </div>
+              <p class="help t" data-t="settings.enable_rich_editor_expl"></p>
+            </div>
+            <div class="field">
+              <label class="label" for="editor_width">
+                <span class="t" data-t="settings.editor_width"></span>
+              </label>
+              <div class="control">
+                <input
+                  type="text"
+                  class="input"
+                  name="editor_width"
+                  value=""
+                  id="editor_width"
+                />
+              </div>
+              <p class="help t" data-t="settings.editor_width_expl"></p>
+            </div>
+          </div>
+          <div class="box">
+            <h3 class="subtitle t" data-t="settings.section.map"></h3>
+            <div class="field">
+              <label class="label" for="tile_server">
+                <span class="t" data-t="settings.tile_server"></span>
+              </label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="text"
+                  name="tile_server"
+                  value=""
+                  id="tile_server"
+                />
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="background_opacity">
+                <span class="t" data-t="settings.tile_opacity"></span>
+              </label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="number"
+                  name="background_opacity"
+                  value=""
+                  id="background_opacity"
+                  min="0.0"
+                  max="1.0"
+                  step="0.1"
+                />
+              </div>
+              <p class="help t" data-t="settings.tile_opacity_expl"></p>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="enable_crosshairs" />
+                  <span class="t" data-t="settings.show_crosshairs"></span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="disable_poiomatic" />
+                  <span class="t" data-t="settings.disable_poiomatic"></span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="show_data_stats" />
+                  <span class="t" data-t="settings.show_data_stats"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="box">
+            <h3 class="subtitle t" data-t="settings.section.sharing"></h3>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="share_include_pos" />
+                  <span class="t" data-t="settings.include_map_state"></span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <label class="label" for="share_compression">
+                <span class="t" data-t="settings.compression"></span>
+              </label>
+              <div class="control">
+                <input
+                  class="input"
+                  type="text"
+                  name="share_compression"
+                  id="share_compression"
+                  value=""
+                />
+              </div>
+            </div>
+          </div>
+          <div class="box">
+            <h3 class="subtitle t" data-t="settings.section.export"></h3>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="export_image_scale" />
+                  <span class="t" data-t="settings.export_image_scale"></span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input type="checkbox" name="export_image_attribution" />
+                  <span class="t" data-t="settings.export_image_attr"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button
+                  class="button is-danger"
+                  data-ide-handler="click:onSettingsReset"
+                >
+                  <span class="t" data-t="dialog.reset">Reset</span>
+                </button>
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onSettingsSave"
+                >
+                  <span class="icon">
+                    <span class="fas fa-save"></span>
+                  </span>
+                  <span class="t" data-t="dialog.save">Save</span>
+                </button>
+                <button class="button" data-ide-handler="click:onSettingsClose">
+                  <span class="t" data-t="dialog.close">Close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Save -->
+    <div class="modal dialog" id="save-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-save"></span>
+            </span>
+            <span class="t" data-t="[html]save.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onSaveClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label
+              class="label t"
+              for="save_name"
+              data-t="save.enter_name"
+            ></label>
+            <div class="control">
+              <input
+                name="save"
+                type="text"
+                id="save_name"
+                class="input"
+                required
+              />
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onSaveSumbit"
+                >
+                  <span class="icon">
+                    <span class="fas fa-save"></span>
+                  </span>
+                  <span class="t" data-t="dialog.save"></span>
+                </button>
+                <button
+                  class="button osm is-success"
+                  data-ide-handler="click:onSaveOsmSumbit"
+                >
+                  <span class="icon">
+                    <span class="fas fa-globe-americas"></span>
+                  </span>
+                  <span class="t" data-t="dialog.save-osm"></span>
+                </button>
+                <button
+                  class="t button"
+                  data-ide-handler="click:onSaveClose"
+                  data-t="dialog.cancel"
+                ></button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Load -->
+    <div class="modal dialog" id="load-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-folder-open"></span>
+            </span>
+            <span class="t" data-t="[html]load.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onLoadClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="panel saved_query">
+            <p class="panel-heading t" data-t="load.saved_queries-local"></p>
+          </div>
+          <div class="panel osm osm-queries">
+            <p class="panel-heading t" data-t="load.saved_queries-osm"></p>
+          </div>
+          <div class="panel example">
+            <p class="panel-heading t" data-t="load.examples"></p>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button class="button" data-ide-handler="click:onLoadClose">
+                  <span class="t" data-t="dialog.cancel">Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Export-->
+    <div class="modal dialog" id="export-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-external-link-alt"></span>
+            </span>
+            <span class="t" data-t="[html]export.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onExportClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="panel">
+            <p class="t panel-heading" data-t="export.section.data"></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-geoJSON"
+            ></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-GPX"
+            ></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-KML"
+            ></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-raw"
+            ></p>
+            <div class="panel-block">
+              <p class="t" data-t="[html]export.raw_interpreter"></p>
+            </div>
+            <div class="panel-block">
+              <p>
+                <span class="t" data-t="export.editors"></span>
+                <a id="export-editors-josm" href="">JOSM</a>,
+                <a
+                  id="export-editors-level0"
+                  href=""
+                  target="_blank"
+                  class="external"
+                >
+                  Level0
+                </a>
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="t panel-heading" data-t="export.section.map"></p>
+            <div class="panel-block">
+              <p class="t" data-t="[html]export.as_png"></p>
+            </div>
+            <div class="panel-block">
+              <p class="t" data-t="[html]export.as_interactive_map"></p>
+            </div>
+            <div class="panel-block">
+              <p>
+                <span class="t" data-t="[html]export.current_map_view"></span>
+                <small
+                  >(<span class="t" data-t="export.map_view_expl"></span
+                  >)</small
+                >
+              </p>
+            </div>
+          </div>
+          <div class="panel">
+            <p class="t panel-heading" data-t="export.section.query"></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-text"
+            ></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-text_raw"
+            ></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-text_wiki"
+            ></p>
+            <p
+              class="t panel-block"
+              data-t="[html]export.generic_download_copy"
+              id="export-text_umap"
+            ></p>
+            <div class="panel-block">
+              <p class="t" data-t="[html]export.to_xml"></p>
+            </div>
+            <div class="panel-block">
+              <p class="t" data-t="[html]export.to_ql"></p>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button class="button" data-ide-handler="click:onExportClose">
+                  <span class="t" data-t="dialog.cancel">Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Download -->
+    <div class="modal dialog" id="export-download-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p
+            class="t modal-card-title"
+            data-t="[html]export.download-error"
+          ></p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onExportDownloadClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <p class="message notification is-success is-light"></p>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button
+                  class="button"
+                  data-ide-handler="click:onExportDownloadClose"
+                >
+                  <span class="t" data-t="dialog.close">Close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Export Clipboard success -->
+    <div class="modal dialog" id="export-clipboard-success">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p
+            class="t modal-card-title"
+            data-t="[html]export.copy_to_clipboard_success"
+          ></p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onExportClipboardClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <p class="message notification is-success is-light"></p>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button
+                  class="button"
+                  data-ide-handler="click:onExportClipboardClose"
+                >
+                  <span class="t" data-t="dialog.close">Close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <div class="modal dialog" id="share-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-share-alt"></span>
+            </span>
+            <span class="t" data-t="[html]share.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onShareClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="box">
+            <h3 class="t subtitle" data-t="share.header"></h3>
+            <p>
+              <label
+                for="share_link_textarea"
+                class="t"
+                data-t="[html]share.copy_this_link"
+              ></label>
+            </p>
+            <div class="control">
+              <input
+                class="input"
+                type="text"
+                readonly
+                id="share_link_textarea"
+              />
+            </div>
+            <span id="share_link_warning"></span>
+          </div>
+          <div class="box">
+            <h3 class="t subtitle" data-t="share.options"></h3>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input
+                    type="checkbox"
+                    name="include_coords"
+                    data-ide-handler="change:updateShareLink"
+                  />
+                  <span class="t" data-t="share.incl_map_state"></span>
+                </label>
+              </div>
+            </div>
+            <div class="field">
+              <div class="control">
+                <label class="checkbox">
+                  <input
+                    type="checkbox"
+                    name="run_immediately"
+                    data-ide-handler="change:updateShareLink"
+                  />
+                  <span class="t" data-t="share.run_immediately"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button class="button" data-ide-handler="click:onShareClose">
+                  <span class="t" data-t="dialog.cancel">Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!--free form search / wizard-->
+    <div class="modal" id="ffs-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-magic"></span>
+            </span>
+            <span class="t" data-t="[html]ffs.title"></span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onFfsClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="content">
+            <span class="t" data-t="[html]ffs.expl"></span>
+          </div>
+          <div class="panel">
+            <div class="panel-heading t" data-t="load.examples"></div>
+            <div class="panel-block monospace">Drinking Water</div>
+            <div class="panel-block monospace">
+              amenity=drinking_water and type:node
+            </div>
+            <div class="panel-block monospace">
+              (highway=primary or highway=secondary) and type:way
+            </div>
+            <div class="panel-block monospace">tourism=hotel</div>
+            <div class="panel-block monospace">tourism=museum in Vienna</div>
+            <div class="panel-block monospace">"Drinking Water" in London</div>
+          </div>
+          <div class="field">
+            <div class="control has-icons-left">
+              <input
+                type="text"
+                name="search"
+                id="search"
+                data-t-placeholder="search.placeholder"
+                autofocus="autofocus"
+                class="t input monospace"
+                required
+              />
+              <span class="icon is-left">
+                <i class="fas fa-search"></i>
+              </span>
+            </div>
+          </div>
+          <div class="loading">
+            <progress class="progress is-small is-dark" max="100"></progress>
+          </div>
+          <div
+            id="ffs-dialog-parse-error"
+            style="display: none"
+            class="notification is-danger is-light"
+          >
+            <span class="t warning severe" data-t="ffs.parse_error"></span
+            ><br />
+            <small>
+              <span class="t" data-t="[html]ffs.parse_error_expl"></span>
+            </small>
+          </div>
+          <div
+            id="ffs-dialog-typo"
+            style="display: none"
+            class="notification is-danger is-light"
+          >
+            <span class="t warning" data-t="ffs.typo"></span>&nbsp;
+            <a href="" id="ffs-dialog-typo-correction"></a>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <div class="control">
+                  <label class="checkbox">
+                    <input type="checkbox" name="ffs.comments" checked />
+                    <span class="t" data-t="ffs.comments"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="level-item">
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onFfsRun"
+                >
+                  <span class="icon">
+                    <span class="fas fa-play"></span>
+                  </span>
+                  <span class="t" data-t="dialog.wizard_run"></span>
+                </button>
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onFfsBuild"
+                >
+                  <span class="icon">
+                    <span class="fas fa-hammer"></span>
+                  </span>
+                  <span class="t" data-t="dialog.wizard_build"></span>
+                </button>
+                <button class="button" data-ide-handler="click:onFfsClose">
+                  <span class="t" data-t="dialog.cancel">Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Geo-Fingerprint Tool -->
+    <div class="modal" id="geo-fingerprint-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-map-marker-alt"></span>
+            </span>
+            <span>Geo-Fingerprint Tool</span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onGeoFingerprintClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="content">
+            <p style="color: #4a4a4a; font-size: 1rem; line-height: 1.6;">
+              <strong style="color: #2366d1; font-size: 1.05rem;">Find locations by combining multiple visual clues.</strong><br>
+              Add the features you can see (e.g., a post office near a supermarket)
+              and we'll generate a query to find matching locations.
+            </p>
+          </div>
+          
+          <!-- Quick Presets -->
+          <div class="field is-grouped is-grouped-multiline" style="margin-bottom: 1rem;">
+            <div class="control">
+              <div class="tags has-addons">
+                <span class="tag is-info">Quick Presets:</span>
+              </div>
+            </div>
+            <div class="control">
+              <button class="button is-small is-light" data-preset="post-office-supermarket">
+                <span class="icon is-small">
+                  <span class="fas fa-envelope"></span>
+                </span>
+                <span>Post Office near Supermarket</span>
+              </button>
+            </div>
+            <div class="control">
+              <button class="button is-small is-light" data-preset="cafe-park">
+                <span class="icon is-small">
+                  <span class="fas fa-coffee"></span>
+                </span>
+                <span>Cafe near Park</span>
+              </button>
+            </div>
+            <div class="control">
+              <button class="button is-small is-light" data-preset="gas-station-highway">
+                <span class="icon is-small">
+                  <span class="fas fa-gas-pump"></span>
+                </span>
+                <span>Gas Station near Highway</span>
+              </button>
+            </div>
+            <div class="control">
+              <button class="button is-small is-light" data-preset="atm-restaurant">
+                <span class="icon is-small">
+                  <span class="fas fa-credit-card"></span>
+                </span>
+                <span>ATM near Restaurant</span>
+              </button>
+            </div>
+          </div>
+          
+          <details style="margin-bottom: 1rem;">
+            <summary style="cursor: pointer; padding: 0.75rem; background: #e8f0fe; border-radius: 6px; color: #2366d1; border: 1px solid #c5d9f2;">
+              <strong>💡 How to use this tool</strong>
+            </summary>
+            <div style="padding: 1rem; background: #f8fbff; margin-top: 0.5rem; border-radius: 6px; border: 1px solid #e0e7f1; color: #4a4a4a;">
+              <ol style="margin-left: 1.5rem; line-height: 1.8;">
+                <li><strong style="color: #363636;">Click in the input field</strong> - suggestions will appear automatically</li>
+                <li><strong style="color: #363636;">Select from suggestions</strong> - or type your own if you know the tag</li>
+                <li><strong style="color: #363636;">Add more clues</strong> - to narrow down the location</li>
+                <li><strong style="color: #363636;">Click "Build & Run"</strong> - to find matching locations!</li>
+              </ol>
+              <p style="margin-top: 0.75rem; color: #2366d1;"><strong>Examples:</strong></p>
+              <ul style="margin-left: 1.5rem; line-height: 1.6;">
+                <li>Looking for: <em style="color: #2366d1; font-weight: 600;">amenity</em> → Type: <em style="color: #2366d1; font-weight: 600;">restaurant</em></li>
+                <li>Looking for: <em style="color: #2366d1; font-weight: 600;">shop</em> → Type: <em style="color: #2366d1; font-weight: 600;">supermarket</em>, then add <em style="color: #2366d1; font-weight: 600;">name</em> → <em style="color: #2366d1; font-weight: 600;">Lidl</em></li>
+              </ul>
+            </div>
+          </details>
+
+          <!-- Clue Input Fields -->
+          <div id="geo-fp-clues-container">
+            <!-- Clues will be dynamically added here -->
+          </div>
+
+          <!-- Add Clue Button -->
+          <div class="field">
+            <button 
+              class="button is-small is-info" 
+              data-ide-handler="click:onGeoFingerprintAddClue"
+            >
+              <span class="icon">
+                <span class="fas fa-plus"></span>
+              </span>
+              <span>Add Clue</span>
+            </button>
+          </div>
+
+          <!-- Search Radius -->
+          <div class="field" style="margin-top: 1.5rem;">
+            <label class="label" style="color: #2366d1; font-weight: 600;">Default Search Radius</label>
+            <div class="control">
+              <div class="select">
+                <select id="geo-fp-radius" style="color: #2366d1;">
+                  <option value="100">100 meters</option>
+                  <option value="200" selected>200 meters</option>
+                  <option value="300">300 meters</option>
+                  <option value="500">500 meters</option>
+                  <option value="1000">1 kilometer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot" style="background-color: #f8f9fa; border-top: 2px solid #e9ecef;">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onGeoFingerprintRun"
+                  style="font-weight: 600;"
+                >
+                  <span class="icon">
+                    <span class="fas fa-play"></span>
+                  </span>
+                  <span>Build & Run</span>
+                </button>
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onGeoFingerprintBuild"
+                  style="font-weight: 600;"
+                >
+                  <span class="icon">
+                    <span class="fas fa-hammer"></span>
+                  </span>
+                  <span>Build Query</span>
+                </button>
+                <button class="button" data-ide-handler="click:onGeoFingerprintClose">
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Query History Dialog -->
+    <div class="modal" id="query-history-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-history"></span>
+            </span>
+            <span>Query History</span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onQueryHistoryClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="content">
+            <p style="color: #2366d1; margin-bottom: 1rem;">
+              Your recent queries are saved locally in your browser.
+              Click any query to load it into the editor.
+            </p>
+          </div>
+          
+          <div id="query-history-list">
+            <!-- History items will be dynamically added here -->
+          </div>
+          
+          <div class="notification is-info is-light" id="query-history-empty" style="display: none;">
+            <p>No query history yet. Run some queries to build your history!</p>
+          </div>
+        </section>
+        <footer class="modal-card-foot" style="background-color: #f8f9fa; border-top: 2px solid #e9ecef;">
+          <button
+            class="button is-danger is-light"
+            data-ide-handler="click:onQueryHistoryClear"
+          >
+            <span class="icon">
+              <span class="fas fa-trash"></span>
+            </span>
+            <span>Clear All History</span>
+          </button>
+          <button class="button" data-ide-handler="click:onQueryHistoryClose">
+            <span>Close</span>
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <!--styling wizard -->
+    <div class="modal" id="styler-dialog">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">
+            <span class="icon">
+              <span class="fas fa-palette"></span>
+            </span>
+            <span class="t" data-t="[html]styler.title"></span
+            ><span> (beta)</span>
+          </p>
+          <button
+            class="delete"
+            aria-label="close"
+            data-ide-handler="click:onStylerClose"
+          ></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="content">
+            <span class="t" data-t="[html]styler.expl"></span>
+          </div>
+          <div class="field">
+            <div class="control">
+              <input
+                name="attribute"
+                type="text"
+                autofocus="autofocus"
+                placeholder=""
+                value=""
+                id="styler-input"
+                class="t input monospace"
+                data-t="[placeholder]styler.placeholder"
+                required
+              />
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <span class="t" data-t="styler.palette"></span>
+              <input type="radio" name="palette" value="qualitative" checked />
+              <label
+                for="qualitative"
+                data-t="[title]styler.palette.qualitative"
+                class="palette qualitative"
+              ></label>
+              <input
+                type="radio"
+                name="palette"
+                value="sequential"
+                id="sequential"
+              />
+              <label
+                for="sequential"
+                data-t="[title]styler.palette.sequential"
+                class="palette sequential"
+              ></label>
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <div class="level">
+            <div class="level-right">
+              <div class="level-item">
+                <button
+                  class="button is-success"
+                  data-ide-handler="click:onStylerRun"
+                  disabled
+                >
+                  <span class="icon">
+                    <span class="fas fa-play"></span>
+                  </span>
+                  <span class="t" data-t="dialog.styler_run"></span>
+                </button>
+                <button class="button" data-ide-handler="click:onStylerClose">
+                  <span class="t" data-t="dialog.cancel">Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Unsupported browser warning -->
+    <div class="modal" id="warning-unsupported-browser">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="t modal-card-title" data-t="[html]warning.browser.title">
+            Your browser is not supported :(
+          </p>
+        </header>
+        <section class="modal-card-body">
+          <p class="t" data-t="[html]warning.browser.expl.1">
+            The browser you are currently using, is (most likely) not capable of
+            running (significant parts of) this Application.
+            <small>
+              It must support
+              <a href="https://en.wikipedia.org/wiki/Web_storage#localStorage">
+                Web Storage API
+              </a>
+
+              and
+              <a
+                href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing"
+              >
+                cross origin resource sharing (CORS)
+              </a>
+              .
+            </small>
+          </p>
+          <p class="t" data-t="[html]warning.browser.expl.2">
+            Note that you may have to enable cookies and/or "local Data" for
+            this site on some browsers (such as Firefox and Chrome).
+          </p>
+          <p class="t" data-t="[html]warning.browser.expl.3">
+            Please upgrade to a more up-to-date version of your browser or
+            switch to a more capable one! Recent versions of
+            <a href="https://www.opera.com">Opera</a>,
+            <a href="https://www.google.com/chrome/">Chrome</a>
+            and <a href="https://www.mozilla.org/firefox/">Firefox</a> have been
+            tested to work. Alternatively, you can still use the
+            <a href="https://overpass-api.de/query_form.html">
+              Overpass_API query form
+            </a>
+            .
+          </p>
+        </section>
+        <footer class="modal-card-foot"></footer>
+      </div>
+    </div>
+
+    <script src="node_modules/jquery/dist/jquery.js" type="module"></script>
+    <script
+      src="node_modules/jquery-ui/dist/jquery-ui.js"
+      type="module"
+    ></script>
+    <script src="./js/index.ts" type="module"></script>
+    <noscript>
+      <div
+        class="notification is-danger"
+        style="
+          display: block;
+          position: relative;
+          width: 30%;
+          max-width: 800px;
+          min-width: 300px;
+          margin: auto;
+          z-index: 9999;
+          margin-top: 2em;
+          padding: 1em 1.5em 1em 1.5em;
+          background-color: #f14668;
+        "
+      >
+        Please enable JavaScript to use Supercharged Overpass.
+      </div>
+    </noscript>
+  </body>
+</html>
