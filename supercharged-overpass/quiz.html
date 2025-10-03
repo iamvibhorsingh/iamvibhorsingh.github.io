@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSM Quiz Mode - Supercharged Overpass</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .quiz-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .quiz-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 800px;
+      width: 100%;
+    }
+    .quiz-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px 12px 0 0;
+      text-align: center;
+    }
+    .quiz-body {
+      padding: 2rem;
+    }
+    .option-btn {
+      margin: 0.5rem 0;
+      width: 100%;
+      text-align: left;
+      padding: 1.5rem;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      border: 2px solid #e0e0e0;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: #667eea;
+      transform: translateX(10px);
+    }
+    .option-btn.correct {
+      background: #48c774;
+      color: white;
+      border-color: #48c774;
+    }
+    .option-btn.incorrect {
+      background: #f14668;
+      color: white;
+      border-color: #f14668;
+    }
+    .score-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+      height: 10px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: white;
+      height: 100%;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="quiz-card">
+      <div class="quiz-header">
+        <h1 class="title is-2" style="color: white; margin-bottom: 0.5rem;">
+          <i class="fas fa-trophy"></i> OSM Quiz Mode
+        </h1>
+        <p style="opacity: 0.9;">Test your OpenStreetMap knowledge!</p>
+        <div class="score-badge">
+          <strong>Score: <span id="score">0</span> / <span id="total">0</span></strong>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="quiz-body" id="quiz-content">
+        <!-- Start Screen -->
+        <div id="start-screen">
+          <div class="content has-text-centered">
+            <h2 class="title is-3">Welcome to OSM Quiz!</h2>
+            <p class="subtitle">Test your knowledge of OpenStreetMap tags and features</p>
+            
+            <div class="box" style="text-align: left; margin: 2rem 0;">
+              <h3 class="title is-5">📚 Quiz Topics:</h3>
+              <ul>
+                <li><strong>Tag Recognition:</strong> Identify correct OSM tags for features</li>
+                <li><strong>Regional Features:</strong> Learn country-specific patterns</li>
+                <li><strong>Value Matching:</strong> Match tags to their meanings</li>
+                <li><strong>Query Building:</strong> Practice Overpass syntax</li>
+              </ul>
+            </div>
+            
+            <div class="field is-grouped is-grouped-centered">
+              <div class="control">
+                <button class="button is-large is-primary" onclick="startQuiz()">
+                  <span class="icon">
+                    <i class="fas fa-play"></i>
+                  </span>
+                  <span>Start Quiz</span>
+                </button>
+              </div>
+              <div class="control">
+                <a href="index.html" class="button is-large is-light">
+                  <span class="icon">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>Back to Main</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Question Screen -->
+        <div id="question-screen" style="display: none;">
+          <div class="content">
+            <h3 class="title is-4" id="question-text"></h3>
+            <p class="subtitle is-6" id="question-hint" style="color: #888;"></p>
+          </div>
+          
+          <div id="options"></div>
+          
+          <div id="feedback" style="display: none; margin-top: 1.5rem;">
+            <div class="notification" id="feedback-box">
+              <p id="feedback-text"></p>
+            </div>
+            <button class="button is-primary" onclick="nextQuestion()">
+              Next Question <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" style="display: none;">
+          <div class="content has-text-centered">
+            <h2 class="title is-2">🎉 Quiz Complete!</h2>
+            <div class="box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: 2rem 0;">
+              <h3 class="title is-1" style="color: white;">
+                <span id="final-score">0</span> / <span id="final-total">0</span>
+              </h3>
+              <p class="subtitle is-4" style="color: rgba(255,255,255,0.9);" id="grade"></p>
+            </div>
+            
+            <div class="buttons is-centered">
+              <button class="button is-large is-primary" onclick="restartQuiz()">
+                <span class="icon">
+                  <i class="fas fa-redo"></i>
+                </span>
+                <span>Try Again</span>
+              </button>
+              <a href="index.html" class="button is-large is-light">
+                <span class="icon">
+                  <i class="fas fa-arrow-left"></i>
+                </span>
+                <span>Back to Main</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quizQuestions = [
+      {
+        question: "What tag is used for a restaurant?",
+        hint: "Think about places where you eat",
+        options: ["amenity=restaurant", "shop=restaurant", "building=restaurant", "cuisine=restaurant"],
+        correct: 0,
+        explanation: "amenity=restaurant is the correct tag. 'amenity' is used for community facilities."
+      },
+      {
+        question: "Which tag represents a supermarket?",
+        hint: "Where do you buy groceries?",
+        options: ["amenity=supermarket", "shop=supermarket", "building=supermarket", "store=supermarket"],
+        correct: 1,
+        explanation: "shop=supermarket is correct. Retail stores use the 'shop' key."
+      },
+      {
+        question: "What's the correct tag for a primary road?",
+        hint: "Major roads connecting towns",
+        options: ["road=primary", "highway=primary", "street=primary", "way=primary"],
+        correct: 1,
+        explanation: "highway=primary is correct. Despite the name, 'highway' is used for all types of roads in OSM!"
+      },
+      {
+        question: "Which tag indicates a park?",
+        hint: "Green recreational spaces",
+        options: ["nature=park", "leisure=park", "green=park", "amenity=park"],
+        correct: 1,
+        explanation: "leisure=park is the standard tag for parks and recreational areas."
+      },
+      {
+        question: "What tag represents a post office?",
+        hint: "Where you mail packages",
+        options: ["building=post_office", "amenity=post_office", "shop=post_office", "service=post_office"],
+        correct: 1,
+        explanation: "amenity=post_office is the correct tag for postal facilities."
+      },
+      {
+        question: "Which tag is used for a gas station?",
+        hint: "Where you fuel your vehicle",
+        options: ["amenity=fuel", "shop=fuel", "service=gas_station", "building=fuel"],
+        correct: 0,
+        explanation: "amenity=fuel is the standard tag for gas/petrol stations."
+      },
+      {
+        question: "What's the tag for a church?",
+        hint: "Religious building",
+        options: ["building=church", "religion=church", "amenity=place_of_worship", "historic=church"],
+        correct: 2,
+        explanation: "amenity=place_of_worship is the general tag, combined with religion=* and denomination=* tags."
+      },
+      {
+        question: "Which tag represents a pharmacy?",
+        hint: "Where you get medicine",
+        options: ["shop=pharmacy", "amenity=pharmacy", "health=pharmacy", "medical=pharmacy"],
+        correct: 1,
+        explanation: "amenity=pharmacy is the correct tag for pharmacies."
+      },
+      {
+        question: "What tag is used for a bank?",
+        hint: "Financial institution",
+        options: ["shop=bank", "building=bank", "amenity=bank", "finance=bank"],
+        correct: 2,
+        explanation: "amenity=bank is the standard tag for banking facilities."
+      },
+      {
+        question: "Which tag represents a cafe?",
+        hint: "Coffee and light meals",
+        options: ["amenity=cafe", "shop=cafe", "food=cafe", "cuisine=cafe"],
+        correct: 0,
+        explanation: "amenity=cafe is correct. Cafes are community amenities like restaurants."
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    function startQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('question-screen').style.display = 'block';
+      document.getElementById('results-screen').style.display = 'none';
+      updateScore();
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= quizQuestions.length) {
+        showResults();
+        return;
+      }
+
+      const q = quizQuestions[currentQuestion];
+      document.getElementById('question-text').textContent = `Question ${currentQuestion + 1}: ${q.question}`;
+      document.getElementById('question-hint').textContent = `💡 ${q.hint}`;
+      
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      
+      q.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'button is-large option-btn';
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + index)}.</strong> ${option}`;
+        btn.onclick = () => selectAnswer(index);
+        optionsDiv.appendChild(btn);
+      });
+
+      document.getElementById('feedback').style.display = 'none';
+      answered = false;
+      updateProgress();
+    }
+
+    function selectAnswer(selected) {
+      if (answered) return;
+      answered = true;
+
+      const q = quizQuestions[currentQuestion];
+      const buttons = document.querySelectorAll('.option-btn');
+      
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === q.correct) {
+          btn.classList.add('correct');
+        } else if (index === selected && selected !== q.correct) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      const isCorrect = selected === q.correct;
+      if (isCorrect) score++;
+
+      const feedbackBox = document.getElementById('feedback-box');
+      const feedbackText = document.getElementById('feedback-text');
+      
+      if (isCorrect) {
+        feedbackBox.className = 'notification is-success';
+        feedbackText.innerHTML = `<strong>✓ Correct!</strong><br>${q.explanation}`;
+      } else {
+        feedbackBox.className = 'notification is-danger';
+        feedbackText.innerHTML = `<strong>✗ Incorrect.</strong><br>${q.explanation}`;
+      }
+
+      document.getElementById('feedback').style.display = 'block';
+      updateScore();
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      showQuestion();
+    }
+
+    function updateScore() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('total').textContent = quizQuestions.length;
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+      document.getElementById('progress').style.width = progress + '%';
+    }
+
+    function showResults() {
+      document.getElementById('question-screen').style.display = 'none';
+      document.getElementById('results-screen').style.display = 'block';
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('final-total').textContent = quizQuestions.length;
+
+      const percentage = (score / quizQuestions.length) * 100;
+      let grade = '';
+      
+      if (percentage === 100) grade = '🏆 Perfect Score! OSM Master!';
+      else if (percentage >= 80) grade = '⭐ Excellent! You know your OSM tags!';
+      else if (percentage >= 60) grade = '👍 Good job! Keep practicing!';
+      else if (percentage >= 40) grade = '📚 Not bad! Study more OSM tags.';
+      else grade = '💪 Keep learning! Practice makes perfect!';
+
+      document.getElementById('grade').textContent = grade;
+      document.getElementById('progress').style.width = '100%';
+    }
+
+    function restartQuiz() {
+      startQuiz();
+    }
+  </script>
+</body>
+</html>
+
