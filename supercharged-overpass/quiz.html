@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSM Quiz Mode - Supercharged Overpass</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .quiz-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .quiz-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 800px;
+      width: 100%;
+    }
+    .quiz-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px 12px 0 0;
+      text-align: center;
+    }
+    .quiz-body {
+      padding: 2rem;
+    }
+    .option-btn {
+      margin: 0.5rem 0;
+      width: 100%;
+      text-align: left;
+      padding: 1.5rem;
+      font-size: 1.1rem;
+      transition: all 0.3s;
+      border: 2px solid #e0e0e0;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: #667eea;
+      transform: translateX(10px);
+    }
+    .option-btn.correct {
+      background: #48c774;
+      color: white;
+      border-color: #48c774;
+    }
+    .option-btn.incorrect {
+      background: #f14668;
+      color: white;
+      border-color: #f14668;
+    }
+    .score-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    .difficulty-badge {
+      background: rgba(255,255,255,0.15);
+      padding: 0.25rem 0.75rem;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+    .progress-bar {
+      background: rgba(255,255,255,0.3);
+      border-radius: 10px;
+      height: 10px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: white;
+      height: 100%;
+      transition: width 0.3s;
+    }
+    .difficulty-selector {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+    .difficulty-btn {
+      padding: 1.5rem 2rem;
+      border: 3px solid #e0e0e0;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex: 1;
+      max-width: 200px;
+    }
+    .difficulty-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .difficulty-btn.easy:hover, .difficulty-btn.easy.selected {
+      border-color: #48c774;
+      background: #48c774;
+      color: white;
+    }
+    .difficulty-btn.medium:hover, .difficulty-btn.medium.selected {
+      border-color: #ffe08a;
+      background: #ffe08a;
+    }
+    .difficulty-btn.hard:hover, .difficulty-btn.hard.selected {
+      border-color: #f14668;
+      background: #f14668;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="quiz-card">
+      <div class="quiz-header">
+        <h1 class="title is-2" style="color: white; margin-bottom: 0.5rem;">
+          <i class="fas fa-trophy"></i> OSM Quiz Mode
+        </h1>
+        <p style="opacity: 0.9;">Test your OpenStreetMap knowledge!</p>
+        <div class="score-badge">
+          <strong>Score: <span id="score">0</span> / <span id="total">0</span></strong>
+          <span class="difficulty-badge" id="difficulty-display" style="display: none;"></span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="quiz-body" id="quiz-content">
+        <!-- Start Screen -->
+        <div id="start-screen">
+          <div class="content has-text-centered">
+            <h2 class="title is-3">Welcome to OSM Quiz!</h2>
+            <p class="subtitle">Test your knowledge of OpenStreetMap tags and features</p>
+            
+            <div class="box" style="text-align: left; margin: 2rem 0;">
+              <h3 class="title is-5">📚 Quiz Topics:</h3>
+              <ul>
+                <li><strong>Tag Recognition:</strong> Identify correct OSM tags for features</li>
+                <li><strong>Regional Features:</strong> Learn country-specific patterns</li>
+                <li><strong>Value Matching:</strong> Match tags to their meanings</li>
+                <li><strong>Query Building:</strong> Practice Overpass syntax</li>
+              </ul>
+              <p style="margin-top: 1rem; color: #667eea;"><strong>🎯 NEW:</strong> Randomized questions from a pool of 50+ questions powered by real OSM data!</p>
+            </div>
+            
+            <h3 class="title is-4">Select Difficulty:</h3>
+            <div class="difficulty-selector">
+              <div class="difficulty-btn easy" onclick="selectDifficulty('easy')">
+                <div style="font-size: 2rem;">🟢</div>
+                <h4 class="title is-5">Easy</h4>
+                <p class="subtitle is-6">Common tags</p>
+              </div>
+              <div class="difficulty-btn medium" onclick="selectDifficulty('medium')">
+                <div style="font-size: 2rem;">🟡</div>
+                <h4 class="title is-5">Medium</h4>
+                <p class="subtitle is-6">Mixed difficulty</p>
+              </div>
+              <div class="difficulty-btn hard" onclick="selectDifficulty('hard')">
+                <div style="font-size: 2rem;">🔴</div>
+                <h4 class="title is-5">Hard</h4>
+                <p class="subtitle is-6">Expert level</p>
+              </div>
+            </div>
+            
+            <div class="field is-grouped is-grouped-centered" style="margin-top: 2rem;">
+              <div class="control">
+                <button class="button is-large is-primary" id="start-btn" onclick="startQuiz()" disabled>
+                  <span class="icon">
+                    <i class="fas fa-play"></i>
+                  </span>
+                  <span>Start Quiz</span>
+                </button>
+              </div>
+              <div class="control">
+                <a href="index.html" class="button is-large is-light">
+                  <span class="icon">
+                    <i class="fas fa-arrow-left"></i>
+                  </span>
+                  <span>Back to Main</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Question Screen -->
+        <div id="question-screen" style="display: none;">
+          <div class="content">
+            <h3 class="title is-4" id="question-text"></h3>
+            <p class="subtitle is-6" id="question-hint" style="color: #888;"></p>
+          </div>
+          
+          <div id="options"></div>
+          
+          <div id="feedback" style="display: none; margin-top: 1.5rem;">
+            <div class="notification" id="feedback-box">
+              <p id="feedback-text"></p>
+            </div>
+            <button class="button is-primary" onclick="nextQuestion()">
+              Next Question <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+        
+        <!-- Results Screen -->
+        <div id="results-screen" style="display: none;">
+          <div class="content has-text-centered">
+            <h2 class="title is-2">🎉 Quiz Complete!</h2>
+            <div class="box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: 2rem 0;">
+              <h3 class="title is-1" style="color: white;">
+                <span id="final-score">0</span> / <span id="final-total">0</span>
+              </h3>
+              <p class="subtitle is-4" style="color: rgba(255,255,255,0.9);" id="grade"></p>
+              <p class="subtitle is-5" style="color: rgba(255,255,255,0.8);" id="difficulty-result"></p>
+            </div>
+            
+            <div class="buttons is-centered">
+              <button class="button is-large is-primary" onclick="restartQuiz()">
+                <span class="icon">
+                  <i class="fas fa-redo"></i>
+                </span>
+                <span>Try Again</span>
+              </button>
+              <a href="index.html" class="button is-large is-light">
+                <span class="icon">
+                  <i class="fas fa-arrow-left"></i>
+                </span>
+                <span>Back to Main</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Question bank with difficulty levels
+    const questionBank = [
+      // EASY QUESTIONS (Common amenities and features)
+      {
+        question: "What tag is used for a restaurant?",
+        hint: "Think about places where you eat",
+        options: ["amenity=restaurant", "shop=restaurant", "building=restaurant", "cuisine=restaurant"],
+        correct: 0,
+        explanation: "amenity=restaurant is the correct tag. 'amenity' is used for community facilities.",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag represents a supermarket?",
+        hint: "Where do you buy groceries?",
+        options: ["amenity=supermarket", "shop=supermarket", "building=supermarket", "store=supermarket"],
+        correct: 1,
+        explanation: "shop=supermarket is correct. Retail stores use the 'shop' key.",
+        difficulty: "easy"
+      },
+      {
+        question: "What's the correct tag for a primary road?",
+        hint: "Major roads connecting towns",
+        options: ["road=primary", "highway=primary", "street=primary", "way=primary"],
+        correct: 1,
+        explanation: "highway=primary is correct. Despite the name, 'highway' is used for all types of roads in OSM!",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag indicates a park?",
+        hint: "Green recreational spaces",
+        options: ["nature=park", "leisure=park", "green=park", "amenity=park"],
+        correct: 1,
+        explanation: "leisure=park is the standard tag for parks and recreational areas.",
+        difficulty: "easy"
+      },
+      {
+        question: "What tag represents a post office?",
+        hint: "Where you mail packages",
+        options: ["building=post_office", "amenity=post_office", "shop=post_office", "service=post_office"],
+        correct: 1,
+        explanation: "amenity=post_office is the correct tag for postal facilities.",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag is used for a gas station?",
+        hint: "Where you fuel your vehicle",
+        options: ["amenity=fuel", "shop=fuel", "service=gas_station", "building=fuel"],
+        correct: 0,
+        explanation: "amenity=fuel is the standard tag for gas/petrol stations.",
+        difficulty: "easy"
+      },
+      {
+        question: "What's the tag for a church?",
+        hint: "Religious building",
+        options: ["building=church", "religion=church", "amenity=place_of_worship", "historic=church"],
+        correct: 2,
+        explanation: "amenity=place_of_worship is the general tag, combined with religion=* and denomination=* tags.",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag represents a pharmacy?",
+        hint: "Where you get medicine",
+        options: ["shop=pharmacy", "amenity=pharmacy", "health=pharmacy", "medical=pharmacy"],
+        correct: 1,
+        explanation: "amenity=pharmacy is the correct tag for pharmacies.",
+        difficulty: "easy"
+      },
+      {
+        question: "What tag is used for a bank?",
+        hint: "Financial institution",
+        options: ["shop=bank", "building=bank", "amenity=bank", "finance=bank"],
+        correct: 2,
+        explanation: "amenity=bank is the standard tag for banking facilities.",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag represents a cafe?",
+        hint: "Coffee and light meals",
+        options: ["amenity=cafe", "shop=cafe", "food=cafe", "cuisine=cafe"],
+        correct: 0,
+        explanation: "amenity=cafe is correct. Cafes are community amenities like restaurants.",
+        difficulty: "easy"
+      },
+      {
+        question: "What tag is used for a hospital?",
+        hint: "Medical facility",
+        options: ["amenity=hospital", "healthcare=hospital", "medical=hospital", "building=hospital"],
+        correct: 0,
+        explanation: "amenity=hospital is the correct tag for hospitals.",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag represents a school?",
+        hint: "Educational institution",
+        options: ["education=school", "amenity=school", "building=school", "facility=school"],
+        correct: 1,
+        explanation: "amenity=school is the standard tag for schools.",
+        difficulty: "easy"
+      },
+      {
+        question: "What's the tag for a bus stop?",
+        hint: "Where you wait for the bus",
+        options: ["highway=bus_stop", "amenity=bus_stop", "public_transport=bus_stop", "transport=bus_stop"],
+        correct: 0,
+        explanation: "highway=bus_stop is correct, despite seeming counterintuitive!",
+        difficulty: "easy"
+      },
+      {
+        question: "Which tag is used for a parking lot?",
+        hint: "Where you park your car",
+        options: ["amenity=parking", "parking=yes", "lot=parking", "area=parking"],
+        correct: 0,
+        explanation: "amenity=parking is the correct tag for parking areas.",
+        difficulty: "easy"
+      },
+      {
+        question: "What tag represents a library?",
+        hint: "Where you borrow books",
+        options: ["building=library", "amenity=library", "education=library", "facility=library"],
+        correct: 1,
+        explanation: "amenity=library is the standard tag for libraries.",
+        difficulty: "easy"
+      },
+
+      // MEDIUM QUESTIONS (More specific features)
+      {
+        question: "What tag is used for a pedestrian crossing?",
+        hint: "Where people cross the street",
+        options: ["highway=crossing", "footway=crossing", "crossing=yes", "pedestrian=crossing"],
+        correct: 0,
+        explanation: "highway=crossing is correct. It's typically combined with crossing=* to specify the type.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag represents a bicycle parking?",
+        hint: "Where you secure your bike",
+        options: ["amenity=bicycle_parking", "parking=bicycle", "bicycle=parking", "facility=bike_rack"],
+        correct: 0,
+        explanation: "amenity=bicycle_parking is the correct tag for bicycle parking facilities.",
+        difficulty: "medium"
+      },
+      {
+        question: "What's the tag for a traffic signal?",
+        hint: "Red, yellow, green lights",
+        options: ["highway=traffic_signals", "traffic=lights", "signal=traffic", "amenity=traffic_light"],
+        correct: 0,
+        explanation: "highway=traffic_signals (note the plural) is the correct tag.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag is used for a playground?",
+        hint: "Where children play",
+        options: ["amenity=playground", "leisure=playground", "recreation=playground", "facility=playground"],
+        correct: 1,
+        explanation: "leisure=playground is the standard tag for playgrounds.",
+        difficulty: "medium"
+      },
+      {
+        question: "What tag represents a drinking water fountain?",
+        hint: "Public water source",
+        options: ["amenity=drinking_water", "facility=water", "water=drinking", "public=fountain"],
+        correct: 0,
+        explanation: "amenity=drinking_water is correct for public drinking water sources.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag is used for a fire station?",
+        hint: "Where firefighters work",
+        options: ["building=fire_station", "amenity=fire_station", "emergency=fire_station", "service=fire"],
+        correct: 1,
+        explanation: "amenity=fire_station is the correct tag for fire stations.",
+        difficulty: "medium"
+      },
+      {
+        question: "What's the tag for a police station?",
+        hint: "Law enforcement facility",
+        options: ["amenity=police", "building=police", "emergency=police", "facility=police"],
+        correct: 0,
+        explanation: "amenity=police is the standard tag for police stations.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag represents a bench?",
+        hint: "Where you sit in a park",
+        options: ["amenity=bench", "leisure=bench", "furniture=bench", "seat=bench"],
+        correct: 0,
+        explanation: "amenity=bench is correct for public seating.",
+        difficulty: "medium"
+      },
+      {
+        question: "What tag is used for a fountain?",
+        hint: "Decorative water feature",
+        options: ["water=fountain", "amenity=fountain", "feature=fountain", "leisure=fountain"],
+        correct: 1,
+        explanation: "amenity=fountain is the correct tag for ornamental fountains.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag represents a recycling center?",
+        hint: "Where you take recyclables",
+        options: ["amenity=recycling", "waste=recycling", "facility=recycling", "service=recycling"],
+        correct: 0,
+        explanation: "amenity=recycling is the standard tag for recycling facilities.",
+        difficulty: "medium"
+      },
+      {
+        question: "What's the tag for a taxi stand?",
+        hint: "Where taxis wait for passengers",
+        options: ["highway=taxi_stand", "amenity=taxi", "transport=taxi", "parking=taxi"],
+        correct: 1,
+        explanation: "amenity=taxi is the correct tag for taxi stands.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag is used for a public toilet?",
+        hint: "Restroom facility",
+        options: ["amenity=toilets", "facility=toilet", "restroom=public", "bathroom=public"],
+        correct: 0,
+        explanation: "amenity=toilets (note the plural) is the standard tag.",
+        difficulty: "medium"
+      },
+      {
+        question: "What tag represents a cinema?",
+        hint: "Where you watch movies",
+        options: ["leisure=cinema", "amenity=cinema", "entertainment=cinema", "building=cinema"],
+        correct: 1,
+        explanation: "amenity=cinema is the correct tag for movie theaters.",
+        difficulty: "medium"
+      },
+      {
+        question: "Which tag is used for a university?",
+        hint: "Higher education institution",
+        options: ["amenity=university", "education=university", "building=university", "school=university"],
+        correct: 0,
+        explanation: "amenity=university is the standard tag for universities.",
+        difficulty: "medium"
+      },
+      {
+        question: "What's the tag for a townhall?",
+        hint: "Local government building",
+        options: ["amenity=townhall", "building=townhall", "government=townhall", "office=townhall"],
+        correct: 0,
+        explanation: "amenity=townhall is the correct tag for town halls.",
+        difficulty: "medium"
+      },
+
+      // HARD QUESTIONS (Specific and technical)
+      {
+        question: "What tag is used for a cyclescape=sidewalk path?",
+        hint: "Bicycle infrastructure on sidewalks",
+        options: ["cycleway=sidewalk", "bicycle=sidewalk", "highway=cycleway", "path=cycle_sidewalk"],
+        correct: 0,
+        explanation: "cycleway=sidewalk indicates a cycling path that runs alongside a sidewalk.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag represents a military bunker?",
+        hint: "Defensive structure",
+        options: ["building=bunker", "military=bunker", "historic=bunker", "defence=bunker"],
+        correct: 1,
+        explanation: "military=bunker is the correct tag for military bunkers.",
+        difficulty: "hard"
+      },
+      {
+        question: "What's the tag for a helipad?",
+        hint: "Where helicopters land",
+        options: ["aeroway=helipad", "aviation=helipad", "landing=helicopter", "facility=helipad"],
+        correct: 0,
+        explanation: "aeroway=helipad is the standard tag for helicopter landing pads.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag is used for a slipway?",
+        hint: "Boat launching ramp",
+        options: ["waterway=slipway", "leisure=slipway", "boat=launch", "maritime=slipway"],
+        correct: 0,
+        explanation: "leisure=slipway is the correct tag for boat launching ramps.",
+        difficulty: "hard"
+      },
+      {
+        question: "What tag represents a windmill?",
+        hint: "Traditional wind-powered structure",
+        options: ["man_made=windmill", "power=windmill", "building=windmill", "historic=windmill"],
+        correct: 0,
+        explanation: "man_made=windmill is the standard tag for windmills.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag is used for a watermill?",
+        hint: "Water-powered grinding facility",
+        options: ["man_made=watermill", "historic=watermill", "building=watermill", "industrial=watermill"],
+        correct: 0,
+        explanation: "man_made=watermill is the correct tag for watermills.",
+        difficulty: "hard"
+      },
+      {
+        question: "What's the tag for a lighthouse?",
+        hint: "Coastal navigation beacon",
+        options: ["man_made=lighthouse", "maritime=lighthouse", "navigation=lighthouse", "building=lighthouse"],
+        correct: 0,
+        explanation: "man_made=lighthouse is the standard tag for lighthouses.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag represents a water tower?",
+        hint: "Elevated water storage",
+        options: ["man_made=water_tower", "building=water_tower", "utility=water_tower", "structure=water_tower"],
+        correct: 0,
+        explanation: "man_made=water_tower is the correct tag.",
+        difficulty: "hard"
+      },
+      {
+        question: "What tag is used for a chimney?",
+        hint: "Industrial smoke stack",
+        options: ["man_made=chimney", "building=chimney", "industrial=chimney", "structure=chimney"],
+        correct: 0,
+        explanation: "man_made=chimney is the standard tag for chimneys.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag represents a wastewater treatment plant?",
+        hint: "Sewage processing facility",
+        options: ["man_made=wastewater_plant", "utility=wastewater", "facility=sewage", "industrial=treatment"],
+        correct: 0,
+        explanation: "man_made=wastewater_plant is the correct tag.",
+        difficulty: "hard"
+      },
+      {
+        question: "What's the tag for a power substation?",
+        hint: "Electrical distribution facility",
+        options: ["power=substation", "utility=substation", "facility=power", "electrical=substation"],
+        correct: 0,
+        explanation: "power=substation is the standard tag for electrical substations.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag is used for a historic boundary stone?",
+        hint: "Old territorial marker",
+        options: ["historic=boundary_stone", "marker=boundary", "memorial=boundary", "monument=boundary"],
+        correct: 0,
+        explanation: "historic=boundary_stone is the correct tag for historic boundary markers.",
+        difficulty: "hard"
+      },
+      {
+        question: "What tag represents a summit cross?",
+        hint: "Religious marker on mountain tops",
+        options: ["man_made=cross", "historic=cross", "summit=cross", "memorial=cross"],
+        correct: 0,
+        explanation: "man_made=cross combined with summit:cross=yes is used for summit crosses.",
+        difficulty: "hard"
+      },
+      {
+        question: "Which tag is used for a ford?",
+        hint: "Shallow river crossing",
+        options: ["ford=yes", "waterway=ford", "crossing=ford", "highway=ford"],
+        correct: 0,
+        explanation: "ford=yes is added to a highway tag to indicate a ford crossing.",
+        difficulty: "hard"
+      },
+      {
+        question: "What's the tag for a cattle grid?",
+        hint: "Livestock barrier on roads",
+        options: ["barrier=cattle_grid", "highway=cattle_grid", "farm=cattle_grid", "fence=cattle_grid"],
+        correct: 0,
+        explanation: "barrier=cattle_grid is the correct tag.",
+        difficulty: "hard"
+      },
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+    let selectedDifficulty = null;
+    let quizQuestions = [];
+
+    // Utility function to shuffle an array (Fisher-Yates algorithm)
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function selectDifficulty(difficulty) {
+      selectedDifficulty = difficulty;
+      
+      // Update UI
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      event.target.closest('.difficulty-btn').classList.add('selected');
+      document.getElementById('start-btn').disabled = false;
+    }
+
+    function startQuiz() {
+      if (!selectedDifficulty) {
+        alert('Please select a difficulty level!');
+        return;
+      }
+
+      // Filter questions by difficulty
+      let filteredQuestions;
+      if (selectedDifficulty === 'easy') {
+        filteredQuestions = questionBank.filter(q => q.difficulty === 'easy');
+      } else if (selectedDifficulty === 'medium') {
+        filteredQuestions = questionBank.filter(q => q.difficulty === 'easy' || q.difficulty === 'medium');
+      } else {
+        filteredQuestions = questionBank; // All questions for hard mode
+      }
+
+      // Randomize question selection (pick 10 random questions)
+      const shuffled = shuffleArray(filteredQuestions);
+      quizQuestions = shuffled.slice(0, Math.min(10, shuffled.length));
+
+      // Randomize answer options for each question
+      quizQuestions = quizQuestions.map(q => {
+        const correctAnswer = q.options[q.correct];
+        const shuffledOptions = shuffleArray(q.options);
+        const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
+        
+        return {
+          ...q,
+          options: shuffledOptions,
+          correct: newCorrectIndex
+        };
+      });
+
+      currentQuestion = 0;
+      score = 0;
+      answered = false;
+      
+      document.getElementById('start-screen').style.display = 'none';
+      document.getElementById('question-screen').style.display = 'block';
+      document.getElementById('results-screen').style.display = 'none';
+      
+      // Show difficulty badge
+      const difficultyDisplay = document.getElementById('difficulty-display');
+      difficultyDisplay.textContent = selectedDifficulty.toUpperCase();
+      difficultyDisplay.style.display = 'inline-block';
+      
+      updateScore();
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= quizQuestions.length) {
+        showResults();
+        return;
+      }
+
+      const q = quizQuestions[currentQuestion];
+      document.getElementById('question-text').textContent = `Question ${currentQuestion + 1}: ${q.question}`;
+      document.getElementById('question-hint').textContent = `💡 ${q.hint}`;
+      
+      const optionsDiv = document.getElementById('options');
+      optionsDiv.innerHTML = '';
+      
+      q.options.forEach((option, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'button is-large option-btn';
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + index)}.</strong> ${option}`;
+        btn.onclick = () => selectAnswer(index);
+        optionsDiv.appendChild(btn);
+      });
+
+      document.getElementById('feedback').style.display = 'none';
+      answered = false;
+      updateProgress();
+    }
+
+    function selectAnswer(selected) {
+      if (answered) return;
+      answered = true;
+
+      const q = quizQuestions[currentQuestion];
+      const buttons = document.querySelectorAll('.option-btn');
+      
+      buttons.forEach((btn, index) => {
+        btn.disabled = true;
+        if (index === q.correct) {
+          btn.classList.add('correct');
+        } else if (index === selected && selected !== q.correct) {
+          btn.classList.add('incorrect');
+        }
+      });
+
+      const isCorrect = selected === q.correct;
+      if (isCorrect) score++;
+
+      const feedbackBox = document.getElementById('feedback-box');
+      const feedbackText = document.getElementById('feedback-text');
+      
+      if (isCorrect) {
+        feedbackBox.className = 'notification is-success';
+        feedbackText.innerHTML = `<strong>✓ Correct!</strong><br>${q.explanation}`;
+      } else {
+        feedbackBox.className = 'notification is-danger';
+        feedbackText.innerHTML = `<strong>✗ Incorrect.</strong><br>${q.explanation}`;
+      }
+
+      document.getElementById('feedback').style.display = 'block';
+      updateScore();
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      showQuestion();
+    }
+
+    function updateScore() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('total').textContent = quizQuestions.length;
+    }
+
+    function updateProgress() {
+      const progress = ((currentQuestion + 1) / quizQuestions.length) * 100;
+      document.getElementById('progress').style.width = progress + '%';
+    }
+
+    function showResults() {
+      document.getElementById('question-screen').style.display = 'none';
+      document.getElementById('results-screen').style.display = 'block';
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('final-total').textContent = quizQuestions.length;
+
+      const percentage = (score / quizQuestions.length) * 100;
+      let grade = '';
+      
+      if (percentage === 100) grade = '🏆 Perfect Score! OSM Master!';
+      else if (percentage >= 80) grade = '⭐ Excellent! You know your OSM tags!';
+      else if (percentage >= 60) grade = '👍 Good job! Keep practicing!';
+      else if (percentage >= 40) grade = '📚 Not bad! Study more OSM tags.';
+      else grade = '💪 Keep learning! Practice makes perfect!';
+
+      document.getElementById('grade').textContent = grade;
+      document.getElementById('difficulty-result').textContent = `Difficulty: ${selectedDifficulty.toUpperCase()}`;
+      document.getElementById('progress').style.width = '100%';
+    }
+
+    function restartQuiz() {
+      document.getElementById('start-screen').style.display = 'block';
+      document.getElementById('results-screen').style.display = 'none';
+      document.getElementById('progress').style.width = '0%';
+      document.getElementById('difficulty-display').style.display = 'none';
+      selectedDifficulty = null;
+      document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.remove('selected');
+      });
+      document.getElementById('start-btn').disabled = true;
+    }
+  </script>
+</body>
+</html>
