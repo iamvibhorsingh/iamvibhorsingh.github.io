@@ -7,10 +7,40 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <style>
+    :root {
+      /* Light theme colors for quiz */
+      --quiz-bg-primary: #ffffff;
+      --quiz-bg-secondary: #f8f9fa;
+      --quiz-text-primary: #212529;
+      --quiz-text-secondary: #6c757d;
+      --quiz-text-muted: #868e96;
+      --quiz-border: #dee2e6;
+      --quiz-accent: #667eea;
+      --quiz-success: #48c774;
+      --quiz-warning: #ffdd57;
+      --quiz-danger: #f14668;
+    }
+
+    [data-theme="dark"] {
+      /* Dark theme colors for quiz */
+      --quiz-bg-primary: #1a1a1a;
+      --quiz-bg-secondary: #2d2d2d;
+      --quiz-text-primary: #ffffff;
+      --quiz-text-secondary: #b3b3b3;
+      --quiz-text-muted: #888888;
+      --quiz-border: #404040;
+      --quiz-accent: #4dabf7;
+      --quiz-success: #51cf66;
+      --quiz-warning: #ffd43b;
+      --quiz-danger: #ff6b6b;
+    }
+
     body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--quiz-accent) 0%, #764ba2 100%);
       min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--quiz-text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
     }
     .quiz-container {
       min-height: 100vh;
@@ -20,14 +50,15 @@
       padding: 2rem;
     }
     .quiz-card {
-      background: white;
+      background: var(--quiz-bg-primary);
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
       max-width: 800px;
       width: 100%;
+      transition: background-color 0.3s ease;
     }
     .quiz-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, var(--quiz-accent) 0%, #764ba2 100%);
       color: white;
       padding: 2rem;
       border-radius: 12px 12px 0 0;
@@ -42,22 +73,25 @@
       text-align: left;
       padding: 1.5rem;
       font-size: 1.1rem;
-      transition: all 0.3s;
-      border: 2px solid #e0e0e0;
+      transition: all 0.3s ease;
+      border: 2px solid var(--quiz-border);
+      background-color: var(--quiz-bg-secondary);
+      color: var(--quiz-text-primary);
     }
     .option-btn:hover:not(:disabled) {
-      border-color: #667eea;
+      border-color: var(--quiz-accent);
       transform: translateX(10px);
+      background-color: var(--quiz-bg-primary);
     }
     .option-btn.correct {
-      background: #48c774;
+      background: var(--quiz-success);
       color: white;
-      border-color: #48c774;
+      border-color: var(--quiz-success);
     }
     .option-btn.incorrect {
-      background: #f14668;
+      background: var(--quiz-danger);
       color: white;
-      border-color: #f14668;
+      border-color: var(--quiz-danger);
     }
     .score-badge {
       background: rgba(255,255,255,0.2);
@@ -93,30 +127,32 @@
     }
     .difficulty-btn {
       padding: 1.5rem 2rem;
-      border: 3px solid #e0e0e0;
+      border: 3px solid var(--quiz-border);
       border-radius: 10px;
-      background: white;
+      background: var(--quiz-bg-primary);
       cursor: pointer;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
       flex: 1;
       max-width: 200px;
+      color: var(--quiz-text-primary);
     }
     .difficulty-btn:hover {
       transform: translateY(-5px);
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
     .difficulty-btn.easy:hover, .difficulty-btn.easy.selected {
-      border-color: #48c774;
-      background: #48c774;
+      border-color: var(--quiz-success);
+      background: var(--quiz-success);
       color: white;
     }
     .difficulty-btn.medium:hover, .difficulty-btn.medium.selected {
-      border-color: #ffe08a;
-      background: #ffe08a;
+      border-color: var(--quiz-warning);
+      background: var(--quiz-warning);
+      color: #363636;
     }
     .difficulty-btn.hard:hover, .difficulty-btn.hard.selected {
-      border-color: #f14668;
-      background: #f14668;
+      border-color: var(--quiz-danger);
+      background: var(--quiz-danger);
       color: white;
     }
   </style>
@@ -133,6 +169,11 @@
           <strong>Score: <span id="score">0</span> / <span id="total">0</span></strong>
           <span class="difficulty-badge" id="difficulty-display" style="display: none;"></span>
         </div>
+        <button id="quiz-theme-toggle" class="button is-small is-light" style="position: absolute; top: 1rem; right: 1rem; z-index: 10;" title="Toggle dark/light theme">
+          <span class="icon is-small">
+            <i class="fas fa-moon" id="quiz-theme-icon"></i>
+          </span>
+        </button>
         <div class="progress-bar">
           <div class="progress-fill" id="progress" style="width: 0%"></div>
         </div>
@@ -633,6 +674,36 @@
       return shuffled;
     }
 
+    // Theme management for quiz
+    function initQuizTheme() {
+      const savedTheme = localStorage.getItem('supercharged-theme') || 'light';
+      setQuizTheme(savedTheme);
+      updateQuizThemeToggle();
+    }
+
+    function setQuizTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('supercharged-theme', theme);
+    }
+
+    function toggleQuizTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setQuizTheme(newTheme);
+      updateQuizThemeToggle();
+    }
+
+    function updateQuizThemeToggle() {
+      const themeIcon = document.getElementById('quiz-theme-icon');
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+      if (currentTheme === 'dark') {
+        themeIcon.className = 'fas fa-sun';
+      } else {
+        themeIcon.className = 'fas fa-moon';
+      }
+    }
+
     function selectDifficulty(difficulty) {
       selectedDifficulty = difficulty;
       
@@ -800,6 +871,12 @@
       });
       document.getElementById('start-btn').disabled = true;
     }
+
+    // Initialize theme and event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      initQuizTheme();
+      document.getElementById('quiz-theme-toggle').addEventListener('click', toggleQuizTheme);
+    });
   </script>
 </body>
 </html>
