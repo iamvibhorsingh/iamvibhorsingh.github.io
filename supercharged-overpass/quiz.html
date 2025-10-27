@@ -16,9 +16,9 @@
       --quiz-text-muted: #868e96;
       --quiz-border: #dee2e6;
       --quiz-accent: #667eea;
-      --quiz-success: #48c774;
-      --quiz-warning: #ffdd57;
-      --quiz-danger: #f14668;
+      --quiz-success: #28a745;
+      --quiz-warning: #f59f00;
+      --quiz-danger: #dc3545;
     }
 
     [data-theme="dark"] {
@@ -29,9 +29,9 @@
       --quiz-text-secondary: #b3b3b3;
       --quiz-text-muted: #888888;
       --quiz-border: #404040;
-      --quiz-accent: #4dabf7;
+      --quiz-accent: #667eea;
       --quiz-success: #51cf66;
-      --quiz-warning: #ffd43b;
+      --quiz-warning: #ffa94d;
       --quiz-danger: #ff6b6b;
     }
 
@@ -148,7 +148,7 @@
     .difficulty-btn.medium:hover, .difficulty-btn.medium.selected {
       border-color: var(--quiz-warning);
       background: var(--quiz-warning);
-      color: #363636;
+      color: #212529;
     }
     .difficulty-btn.hard:hover, .difficulty-btn.hard.selected {
       border-color: var(--quiz-danger);
@@ -194,7 +194,7 @@
                 <li><strong>Randomized Questions:</strong> Get 10 random questions from a pool of 45 curated OSM tags</li>
                 <li><strong>Instant Feedback:</strong> Learn with explanations for each answer</li>
               </ul>
-              <p style="margin-top: 1rem; color: #667eea;"><strong>🎯 </strong> Questions cover common amenities, infrastructure, and specialized OSM features!</p>
+              <p style="margin-top: 1rem; color: var(--accent-primary);"><strong>🎯 </strong> Questions cover common amenities, infrastructure, and specialized OSM features!</p>
             </div>
             
             <h3 class="title is-4">Select Difficulty:</h3>
@@ -218,7 +218,7 @@
             
             <div class="field is-grouped is-grouped-centered" style="margin-top: 2rem;">
               <div class="control">
-                <button class="button is-large is-primary" id="start-btn" onclick="startQuiz()" disabled>
+                <button class="button is-large is-primary" id="start-btn" onclick="startQuiz()" disabled aria-label="Start the quiz">
                   <span class="icon">
                     <i class="fas fa-play"></i>
                   </span>
@@ -241,7 +241,7 @@
         <div id="question-screen" style="display: none;">
           <div class="content">
             <h3 class="title is-4" id="question-text"></h3>
-            <p class="subtitle is-6" id="question-hint" style="color: #888;"></p>
+            <p class="subtitle is-6" id="question-hint" style="color: var(--text-muted);"></p>
           </div>
           
           <div id="options"></div>
@@ -250,7 +250,7 @@
             <div class="notification" id="feedback-box">
               <p id="feedback-text"></p>
             </div>
-            <button class="button is-primary" onclick="nextQuestion()">
+            <button class="button is-primary" onclick="nextQuestion()" aria-label="Go to next question">
               Next Question <i class="fas fa-arrow-right"></i>
             </button>
           </div>
@@ -269,7 +269,7 @@
             </div>
             
             <div class="buttons is-centered">
-              <button class="button is-large is-primary" onclick="restartQuiz()">
+              <button class="button is-large is-primary" onclick="restartQuiz()" aria-label="Restart the quiz">
                 <span class="icon">
                   <i class="fas fa-redo"></i>
                 </span>
