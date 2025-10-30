@@ -20,6 +20,17 @@
     --font-size-small: 12px;
 }
 
+/* Dark mode variables */
+body.dark-mode {
+    --primary-bg: #1e1e1e;
+    --secondary-bg: #2d2d2d;
+    --border-color: #444;
+    --text-color: #e0e0e0;
+    --label-color: #b0b0b0;
+    --link-color: #4a9eff;
+    --active-color: #d4d400;
+}
+
 body {
     padding: 0;
     margin: 0;
@@ -649,6 +660,16 @@ body,
     font-size: 16px;
 }
 
+#dark-mode button::before {
+    content: "🌙";
+    font-size: 16px;
+}
+
+body.dark-mode #dark-mode button::before {
+    content: "☀️";
+    font-size: 16px;
+}
+
 /* Bbox info section */
 #bbox-info {
     flex: 1;
@@ -684,6 +705,63 @@ body,
 
 .coords button[data-clipboard-target] img {
     display: none;
+}
+
+/* Dark mode specific styles */
+body.dark-mode #info-box {
+    background: rgba(30, 30, 30, 0.95);
+    border-top-color: var(--border-color);
+}
+
+body.dark-mode #info-toggle {
+    background: var(--secondary-bg);
+}
+
+body.dark-mode #map-ui li,
+body.dark-mode #map-ui-proj li {
+    background: var(--primary-bg);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .simple-sidebar {
+    background: var(--primary-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .sidebar-header {
+    background: var(--active-color);
+    color: #000;
+}
+
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn_one {
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn_one:hover {
+    background: #3d3d3d;
+}
+
+body.dark-mode .recent-item {
+    border-color: var(--border-color);
+}
+
+body.dark-mode .recent-item:hover {
+    background: var(--secondary-bg);
+}
+
+body.dark-mode #loading-overlay {
+    background: rgba(0, 0, 0, 0.8);
 }
 
 /* Feedback sidebar */

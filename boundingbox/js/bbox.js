@@ -500,14 +500,34 @@ function formatPoint(point, proj) {
 
 function validateStringAsBounds(bounds) {
     const splitBounds = bounds ? bounds.split(',') : null;
-    return ((splitBounds !== null) &&
-        (splitBounds.length == 4) &&
-        ((-90.0 <= parseFloat(splitBounds[0]) <= 90.0) &&
-            (-180.0 <= parseFloat(splitBounds[1]) <= 180.0) &&
-            (-90.0 <= parseFloat(splitBounds[2]) <= 90.0) &&
-            (-180.0 <= parseFloat(splitBounds[3]) <= 180.0)) &&
-        (parseFloat(splitBounds[0]) < parseFloat(splitBounds[2]) &&
-            parseFloat(splitBounds[1]) < parseFloat(splitBounds[3])))
+    if (!splitBounds || splitBounds.length !== 4) {
+        return false;
+    }
+    
+    const lat1 = parseFloat(splitBounds[0]);
+    const lng1 = parseFloat(splitBounds[1]);
+    const lat2 = parseFloat(splitBounds[2]);
+    const lng2 = parseFloat(splitBounds[3]);
+    
+    // Check if all values are valid numbers
+    if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) {
+        return false;
+    }
+    
+    // Check if coordinates are within valid ranges
+    if (lat1 < -90 || lat1 > 90 || lat2 < -90 || lat2 > 90) {
+        return false;
+    }
+    if (lng1 < -180 || lng1 > 180 || lng2 < -180 || lng2 > 180) {
+        return false;
+    }
+    
+    // Check if bounds are valid (min < max)
+    if (lat1 >= lat2 || lng1 >= lng2) {
+        return false;
+    }
+    
+    return true;
 }
 
 function getFormattedBox(format) {
@@ -1859,5 +1879,90 @@ For help, bug reports, or feature requests:
     $('#cancel-feedback').on('click', function(){
         $('#feedback-form')[0].reset();
         $('#feedback button').click();
+    });
+
+    // handle dark mode toggle
+    $('#dark-mode button').click(function(){
+        $('body').toggleClass('dark-mode');
+        
+        // Save preference to localStorage
+        const isDarkMode = $('body').hasClass('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+        
+        showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success', 2000);
+    });
+
+    // Load dark mode preference
+    if (localStorage.getItem('darkMode') === 'enabled') {
+        $('body').addClass('dark-mode');
+    }
+
+    // Add center point marker functionality
+    let centerMarker = null;
+    
+    function updateCenterMarker() {
+        if (bounds && bounds.getBounds().isValid()) {
+            const center = bounds.getBounds().getCenter();
+            
+            if (centerMarker) {
+                centerMarker.setLatLng(center);
+            } else {
+                // Create a draggable marker at the center
+                centerMarker = L.marker(center, {
+                    draggable: true,
+                    icon: L.divIcon({
+                        className: 'center-marker-icon',
+                        html: '<div style="background: #ff6b6b; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>',
+                        iconSize: [12, 12],
+                        iconAnchor: [6, 6]
+                    })
+                });
+                
+                centerMarker.addTo(map);
+                
+                // Update bbox when marker is dragged
+                centerMarker.on('dragend', function(e) {
+                    const newCenter = e.target.getLatLng();
+                    const currentBounds = bounds.getBounds();
+                    const currentCenter = currentBounds.getCenter();
+                    
+                    // Calculate offset
+                    const latOffset = newCenter.lat - currentCenter.lat;
+                    const lngOffset = newCenter.lng - currentCenter.lng;
+                    
+                    // Create new bounds with offset
+                    const sw = currentBounds.getSouthWest();
+                    const ne = currentBounds.getNorthEast();
+                    const newBounds = L.latLngBounds(
+                        [sw.lat + latOffset, sw.lng + lngOffset],
+                        [ne.lat + latOffset, ne.lng + lngOffset]
+                    );
+                    
+                    // Update the bounds rectangle
+                    bounds.setBounds(newBounds);
+                    $('#boxbounds').text(formatBounds(newBounds, '4326'));
+                    $('#boxboundsmerc').text(formatBounds(newBounds, currentproj));
+                    updateBboxInfo(newBounds);
+                    
+                    showToast('Bounding box moved', 'success', 2000);
+                });
+            }
+        } else if (centerMarker) {
+            map.removeLayer(centerMarker);
+            centerMarker = null;
+        }
+    }
+
+    // Update center marker when bounds change
+    bounds.on('bounds-set', function() {
+        updateCenterMarker();
+    });
+
+    // Remove center marker when bbox is deleted
+    map.on('draw:deleted', function() {
+        if (centerMarker) {
+            map.removeLayer(centerMarker);
+            centerMarker = null;
+        }
     });
 });
