@@ -1645,7 +1645,7 @@ For help, bug reports, or feature requests:
 
     // Add in a layer to overlay the tile bounds of the google grid
     const tiles = new L.tileLayer('images/tile.png', {});
-    addLayer(tiles, '', "Google tile boundaries", 10, false);
+    addLayer(tiles, '🔲', "Google tile boundaries", 10, false);
 
     // Add satellite view toggle
     addLayer(null, '🛰️', "Toggle satellite view", 11, false, function () {

@@ -25,19 +25,24 @@ body {
     margin: 0;
     font-family: var(--font-family);
     color: var(--text-color);
-    overflow: hidden; /* Prevent scrollbars */
+    overflow: hidden;
+    /* Prevent scrollbars */
 }
 
-html, body, #map {
+html,
+body,
+#map {
     height: 100%;
     width: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden; /* Add this to prevent scrollbars */
+    overflow: hidden;
+    /* Add this to prevent scrollbars */
 }
 
 /* --- Map UI Elements --- */
-#map-ui, #map-ui-proj {
+#map-ui,
+#map-ui-proj {
     position: absolute;
     top: 10px;
     right: 50px;
@@ -52,47 +57,52 @@ html, body, #map {
     left: 50px;
 }
 
-#map-ui li, #map-ui-proj li {
+#map-ui li,
+#map-ui-proj li {
     background: var(--primary-bg);
     padding: 5px;
     margin-bottom: 5px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
     display: flex;
     align-items: center;
-    white-space: nowrap; /* Prevent text wrapping */
+    white-space: nowrap;
+    /* Prevent text wrapping */
 }
 
 #map-ui-proj li {
-    min-width: 120px; /* Ensure enough space for EPSG label */
+    min-width: 120px;
+    /* Ensure enough space for EPSG label */
 }
 
 #map-ui a {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 26px;
     height: 26px;
     background-size: 24px 24px;
     background-repeat: no-repeat;
     background-position: center;
     border-radius: 4px;
+    text-decoration: none;
+    font-size: 16px;
 }
 
 #map-ui a.enabled {
     background-color: #f0f0f0;
 }
 
-/* Icons for Map UI */
-#create-geojson a { background-image: url(../images/edit.png); }
-#geolocation a { background-image: url(../images/location.png); }
-#help a { background-image: url(../images/help.png); }
+/* Icons for Map UI - Removed old image references */
 
 .epsglabel {
     font-size: 12px;
     font-weight: bold;
     color: var(--label-color);
     margin-right: 4px;
-    flex-shrink: 0; /* Prevent label from shrinking */
+    flex-shrink: 0;
+    /* Prevent label from shrinking */
 }
 
 #projection {
@@ -140,7 +150,7 @@ html, body, #map {
     z-index: 1001;
     background: rgba(255, 255, 255, 0.9);
     border-top: 1px solid var(--border-color);
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
 #info-toggle {
@@ -186,7 +196,7 @@ html, body, #map {
     min-width: 300px;
 }
 
-.coords > div {
+.coords>div {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -201,11 +211,16 @@ html, body, #map {
 }
 
 /* Coordinate display spans */
-.bboxllpos, .bboxprojpos {
+.bboxllpos,
+.bboxprojpos {
     font-family: monospace;
     font-size: var(--font-size-normal);
 }
-.bboxllpossmall, .bboxprojpossmall, .tilesmall, .zoomsmall {
+
+.bboxllpossmall,
+.bboxprojpossmall,
+.tilesmall,
+.zoomsmall {
     font-family: monospace;
     font-size: var(--font-size-small);
 }
@@ -217,6 +232,7 @@ html, body, #map {
     opacity: 0.7;
     transition: opacity 0.2s;
 }
+
 .coords img:hover {
     opacity: 1;
 }
@@ -238,7 +254,7 @@ html, body, #map {
     margin-left: 5px;
 }
 
-#coord-format input[type="radio"], 
+#coord-format input[type="radio"],
 #coord-format input[type="checkbox"] {
     margin-right: 5px;
 }
@@ -275,16 +291,16 @@ html, body, #map {
 
 /* Map UI Button states */
 #map-ui button {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 26px;
     height: 26px;
-    background-size: 24px 24px;
-    background-repeat: no-repeat;
-    background-position: center;
     border-radius: 4px;
     border: none;
     cursor: pointer;
     background-color: transparent;
+    background-image: none;
 }
 
 #map-ui button.enabled,
@@ -293,23 +309,19 @@ html, body, #map {
 }
 
 /* Icons for Map UI - Using Unicode symbols instead of missing images */
-#create-geojson button::before { 
-    content: "✏️"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+#create-geojson button::before {
+    content: "✏️";
+    font-size: 16px;
 }
-#geolocation button::before { 
-    content: "📍"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+
+#geolocation button::before {
+    content: "📍";
+    font-size: 16px;
 }
-#help button::before { 
-    content: "❓"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+
+#help button::before {
+    content: "❓";
+    font-size: 16px;
 }
 
 #projcoords {
@@ -324,15 +336,21 @@ html, body, #map {
     background: white;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     z-index: 1000;
     font-family: var(--font-family);
-    resize: both; /* Allow both horizontal and vertical resizing */
-    overflow: hidden; /* Hide overflow to prevent scrollbars on the sidebar itself */
-    min-width: 250px; /* Minimum width */
-    min-height: 200px; /* Minimum height */
-    display: flex; /* Use flexbox layout */
-    flex-direction: column; /* Stack header and content vertically */
+    resize: both;
+    /* Allow both horizontal and vertical resizing */
+    overflow: hidden;
+    /* Hide overflow to prevent scrollbars on the sidebar itself */
+    min-width: 250px;
+    /* Minimum width */
+    min-height: 200px;
+    /* Minimum height */
+    display: flex;
+    /* Use flexbox layout */
+    flex-direction: column;
+    /* Stack header and content vertically */
 }
 
 .right-sidebar {
@@ -341,11 +359,15 @@ html, body, #map {
 }
 
 .left-sidebar {
-    bottom: 230px; /* Position above the coordinate info box */
+    bottom: 230px;
+    /* Position above the coordinate info box */
     right: 10px;
-    max-height: 600px; /* Make help sidebar taller and allow more growth */
-    width: 350px; /* Start slightly wider for help content */
-    max-width: 80vw; /* Don't exceed 80% of viewport width */
+    max-height: 600px;
+    /* Make help sidebar taller and allow more growth */
+    width: 350px;
+    /* Start slightly wider for help content */
+    max-width: 80vw;
+    /* Don't exceed 80% of viewport width */
 }
 
 .sidebar-header {
@@ -356,7 +378,8 @@ html, body, #map {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-shrink: 0; /* Header doesn't shrink */
+    flex-shrink: 0;
+    /* Header doesn't shrink */
 }
 
 .sidebar-header h3 {
@@ -376,39 +399,46 @@ html, body, #map {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0; /* Close button doesn't shrink */
+    flex-shrink: 0;
+    /* Close button doesn't shrink */
 }
 
 .close-btn:hover {
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 2px;
 }
 
 .sidebar-content {
     padding: 12px;
-    flex: 1; /* Take up remaining space */
+    flex: 1;
+    /* Take up remaining space */
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* Prevent content from overflowing */
+    overflow: hidden;
+    /* Prevent content from overflowing */
 }
 
 .sidebar-content textarea {
     width: 100%;
-    flex: 1; /* Take up all available space in the content area */
+    flex: 1;
+    /* Take up all available space in the content area */
     box-sizing: border-box;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-family: monospace;
     font-size: 12px;
     padding: 8px;
-    resize: none; /* Disable textarea resize since the whole sidebar resizes */
+    resize: none;
+    /* Disable textarea resize since the whole sidebar resizes */
     margin-top: 8px;
-    min-height: 150px; /* Minimum height for textarea */
+    min-height: 150px;
+    /* Minimum height for textarea */
 }
 
 /* Make help sidebar textarea taller initially */
 .left-sidebar .sidebar-content textarea {
-    min-height: 300px; /* Larger initial size for help content */
+    min-height: 300px;
+    /* Larger initial size for help content */
 }
 
 .sidebar-content button {
@@ -421,7 +451,8 @@ html, body, #map {
     background: var(--primary-bg);
     color: var(--text-color);
     font-size: 12px;
-    flex-shrink: 0; /* Buttons don't shrink */
+    flex-shrink: 0;
+    /* Buttons don't shrink */
 }
 
 .sidebar-content button:hover {
@@ -438,7 +469,8 @@ html, body, #map {
     height: 20px;
     background: linear-gradient(-45deg, transparent 0%, transparent 40%, var(--border-color) 40%, var(--border-color) 60%, transparent 60%);
     cursor: nw-resize;
-    pointer-events: none; /* Let the browser handle the resize */
+    pointer-events: none;
+    /* Let the browser handle the resize */
 }
 
 /* Recent bboxes sidebar */
@@ -540,8 +572,13 @@ html, body, #map {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-text {
@@ -560,7 +597,7 @@ html, body, #map {
     color: white;
     padding: 12px 20px;
     border-radius: 4px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     z-index: 10000;
     display: none;
     max-width: 300px;
@@ -572,6 +609,7 @@ html, body, #map {
         transform: translateX(400px);
         opacity: 0;
     }
+
     to {
         transform: translateX(0);
         opacity: 1;
@@ -591,32 +629,24 @@ html, body, #map {
 }
 
 /* New button icons */
-#recent-bboxes button::before { 
-    content: "📋"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+#recent-bboxes button::before {
+    content: "📋";
+    font-size: 16px;
 }
 
-#clear-all button::before { 
-    content: "🗑️"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+#clear-all button::before {
+    content: "🗑️";
+    font-size: 16px;
 }
 
-#share-url button::before { 
-    content: "🔗"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+#share-url button::before {
+    content: "🔗";
+    font-size: 16px;
 }
 
-#feedback button::before { 
-    content: "💬"; 
-    font-size: 16px; 
-    display: block; 
-    line-height: 26px; 
+#feedback button::before {
+    content: "💬";
+    font-size: 16px;
 }
 
 /* Bbox info section */
