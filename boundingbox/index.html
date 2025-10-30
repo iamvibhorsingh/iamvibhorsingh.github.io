@@ -50,6 +50,18 @@
         <li id="geolocation">
             <button type="button" title="My location" aria-label="My location" class="active"></button>
         </li>
+        <li id="recent-bboxes">
+            <button type="button" title="Recent bounding boxes" aria-label="Recent bounding boxes"></button>
+        </li>
+        <li id="clear-all">
+            <button type="button" title="Clear all features" aria-label="Clear all features"></button>
+        </li>
+        <li id="share-url">
+            <button type="button" title="Share URL" aria-label="Share URL"></button>
+        </li>
+        <li id="feedback">
+            <button type="button" title="Send Feedback" aria-label="Send Feedback"></button>
+        </li>
         <li id="help">
             <button type="button" title="Help" aria-label="Help"></button>
         </li>
@@ -72,13 +84,58 @@
     <!-- Simple left sidebar for help -->
     <div id="lsidebar" class="simple-sidebar left-sidebar" style="display: none;">
         <div class="sidebar-header">
-            <h3>Help - for support contact boundingbox@vibhorsingh.com</h3>
+            <h3>Help - for support contact contact@vibhorsingh.com</h3>
             <button class="close-btn" onclick="$('#help button').click()">×</button>
         </div>
         <div class="sidebar-content">
             <textarea readonly placeholder="Looking for a little help?" title="Help Me"></textarea>
         </div>
     </div>
+
+    <!-- Recent bboxes sidebar -->
+    <div id="recent-sidebar" class="simple-sidebar recent-sidebar" style="display: none;">
+        <div class="sidebar-header">
+            <h3>Recent Bounding Boxes</h3>
+            <button class="close-btn" onclick="$('#recent-bboxes button').click()">×</button>
+        </div>
+        <div class="sidebar-content">
+            <div id="recent-list"></div>
+        </div>
+    </div>
+
+    <!-- Feedback sidebar -->
+    <div id="feedback-sidebar" class="simple-sidebar feedback-sidebar" style="display: none;">
+        <div class="sidebar-header">
+            <h3>Send Feedback</h3>
+            <button class="close-btn" onclick="$('#feedback button').click()">×</button>
+        </div>
+        <div class="sidebar-content">
+            <form id="feedback-form">
+                <label for="feedback-name">Name (optional):</label>
+                <input type="text" id="feedback-name" placeholder="Your name">
+                
+                <label for="feedback-email">Email (optional):</label>
+                <input type="email" id="feedback-email" placeholder="your@email.com">
+                
+                <label for="feedback-message">Message: *</label>
+                <textarea id="feedback-message" placeholder="Tell us what you think, report bugs, or suggest features..." required></textarea>
+                
+                <div class="feedback-buttons">
+                    <button type="submit" id="send-feedback">Send Feedback</button>
+                    <button type="button" id="cancel-feedback">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Toast notification -->
+    <div id="toast-notification"></div>
 
     <section id="info-box">
         <div id="info-toggle">
@@ -141,8 +198,23 @@
                     <input type="radio" name="coord-order" value="lat-lng" id="latlng">
                     <label for="latlng">Lat,Lng</label><br>
                     <input type="checkbox" name="gdal-checkbox" id="gdal">
-                    <label for="gdal">GDAL format</label>
+                    <label for="gdal">GDAL format</label><br><br>
+                    <label for="precision">Precision:</label>
+                    <input type="number" id="precision" min="1" max="12" value="6" style="width: 50px;">
+                    <span style="font-size: 10px; display: block; margin-top: 2px;">decimal places</span>
                 </form>
+            </div>
+            <div id="bbox-info">
+                <div class="bboxlabel">Bounding Box Info</div>
+                <div id="bbox-area" style="font-size: 12px; margin-top: 5px;">
+                    <strong>Area:</strong> <span id="area-value">-</span>
+                </div>
+                <div id="bbox-dimensions" style="font-size: 12px; margin-top: 5px;">
+                    <strong>Size:</strong> <span id="dimensions-value">-</span>
+                </div>
+                <div id="proj-info" style="font-size: 11px; margin-top: 8px; color: #666; line-height: 1.4;">
+                    <span id="proj-description"></span>
+                </div>
             </div>
             <div id="output-formats">
                 <div class="bboxlabel">Box Formats</div>

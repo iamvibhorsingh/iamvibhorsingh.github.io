@@ -440,3 +440,295 @@ html, body, #map {
     cursor: nw-resize;
     pointer-events: none; /* Let the browser handle the resize */
 }
+
+/* Recent bboxes sidebar */
+.recent-sidebar {
+    top: 10px;
+    right: 10px;
+    width: 350px;
+    max-height: 500px;
+}
+
+#recent-list {
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.recent-item {
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    position: relative;
+}
+
+.recent-item:hover {
+    background: var(--secondary-bg);
+}
+
+.recent-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.recent-item-name {
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.recent-item-time {
+    font-size: 11px;
+    color: #666;
+}
+
+.recent-item-coords {
+    font-size: 11px;
+    font-family: monospace;
+    color: #555;
+    margin-top: 3px;
+}
+
+.recent-item-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.recent-item:hover .recent-item-delete {
+    opacity: 1;
+}
+
+.recent-item-delete:hover {
+    background: #cc0000;
+}
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: white;
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Toast notification */
+#toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    z-index: 10000;
+    display: none;
+    max-width: 300px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+#toast-notification.success {
+    background: #4CAF50;
+}
+
+#toast-notification.error {
+    background: #f44336;
+}
+
+#toast-notification.info {
+    background: #2196F3;
+}
+
+/* New button icons */
+#recent-bboxes button::before { 
+    content: "📋"; 
+    font-size: 16px; 
+    display: block; 
+    line-height: 26px; 
+}
+
+#clear-all button::before { 
+    content: "🗑️"; 
+    font-size: 16px; 
+    display: block; 
+    line-height: 26px; 
+}
+
+#share-url button::before { 
+    content: "🔗"; 
+    font-size: 16px; 
+    display: block; 
+    line-height: 26px; 
+}
+
+#feedback button::before { 
+    content: "💬"; 
+    font-size: 16px; 
+    display: block; 
+    line-height: 26px; 
+}
+
+/* Bbox info section */
+#bbox-info {
+    flex: 1;
+    border-left: 1px solid var(--border-color);
+    padding-left: 15px;
+    min-width: 200px;
+}
+
+#bbox-info .bboxlabel {
+    text-align: left;
+    flex-basis: auto;
+}
+
+/* Copy button fallback for missing images */
+.coords button[data-clipboard-target] {
+    background: none;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 11px;
+    transition: background-color 0.2s;
+}
+
+.coords button[data-clipboard-target]:hover {
+    background: var(--secondary-bg);
+}
+
+.coords button[data-clipboard-target]::before {
+    content: "📋";
+    font-size: 12px;
+}
+
+.coords button[data-clipboard-target] img {
+    display: none;
+}
+
+/* Feedback sidebar */
+.feedback-sidebar {
+    top: 10px;
+    right: 10px;
+    width: 400px;
+    max-height: 550px;
+}
+
+#feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#feedback-form label {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: -5px;
+}
+
+#feedback-form input,
+#feedback-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px;
+    font-family: var(--font-family);
+    font-size: 13px;
+}
+
+#feedback-form input {
+    height: 35px;
+}
+
+#feedback-form textarea {
+    min-height: 150px;
+    resize: vertical;
+    font-family: var(--font-family);
+}
+
+.feedback-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.feedback-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#send-feedback {
+    background: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+}
+
+#send-feedback:hover {
+    background: #45a049;
+}
+
+#cancel-feedback {
+    background: var(--secondary-bg);
+    color: var(--text-color);
+}
+
+#cancel-feedback:hover {
+    background: #ddd;
+}
