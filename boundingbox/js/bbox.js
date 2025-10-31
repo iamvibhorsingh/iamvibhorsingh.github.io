@@ -444,17 +444,17 @@ function validateStringAsBounds(bounds) {
     if (!splitBounds || splitBounds.length !== 4) {
         return false;
     }
-    
+
     const lat1 = parseFloat(splitBounds[0]);
     const lng1 = parseFloat(splitBounds[1]);
     const lat2 = parseFloat(splitBounds[2]);
     const lng2 = parseFloat(splitBounds[3]);
-    
+
     // Check if all values are valid numbers
     if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) {
         return false;
     }
-    
+
     // Check if coordinates are within valid ranges
     if (lat1 < -90 || lat1 > 90 || lat2 < -90 || lat2 > 90) {
         return false;
@@ -462,12 +462,12 @@ function validateStringAsBounds(bounds) {
     if (lng1 < -180 || lng1 > 180 || lng2 < -180 || lng2 > 180) {
         return false;
     }
-    
+
     // Check if bounds are valid (min < max)
     if (lat1 >= lat2 || lng1 >= lng2) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -1009,7 +1009,7 @@ For help, bug reports, or feature requests:
         location.hash = ymin + ',' + xmin + ',' + ymax + ',' + xmax;
     });
     map.addLayer(bounds);
-    
+
     map.on('draw:created', function (e) {
         const layer = e.layer;
         drawnItems.addLayer(layer);
@@ -1674,7 +1674,7 @@ For help, bug reports, or feature requests:
     });
 
     // handle feedback button click events
-    $('#feedback button').click(function(){
+    $('#feedback button').click(function () {
         const isEnabled = $('#feedback button').hasClass('enabled');
         if (isEnabled) {
             $('#feedback button').removeClass('enabled');
@@ -1686,20 +1686,20 @@ For help, bug reports, or feature requests:
     });
 
     // handle feedback form submission
-    $('#feedback-form').on('submit', function(e){
+    $('#feedback-form').on('submit', function (e) {
         e.preventDefault();
-        
+
         const name = $('#feedback-name').val().trim() || 'Anonymous';
         const email = $('#feedback-email').val().trim() || 'No email provided';
         const message = $('#feedback-message').val().trim();
-        
+
         if (!message) {
             showToast('Please enter a message', 'error');
             return;
         }
-        
+
         showLoading('Sending feedback...');
-        
+
         // Create mailto link with pre-filled content
         const subject = encodeURIComponent('BBox Finder Feedback');
         const body = encodeURIComponent(
@@ -1710,35 +1710,35 @@ For help, bug reports, or feature requests:
             `Sent from: ${window.location.href}\n` +
             `Browser: ${navigator.userAgent}`
         );
-        
+
         const mailtoLink = `mailto:contact@vibhorsingh.com?subject=${subject}&body=${body}`;
-        
+
         // Try to open email client
         window.location.href = mailtoLink;
-        
+
         hideLoading();
-        
+
         // Clear form and close sidebar
         $('#feedback-form')[0].reset();
         $('#feedback button').click();
-        
+
         showToast('Email client opened. Please send the email to complete your feedback.', 'success', 5000);
     });
 
     // handle feedback cancel button
-    $('#cancel-feedback').on('click', function(){
+    $('#cancel-feedback').on('click', function () {
         $('#feedback-form')[0].reset();
         $('#feedback button').click();
     });
 
     // handle dark mode toggle
-    $('#dark-mode button').click(function(){
+    $('#dark-mode button').click(function () {
         $('body').toggleClass('dark-mode');
-        
+
         // Save preference to localStorage
         const isDarkMode = $('body').hasClass('dark-mode');
         localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
-        
+
         showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success', 2000);
     });
 
@@ -1748,13 +1748,16 @@ For help, bug reports, or feature requests:
     }
 
     let centerMarker = null;
-    
+    let isDraggingMarker = false;
+
     function updateCenterMarker() {
         if (activeScreenshotLayer && bounds && bounds.getBounds().isValid()) {
             const center = bounds.getBounds().getCenter();
-            
+
             if (centerMarker) {
-                centerMarker.setLatLng(center);
+                if (!isDraggingMarker) {
+                    centerMarker.setLatLng(center);
+                }
             } else {
                 // Create a draggable marker at the center
                 centerMarker = L.marker(center, {
@@ -1766,27 +1769,26 @@ For help, bug reports, or feature requests:
                         iconAnchor: [6, 6]
                     })
                 });
-                
+
                 centerMarker.addTo(map);
-                
-                // Update bbox when marker is dragged
-                centerMarker.on('dragend', function(e) {
+
+                // Track when dragging starts
+                centerMarker.on('dragstart', function () {
+                    isDraggingMarker = true;
+                });
+
+                // Update bbox in real-time while dragging
+                centerMarker.on('drag', function (e) {
+                    if (!activeScreenshotLayer) return;
+
                     const newCenter = e.target.getLatLng();
-                    
-                    // Only move if we have an active screenshot layer
-                    if (!activeScreenshotLayer) {
-                        showToast('No bounding box to move', 'error', 2000);
-                        centerMarker.setLatLng(bounds.getBounds().getCenter());
-                        return;
-                    }
-                    
                     const currentBounds = activeScreenshotLayer.getBounds();
                     const currentCenter = currentBounds.getCenter();
-                    
-                    // Calculate offset
+
+                    // Calculate offset in lat/lng
                     const latOffset = newCenter.lat - currentCenter.lat;
                     const lngOffset = newCenter.lng - currentCenter.lng;
-                    
+
                     // Create new bounds with offset
                     const sw = currentBounds.getSouthWest();
                     const ne = currentBounds.getNorthEast();
@@ -1794,31 +1796,48 @@ For help, bug reports, or feature requests:
                         [sw.lat + latOffset, sw.lng + lngOffset],
                         [ne.lat + latOffset, ne.lng + lngOffset]
                     );
-                    
+
                     // Update the actual drawn layer
                     if (activeScreenshotLayer instanceof L.Rectangle) {
                         activeScreenshotLayer.setBounds(newBounds);
                     } else if (activeScreenshotLayer instanceof L.Polygon) {
-                        // For polygons, we need to move all points
                         const latlngs = activeScreenshotLayer.getLatLngs()[0];
-                        const newLatLngs = latlngs.map(latlng => 
+                        const newLatLngs = latlngs.map(latlng =>
                             L.latLng(latlng.lat + latOffset, latlng.lng + lngOffset)
                         );
                         activeScreenshotLayer.setLatLngs([newLatLngs]);
                     }
-                    
-                    // Update the bounds rectangle (black outline)
-                    bounds.setBounds(newBounds);
+
+                    // Update bounds outline without triggering bounds-set event
+                    bounds.setLatLngs(bounds._boundsToLatLngs(newBounds));
                     activeBounds = newBounds;
-                    
+                });
+
+                // Finalize when drag ends
+                centerMarker.on('dragend', function (e) {
+                    isDraggingMarker = false;
+
+                    if (!activeScreenshotLayer) {
+                        showToast('No bounding box to move', 'error', 2000);
+                        centerMarker.setLatLng(bounds.getBounds().getCenter());
+                        return;
+                    }
+
+                    const newBounds = activeScreenshotLayer.getBounds();
+
                     // Update coordinate displays
                     $('#boxbounds').text(formatBounds(newBounds, '4326'));
                     $('#boxboundsmerc').text(formatBounds(newBounds, currentproj));
                     updateBboxInfo(newBounds);
-                    
+
+                    // Update URL hash
+                    const sw = newBounds.getSouthWest();
+                    const ne = newBounds.getNorthEast();
+                    location.hash = `${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`;
+
                     // Save to recent
                     saveRecentBbox(newBounds);
-                    
+
                     showToast('Bounding box moved', 'success', 2000);
                 });
             }
@@ -1829,12 +1848,12 @@ For help, bug reports, or feature requests:
     }
 
     // Update center marker when bounds change
-    bounds.on('bounds-set', function() {
+    bounds.on('bounds-set', function () {
         updateCenterMarker();
     });
 
     // Remove center marker when bbox is deleted
-    map.on('draw:deleted', function() {
+    map.on('draw:deleted', function () {
         if (centerMarker) {
             map.removeLayer(centerMarker);
             centerMarker = null;
