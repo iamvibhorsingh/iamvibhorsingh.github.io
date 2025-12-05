@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://t.contentsquare.net/uxa/873c6699ef385.js"></script>
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="description" content="Building LookStuffUp: A Deep Dive into a Side-Project Browser Extension">
+<meta name="keywords" content="browser extension, side-project, web development, javascript, shadow dom, api">
+<meta name="author" content="Vibhor Singh">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>Building "LookStuffUp": A Deep Dive</title>
+<link rel="canonical" href="https://iamvibhorsingh.github.io/portfolio/4_1/" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Building 'LookStuffUp': A Deep Dive into a Side-Project Browser Extension",
+  "name": "Building 'LookStuffUp': A Deep Dive into a Side-Project Browser Extension",
+  "description": "A deep dive into the technical decisions and challenges behind building a browser extension for on-page lookups.",
+  "author": {
+    "@type": "Person",
+    "name": "Vibhor Singh",
+    "url": "https://iamvibhorsingh.github.io"
+  },
+  "datePublished": "2025-07-10",
+  "image": "https://iamvibhorsingh.github.io/portfolio/images/lookstuffup.png"
+}
+</script>
+
+<link rel="stylesheet" href="../css/bootstrap.min.css">
+<link rel="stylesheet" href="../css/font-awesome.min.css">
+
+<!-- Main css -->
+<link rel="stylesheet" href="../css/style.css">
+<link href="https://fonts.googleapis.com/css?family=Lora|Merriweather:300,400" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- PRE LOADER -->
+
+<div class="preloader">
+     <div class="sk-spinner sk-spinner-wordpress">
+          <span class="sk-inner-circle"></span>
+     </div>
+</div>
+
+<!-- Navigation section  -->
+
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+     <div class="container">
+
+          <div class="navbar-header">
+               <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon icon-bar"></span>
+                    <span class="icon icon-bar"></span>
+                    <span class="icon icon-bar"></span>
+               </button>
+               <a href="https://iamvibhorsingh.github.io" class="navbar-brand">Vibhor Singh</a>
+          </div>
+          <div class="collapse navbar-collapse">
+               <ul class="nav navbar-nav navbar-right">
+                    <li><a href="../index.html">Portfolio</a></li>
+                    <li><a href="../gallery.html">Gallery</a></li>
+               </ul>
+          </div>
+
+  </div>
+</div>
+
+<!-- Home Section -->
+
+<section id="home" class="main-single-post parallax-section">
+     <div class="overlay"></div>
+     <div class="container">
+          <div class="row">
+
+               <div class="col-md-12 col-sm-12">
+                    <h1>Building "LookStuffUp"</h1>
+               </div>
+
+          </div>
+     </div>
+</section>
+
+<!-- Blog Single Post Section -->
+
+<section id="blog-single-post">
+     <div class="container">
+          <div class="row">
+
+               <div class="col-md-offset-1 col-md-10 col-sm-12">
+                    <div class="blog-single-post-thumb">
+                         
+                         <div class="blog-post-title">
+                              <h2><a href="#">Building "LookStuffUp": A Deep Dive into a Side-Project Browser Extension</a></h2>
+                         </div>
+
+                         <div class="blog-post-format">
+                              <span><a href="#"><img src="../images/author.jpeg" class="img-responsive img-circle"> Vibhor Singh</a></span>
+                              <span><i class="fa fa-date"></i> July 10, 2025</span>
+                         </div>
+
+                         <div class="blog-post-des">
+                              <p>It started, as many projects do, from a small, personal annoyance. I read a lot online—articles, documentation, random Wikipedia rabbit holes—and I was constantly breaking my flow. I'd stumble on a name, a term, or a concept I didn't know, and the ritual would begin: highlight, right-click, "Search Google for...", open a new tab, scan the results, and then try to remember where I was in the original article. It was clunky and distracting.</p>
+                              <p>I had a thought: "What if the context could come to me? What if I could just... get a quick summary right here, without leaving the page?" That simple idea was the seed for "LookStuffUp," a browser extension that became a fascinating journey through modern web development. I wanted to do a deeper dive into how it was built, the tech I chose, the struggles I hit, and the little victories that made it all worthwhile.</p>
+
+                              <h3>The First Hurdle: The Tooltip vs. The Wild West of CSS</h3>
+                              <p>The very first feature was the most obvious one: show a tooltip with information. This sounds simple, but it’s an absolute minefield in extension development. How do you inject a UI element onto <em>any</em> webpage—from a minimalist blog to a complex, style-heavy web app—without it looking like a broken mess?</p>
+                              <p>My first attempt was naive. I just injected my HTML and CSS directly into the page. It was a disaster. On some sites, my tooltip's CSS would be overridden by the page's global styles (<code>div { box-sizing: content-box; }</code> will ruin your day). On others, my styles would leak out and accidentally restyle parts of the host page.</p>
+                              <p>The solution, and my first major "aha!" moment, was the <strong>Shadow DOM</strong>. It’s an incredible browser feature that lets you create a completely encapsulated, isolated DOM tree. My <code>content.js</code> script creates a single, empty <code>&lt;div&gt;</code> on the page to act as a host. Then, it attaches a shadow root to it: <code>tooltipHost.attachShadow({ mode: 'open' });</code>. Everything—my tooltip's HTML, its structure, and its styles—lives inside this shadow root. The page's CSS can't get in, and mine can't get out.</p>
+                              <p>To load the styles, I used <code>chrome.runtime.getURL('styles.css')</code> to get the path to my stylesheet, fetched its content, and injected it into a <code>&lt;style&gt;</code> tag inside the shadow root. This pattern is a lifesaver for any extension that needs to render its own UI on a page.</p>
+
+                              <h3>The Brains of the Operation: A Waterfall of Data Sources</h3>
+                              <p>Okay, so I can show an empty box. What do I put in it? I knew from the start I didn't want to rely on a single source of information. I wanted the extension to feel "intelligent." So I built a waterfall system in <code>background.js</code>'s <code>searchSources</code> function. It’s not just one API call; it’s a cascade of different sources, ordered by what I figured would be most relevant for a given query.</p>
+                              <ol>
+                                   <li><strong>Is it a single English word?</strong> The logic <code>lang === 'en' && words.length === 1</code> checks for this. If it's a match, the first stop is the <strong>DictionaryAPI</strong>. It's free, fast, and gives a clean, structured definition with parts of speech and phonetics, which is perfect for simple word lookups.</li>
+                                   <li><strong>For everything else, let's try Google first.</strong> I wired it up to the Google Custom Search API. This presented a classic developer trade-off. To keep the extension free and avoid hitting a global rate limit, I couldn't hardcode my own API key. The best solution was to have users provide their own free keys via the options page. It's a bit of a setup hassle for the user, but it gives them the best possible results. I provided a <code>DEFAULT_CSE_ID</code> that searches the whole web, so it still works out-of-the-box, but a user-configured engine ID can provide much more specific results.</li>
+                                   <li><strong>Next up: Wikipedia.</strong> This is the king for proper nouns, historical figures, and general concepts. The Wikipedia API requires a neat two-step dance. First, I hit the <code>opensearch</code> endpoint to find the most likely page title for the user's query. This handles redirects and misspellings. Then, with the correct title, I make a second call to the <code>query</code> endpoint with <code>prop=extracts</code> to get a clean, introductory summary of the page. I also added a little enhancement: if a search in a specific language (e.g., German) fails, the <code>searchWikipedia</code> function calls itself again to retry in English, which covers a huge number of cases for technical terms or names.</li>
+                                   <li><strong>The Fallbacks: DuckDuckGo and Wiktionary.</strong> If all else fails, I have two more great sources. The DuckDuckGo Instant Answers API is fantastic and often has concise summaries. Wiktionary is a great source for definitions, especially for non-English words. Each of these required its own custom formatter (<code>formatDuckDuckGoResult</code>, <code>formatWiktionaryResult</code>) to parse their unique JSON structures.</li>
+                              </ol>
+                              <p>This layered approach is the core of the extension's logic. It provides resilience — if one service is down or doesn't have a result, another one probably will.</p>
+
+                              <h3>Before the Search: Language Detection</h3>
+                              <p>How do I know which Wikipedia or Wiktionary to search? I needed simple language detection. I didn't want to bundle a heavy library for this, so I wrote a lightweight <code>detectLanguage</code> function. It uses simple regex tests for different Unicode character sets: <code> /[\u0590-\u05FF]/.test(text)</code> for Hebrew, <code> /[\u4E00-\u9FFF]/.test(text)</code> for Chinese, and so on. It's not foolproof, but for the purpose of picking the right API endpoint, it's fast, efficient, and has zero dependencies.</p>
+
+                              <h3>Performance, Polish, and Not Annoying the User</h3>
+                              <p>A tool you use constantly has to <em>feel</em> fast and seamless. Performance and good UX were top priorities.</p>
+                              <ul>
+                                   <li><strong>Caching:</strong> The first search for a term might take a moment to hit all the APIs. But if you look it up again, it should be instant. I built a simple in-memory cache using a JavaScript <code>Map</code>. The <code>getCacheKey</code> function creates a unique key from the query and language (<code>`${lang}:${query.toLowerCase()}`</code>). To prevent it from growing forever, I capped it at <code>MAX_CACHE_SIZE</code> and implemented a simple eviction policy: if the cache is full, the oldest entry is deleted before adding a new one. All cached data also has a <code>CACHE_DURATION</code> of one hour.</li>
+                                   <li><strong>Rate Limiting:</strong> It's surprisingly easy to select text many times in a row. To avoid spamming the APIs and getting a user's IP temporarily blocked, I implemented a simple rate limiter. It keeps an array of recent request timestamps and won't fire a new request if the limit (<code>REQUEST_LIMIT</code>) within a given period (<code>REQUEST_PERIOD</code>) is exceeded.</li>
+                                   <li><strong>Debouncing:</strong> In <code>content.js</code>, the <code>mouseup</code> event can be very noisy. A user might select, adjust, re-select. Firing a network request on every single <code>mouseup</code> event would be incredibly wasteful. I wrapped the <code>fetchContext</code> call in a 300ms <code>setTimeout</code>. This debounce ensures that we only send a request when the user has paused for a moment, implying they've settled on their selection.</li>
+                                   <li><strong>UI Polish & Options:</strong> The little things make a difference. I built out an <code>options.html</code> page to give users control. Using <code>chrome.storage.sync</code>, I save their preferences for dark mode, font size, and—a personal favorite—a "Draggable Tooltip" setting. The logic in <code>content.js</code> for the draggable tooltip was fun to write: on <code>mousedown</code> on the tooltip's header, it sets a flag and records the mouse offset. On <code>mousemove</code>, it updates the tooltip's <code>left</code> and <code>top</code> style properties. The setting is synced across all tabs and sessions.</li>
+                              </ul>
+
+                              <h3>The Cross-Browser Conundrum: Chrome vs. Firefox</h3>
+                              <p>I wanted this to work for as many people as possible. Thankfully, building a cross-browser extension is easier than ever.</p>
+                              <p>All i did was a tiny compatibility check at the top of any script that called an extension API:<br>
+                              <code>const runtimeAPI = typeof browser !== 'undefined' ? browser.runtime : chrome.runtime;</code></p>
+                              <p>The other major difference is the <code>manifest.json</code> file.</p>
+                              <ul>
+                                   <li><strong>Manifest Version:</strong> Chrome is on V3, while Firefox is still on V2.</li>
+                                   <li><strong>Background Scripts:</strong> V3 requires a <code>background.service_worker</code>. V2 uses a <code>background.scripts</code> array.</li>
+                                   <li><strong>Permissions:</strong> In V2, you can list host permissions directly in the <code>permissions</code> array. V3 splits them out into a separate <code>host_permissions</code> key.</li>
+                                   <li><strong>Firefox Specifics:</strong> Firefox requires a <code>browser_specific_settings</code> key with a Gecko ID for publishing.</li>
+                              </ul>
+                              <p>With a couple of small scripts to generate the correct manifest for each target, I was in business on both platforms.</p>
+
+                              <h3>What I Learned</h3>
+                              <p>Building LookStuffUp was a huge learning experience that I've taken into my professional work. It really hammered home a few key lessons:</p>
+                              <ul>
+                                   <li><strong>Embrace the Platform:</strong> The Shadow DOM isn't just a curiosity; it's the right way to build isolated components for extensions.</li>
+                                   <li><strong>Layer Your Logic:</strong> A multi-layered data fetching strategy is far more resilient and provides a better user experience than relying on a single source.</li>
+                                   <li><strong>The Frontend IS a Distributed System:</strong> Client-side caching, rate-limiting, and debouncing aren't just for big server-side apps. They are critical for creating a responsive and responsible client-side tool.</li>
+                                   <li><strong>Plan for Differences:</strong> Cross-browser support isn't the monster it used to be, but you have to plan for the small differences in APIs and manifest files from the start.</li>
+                              </ul>
+                              <p>It's been incredibly rewarding to build a tool that solves a problem I had. It's not perfect, but it's something I use dozens of times a day. It's a testament to the power of a small idea and the fun of seeing a side project all the way through. I hope it helps a few other people break that 'open-a-new-tab' habit, too.</p> 
+                         </div>
+                    </div>
+                </div>
+          </div>
+     </div>
+</section>
+
+<!-- Footer Section -->
+
+<footer>
+     <div class="container">
+          <div class="row">
+
+               <div class="col-md-5 col-md-offset-1 col-sm-6">
+                    <h3>Vibhor Singh's Portfolio</h3>
+                    <p>A collection of my work and thoughts.</p>
+               </div>
+
+               <div class="col-md-4 col-md-offset-1 col-sm-6">
+                    <h3>Talk to me</h3>
+                    <p><i class="fa fa-globe"></i> Winona, MN</p>
+                    <p><i class="fa fa-envelope-o"></i> <a href="mailto:contact@vibhorsingh.com">contact@vibhorsingh.com</a></p>
+               </div>
+
+               <div class="clearfix col-md-12 col-sm-12">
+                    <hr>
+               </div>
+
+               <div class="col-md-12 col-sm-12">
+                    <ul class="social-icon">
+                         <li><a href="https://github.com/iamvibhorsingh" class="fa fa-github"></a></li>
+                         <li><a href="https://www.linkedin.com/in/iamvibhorsingh/" class="fa fa-linkedin"></a></li>
+                    </ul>
+               </div>
+               
+          </div>
+     </div>
+</footer>
+
+<!-- Back top -->
+<a href="#back-top" class="go-top"><i class="fa fa-angle-up"></i></a>
+
+<!-- SCRIPTS -->
+
+<script src="../js/jquery.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/jquery.parallax.js"></script>
+<script src="../js/custom.js"></script>
+
+</body>
+</html> 

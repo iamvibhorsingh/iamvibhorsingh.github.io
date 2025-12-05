@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Diary: Building "WhereAreYou?" | Vibhor Singh</title>
+    <meta name="description"
+        content="A dev diary about building a simple GeoGuesser-style game with Flask, vanilla JavaScript, and the Google Maps API.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-grid"></div>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">VS<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../index.html#about">About</a></li>
+                    <li><a href="../index.html#projects">Projects</a></li>
+                    <li><a href="../index.html#gallery">Gallery</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <article class="blog-post-container">
+            <a href="../index.html#projects" class="back-link"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+
+            <header class="blog-header">
+                <h1 class="blog-title">Dev Diary: Building "WhereAreYou?"</h1>
+                <div class="blog-meta">
+                    <span><i class="far fa-calendar"></i> May 15, 2023</span>
+                    <span><i class="fas fa-tag"></i> Web Development</span>
+                </div>
+            </header>
+
+            <div class="blog-content">
+                <img src="../images/whereareyou.png" alt="WhereAreYou Game Screenshot" class="blog-hero-image"
+                    style="width: 100%; border-radius: 8px; margin-bottom: 2rem;">
+
+                <p>When you're starting a small project, it's tempting to reach for the latest and greatest tech. But I
+                    decided to stick with a simple, robust stack that I knew would get the job done without a lot of
+                    ceremony.</p>
+                <ul>
+                    <li><strong>Backend:</strong> Python and Flask. Flask is my go-to for small projects. It's
+                        lightweight, unopinionated, and lets you get a web server up and running in minutes. For this
+                        project, all I needed was a single API endpoint, so bringing in something like Django would have
+                        been like using a sledgehammer to crack a nut.</li>
+                    <li><strong>Frontend:</strong> Good ol' Vanilla JavaScript, HTML, and CSS. No React, no Vue, no
+                        Angular. The game's logic is fairly straightforward, and I wanted to avoid the overhead of a big
+                        framework. This decision forced me to be clean with my DOM manipulation and state management,
+                        which was a great exercise.</li>
+                    <li><strong>The Star Player:</strong> The Google Maps JavaScript API. This is what makes the whole
+                        thing possible. I specifically used the <code>StreetViewPanorama</code> service, the
+                        <code>Maps</code> service for the guess map, and a crucial helper, the
+                        <code>StreetView Image Metadata</code> API.
+                    </li>
+                    <li><strong>Deployment:</strong> Docker and Gunicorn. Even for a small project, I think it's crucial
+                        to plan for deployment from the start. Using Docker means my development environment is
+                        identical to my production environment. Gunicorn is a battle-tested WSGI server for Python, a
+                        massive step up from Flask's built-in development server. The <code>Dockerfile</code> is simple:
+                        start with a Python image, install dependencies from <code>requirements.txt</code>, copy the
+                        code, and fire up Gunicorn.</li>
+                </ul>
+
+                <h3>System Design: The Core Loop</h3>
+                <p>At its heart, the application is a conversation between the client (the browser) and the server.</p>
+                <p>Here’s the high-level flow:</p>
+                <ol>
+                    <li><strong>Settings:</strong> The user first lands on an <code>intro.html</code> page to choose
+                        their game settings. This is a simple HTML form.</li>
+                    <li><strong>Game Start:</strong> When the user hits "Start," the browser navigates to the main game
+                        page, <code>index.html</code>, passing the settings as URL parameters (e.g.,
+                        <code>?countdownToggle=on&timer=30</code>).
+                    </li>
+                    <li><strong>The API Call:</strong> As soon as the game page loads, the frontend JavaScript
+                        (<code>game.js</code>) makes a <code>fetch</code> request to my one and only backend endpoint:
+                        <code>/api/random-location</code>.
+                    </li>
+                    <li><strong>The Backend's Magic Trick:</strong> This is where the core challenge of the entire app
+                        lies. The backend's job is to find a random spot <em>on Earth</em> that actually has Google
+                        Street View data.</li>
+                    <li><strong>Rendering the Game:</strong> The backend responds with the latitude and longitude. The
+                        frontend then uses this to initialize the <code>StreetViewPanorama</code> and the guessing map.
+                    </li>
+                </ol>
+
+                <h3>The Biggest Challenge: "Just Find a Random Place"</h3>
+                <p>This sounds so easy, but it was the hardest part of the project. My first naive thought was: just
+                    generate a random latitude and longitude and feed it to Street View. I quickly discovered that this
+                    usually lands you in the middle of an ocean, a desert, or a forest with no Street View coverage.</p>
+                <p>The solution was to use the <strong>Street View Image Metadata API</strong>. This endpoint acts as a
+                    check. You give it coordinates, and it tells you if a panorama exists nearby.</p>
+                <p>My backend logic for <code>/api/random-location</code> ended up looking like this, in a
+                    <code>while True</code> loop:
+                </p>
+                <ol>
+                    <li>Generate a random <code>lat</code> between -90 and 90 and <code>lng</code> between -180 and 180.
+                    </li>
+                    <li>Make a GET request to the <code>streetview/metadata</code> endpoint with these coordinates.</li>
+                    <li>Crucially, I added a <code>radius</code> of 100,000 meters. This tells the API, "Look for a
+                        panorama within 100km of this random point." This dramatically increases the chances of finding
+                        something.</li>
+                    <li>I also added <code>source: 'outdoor'</code> to prioritize outdoor shots, which is what you want
+                        for a GeoGuesser game.</li>
+                    <li>The API response has a <code>status</code> field. If <code>status</code> is <code>'OK'</code>,
+                        it means a panorama was found. I break the loop and send the coordinates from the metadata
+                        (which are the <em>actual</em> panorama coordinates, not my random guess) back to the client.
+                    </li>
+                    <li>If the status is <code>ZERO_RESULTS</code> or there's an error, the loop continues, and it tries
+                        again with a new random point.</li>
+                </ol>
+                <p>It feels a bit like brute force, and it is! But for a simple app, it's surprisingly effective. The
+                    <code>try...except</code> block is important to catch network errors so the server doesn't crash if
+                    the Google API call fails.
+                </p>
+
+                <h3>On the Frontend: Taming Asynchronicity and Making it Fun</h3>
+                <h4>The Game Loop in <code>game.js</code></h4>
+                <ol>
+                    <li><strong>Modern API Loading:</strong> I'm using the new <code>async/await</code> syntax with
+                        <code>google.maps.importLibrary("maps")</code>. This is way cleaner than the old callback-based
+                        approach and makes the initialization code much easier to read.
+                    </li>
+                    <li><strong>State Management:</strong> I kept it simple with a few global variables:
+                        <code>map</code>, <code>panorama</code>, <code>latLng</code> for the correct answer, and
+                        <code>guessMarker</code>. No need for a complex state machine here.
+                    </li>
+                    <li><strong>The Guess:</strong> When the user clicks the "Guess" button, the <code>makeGuess</code>
+                        function kicks in. This is where the payoff happens.
+                        <ul>
+                            <li><strong>Calculating Distance:</strong> The Maps API has a <code>geometry</code> library
+                                that does the heavy lifting.
+                                <code>spherical.computeDistanceBetween(actualLatLng, guessLatLng)</code> calculates the
+                                great-circle distance between the two points in meters.
+                            </li>
+                            <li><strong>The Scoring Algorithm:</strong> A linear score felt boring. Getting within 1km
+                                should be worth way more than getting within 2000km. I settled on an exponential decay
+                                function: <code>score = 10000 * Math.exp(-distance / 2000000)</code>. This gives a
+                                perfect 10,000 for very close guesses and drops off quickly, which feels more rewarding.
+                            </li>
+                            <li><strong>Visual Feedback:</strong> This is key to making it feel like a game.
+                                <ul>
+                                    <li>I draw a red <code>Polyline</code> between the guess and the actual answer.</li>
+                                    <li>I drop a new green marker on the actual location.</li>
+                                    <li>I use the map's <code>fitBounds</code> method to automatically zoom and pan so
+                                        both the guess and the answer are perfectly in view. This is a small touch that
+                                        makes a huge difference to the user experience.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Final Thoughts and Learnings</h3>
+                <p>This project was a great reminder that you don't need a mountain of frameworks to build something
+                    cool.</p>
+                <ul>
+                    <li><strong>Learning 1:</strong> The power of utility APIs. The Street View Metadata API was the
+                        unsung hero of this project. Sometimes the key to solving a problem is finding that one small,
+                        simple tool that does exactly what you need.</li>
+                    <li><strong>Learning 2:</strong> Plan for production. Writing a <code>Dockerfile</code> from day one
+                        made the (eventual) deployment process a non-event. Gunicorn is a must for any real Flask app.
+                    </li>
+                    <li><strong>Learning 3:</strong> UX is in the details. Things like disabling buttons when they can't
+                        be used, providing fun feedback messages based on the score, and automatically adjusting the map
+                        view are what elevate a project from a technical demo to a fun user experience.</li>
+                </ul>
+                <p>It was a blast to build, and it's a great little game to challenge friends with. Now, if you'll
+                    excuse me, I have a new idea for a feature... maybe a multiplayer mode?</p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="contact-section">
+        <div class="container">
+            <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+                    class="fas fa-coffee"></i>.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+
+</html>

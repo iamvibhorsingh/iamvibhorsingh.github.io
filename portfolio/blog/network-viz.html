@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Visualizations | Vibhor Singh</title>
+    <meta name="description"
+        content="Sankey diagram visualizing relationships between countries and donation purposes.">
+
+    <!-- Fonts -->
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Network Visualizations | Vibhor Singh</title>
+        <meta name="description"
+            content="Sankey diagram visualizing relationships between countries and donation purposes.">
+
+        <!-- Fonts -->
+        <!DOCTYPE html>
+        <html lang="en">
+
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Network Visualizations | Vibhor Singh</title>
+            <meta name="description"
+                content="Sankey diagram visualizing relationships between countries and donation purposes.">
+
+            <!-- Fonts -->
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link
+                href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+                rel="stylesheet">
+
+            <!-- D3.js v3 for Sankey -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/gh/newrelic-forks/d3-plugins-sankey@master/sankey.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3.chart/0.3.0/d3.chart.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/gh/q-m/d3.chart.sankey@master/d3.chart.sankey.min.js"></script>
+
+            <style>
+                #chart {
+                    height: 620px;
+                    font: 15px sans-serif;
+                    background: rgba(255, 255, 255, 0.9);
+                    border-radius: 8px;
+                    padding: 1rem;
+                    margin: 2rem 0;
+                    overflow-x: auto;
+                    color: #000;
+                }
+
+                .node rect {
+                    fill-opacity: .9;
+                    shape-rendering: crispEdges;
+                    stroke-width: 0;
+                }
+
+                .node text {
+                    text-shadow: 0 1px 0 #fff;
+                    fill: #000;
+                }
+
+                .link {
+                    fill: none;
+                    stroke: #000;
+                    stroke-opacity: .3;
+                }
+            </style>
+
+            <!-- CSS -->
+            <link rel="stylesheet" href="../css/style.css">
+
+            <!-- Icons -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        </head>
+
+    <body>
+        <div class="background-grid"></div>
+
+        <header class="navbar">
+            <div class="container">
+                <a href="../index.html" class="logo">VS<span class="dot">.</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="../index.html#projects">Projects</a></li>
+                        <li><a href="../gallery.html">Gallery</a></li>
+                        <li><a href="../index.html#contact">Contact</a></li>
+                    </ul>
+                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </nav>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <article class="blog-post-container">
+                <a href="../index.html#projects" class="back-link"><i class="fas fa-arrow-left"></i> Back to
+                    Projects</a>
+
+                <header class="blog-header">
+                    <h1 class="blog-title">Network Visualizations</h1>
+                    <div class="blog-meta">
+                        <span><i class="far fa-calendar"></i> March 20, 2020</span>
+                        <span><i class="fas fa-tag"></i> Visualization</span>
+                    </div>
+                </header>
+
+                <div class="blog-content">
+                    <p>This Sankey diagram visualizes the flow of donations between countries and their purposes. It
+                        highlights the complex web of international aid and the specific areas different nations focus
+                        on.</p>
+
+                    <div id="chart"></div>
+
+                    <p><em>Relationship between countries in terms of top 5 purposes of donations.</em></p>
+                </div>
+            </article>
+        </main>
+
+        <footer class="contact-section">
+            <div class="container">
+                <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+                        class="fas fa-coffee"></i>.</p>
+            </div>
+        </footer>
+
+        <script src="../js/main.js"></script>
+        <script>
+            var colors = {
+                'industrial': '#edbd00',
+                'air': '#367d85',
+                'res': '#7AAB49',
+                'rail': '#f5662b',
+                'power': '#D79850',
+                'fallback': '#ccc'
+            };
+
+            var json = {
+                "nodes": [
+                    {
+                        "name": "Reschedule and Refinancing",
+                        "id": "res"
+                    },
+                    {
+                        "name": "Industrial Development",
+                        "id": "industrial"
+                    },
+                    {
+                        "name": "Air Transport",
+                        "id": "air"
+                    },
+                    {
+                        "name": "Rail Transport",
+                        "id": "rail"
+                    },
+                    {
+                        "name": "Power Generation -  Non Renewable",
+                        "id": "power"
+                    },
+                    {
+                        "name": "Italy",
+                        "id": "5"
+                    },
+                    {
+                        "name": "Canada",
+                        "id": "6"
+                    },
+                    {
+                        "name": "France",
+                        "id": "7"
+                    },
+                    {
+                        "name": "Germany",
+                        "id": "8"
+                    },
+                    {
+                        "name": "Japan",
+                        "id": "9"
+                    },
+                    {
+                        "name": "Netherlands",
+                        "id": "10"
+                    },
+                    {
+                        "name": "Norway",
+                        "id": "11"
+                    },
+                    {
+                        "name": "Sweden",
+                        "id": "12"
+                    },
+                    {
+                        "name": "United Kingdom",
+                        "id": "13"
+                    },
+                    {
+                        "name": "United States",
+                        "id": "14"
+                    },
+                    {
+                        "name": "Thailand",
+                        "id": "15"
+                    },
+                    {
+                        "name": "Brazil",
+                        "id": "16"
+                    },
+                    {
+                        "name": "Korea",
+                        "id": "17"
+                    },
+                    {
+                        "name": "Poland",
+                        "id": "18"
+                    },
+                    {
+                        "name": "India",
+                        "id": "19"
+                    },
+                    {
+                        "name": "Kuwait",
+                        "id": "20"
+                    },
+                    {
+                        "name": "South Africa",
+                        "id": "21"
+                    },
+                    {
+                        "name": "Chile",
+                        "id": "22"
+                    },
+                    {
+                        "name": "Columbia",
+                        "id": "23"
+                    },
+                    {
+                        "name": "Saudi Arabia",
+                        "id": "24"
+                    }
+                ],
+                "links": [
+                    {
+                        "source": 5,
+                        "value": 0.1,
+                        "target": 0
+                    },
+                    {
+                        "source": 6,
+                        "value": 0.09,
+                        "target": 0
+                    },
+                    {
+                        "source": 7,
+                        "value": 0.06,
+                        "target": 0
+                    },
+                    {
+                        "source": 8,
+                        "value": 0.5,
+                        "target": 0
+                    },
+                    {
+                        "source": 9,
+                        "value": 0.033,
+                        "target": 0
+                    },
+                    {
+                        "source": 10,
+                        "value": 0.20,
+                        "target": 0
+                    },
+                    {
+                        "source": 13,
+                        "value": 0.09,
+                        "target": 0
+                    },
+                    {
+                        "source": 14,
+                        "value": 0.005,
+                        "target": 0
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.07,
+                        "target": 15
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.1,
+                        "target": 16
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.03,
+                        "target": 17
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.65,
+                        "target": 18
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.037,
+                        "target": 19
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.085,
+                        "target": 20
+                    },
+                    {
+                        "source": 0,
+                        "value": 0.1,
+                        "target": 22
+                    },
+                    {
+                        "source": 5,
+                        "value": 0.14,
+                        "target": 1
+                    },
+                    {
+                        "source": 6,
+                        "value": 0.5,
+                        "target": 1
+                    },
+                    {
+                        "source": 7,
+                        "value": 0.27,
+                        "target": 1
+                    },
+                    {
+                        "source": 8,
+                        "value": 0.13,
+                        "target": 1
+                    },
+                    {
+                        "source": 9,
+                        "value": 0.08,
+                        "target": 1
+                    },
+                    {
+                        "source": 10,
+                        "value": 0.33,
+                        "target": 1
+                    },
+                    {
+                        "source": 11,
+                        "value": 0.56,
+                        "target": 1
+                    },
+                    {
+                        "source": 12,
+                        "value": 0.29,
+                        "target": 1
+                    },
+                    {
+                        "source": 13,
+                        "value": 0.12,
+                        "target": 1
+                    },
+                    {
+                        "source": 14,
+                        "value": 0.09,
+                        "target": 1
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.39,
+                        "target": 15
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.16,
+                        "target": 16
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.1,
+                        "target": 17
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.23,
+                        "target": 18
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.26,
+                        "target": 19
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.29,
+                        "target": 20
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.09,
+                        "target": 21
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.29,
+                        "target": 22
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.45,
+                        "target": 23
+                    },
+                    {
+                        "source": 1,
+                        "value": 0.22,
+                        "target": 24
+                    },
+                    {
+                        "source": 5,
+                        "value": 0.061,
+                        "target": 2
+                    },
+                    {
+                        "source": 6,
+                        "value": 0.049,
+                        "target": 2
+                    },
+                    {
+                        "source": 7,
+                        "value": 0.152,
+                        "target": 2
+                    },
+                    {
+                        "source": 8,
+                        "value": 0.116,
+                        "target": 2
+                    },
+                    {
+                        "source": 9,
+                        "value": 0.067,
+                        "target": 2
+                    },
+                    {
+                        "source": 10,
+                        "value": 0.105,
+                        "target": 2
+                    },
+                    {
+                        "source": 11,
+                        "value": 0.052,
+                        "target": 2
+                    },
+                    {
+                        "source": 12,
+                        "value": 0.079,
+                        "target": 2
+                    },
+                    {
+                        "source": 13,
+                        "value": 0.033,
+                        "target": 2
+                    },
+                    {
+                        "source": 14,
+                        "value": 0.285,
+                        "target": 2
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.143,
+                        "target": 15
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.097,
+                        "target": 16
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.089,
+                        "target": 17
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.06,
+                        "target": 18
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.104,
+                        "target": 19
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.179,
+                        "target": 20
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.051,
+                        "target": 21
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.082,
+                        "target": 22
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.043,
+                        "target": 23
+                    },
+                    {
+                        "source": 2,
+                        "value": 0.152,
+                        "target": 24
+                    },
+                    {
+                        "source": 5,
+                        "value": 0.03,
+                        "target": 3
+                    },
+                    {
+                        "source": 6,
+                        "value": 0.015,
+                        "target": 3
+                    },
+                    {
+                        "source": 7,
+                        "value": 0.042,
+                        "target": 3
+                    },
+                    {
+                        "source": 8,
+                        "value": 0.081,
+                        "target": 3
+                    },
+                    {
+                        "source": 9,
+                        "value": 0.617,
+                        "target": 3
+                    },
+                    {
+                        "source": 10,
+                        "value": 0.020,
+                        "target": 3
+                    },
+                    {
+                        "source": 11,
+                        "value": 0.019,
+                        "target": 3
+                    },
+                    {
+                        "source": 12,
+                        "value": 0.015,
+                        "target": 3
+                    },
+                    {
+                        "source": 13,
+                        "value": 0.040,
+                        "target": 3
+                    },
+                    {
+                        "source": 14,
+                        "value": 0.121,
+                        "target": 3
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.078,
+                        "target": 15
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.155,
+                        "target": 16
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.219,
+                        "target": 17
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.005,
+                        "target": 18
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.181,
+                        "target": 19
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.135,
+                        "target": 20
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.055,
+                        "target": 21
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.050,
+                        "target": 22
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.086,
+                        "target": 23
+                    },
+                    {
+                        "source": 3,
+                        "value": 0.037,
+                        "target": 24
+                    },
+                    {
+                        "source": 5,
+                        "value": 0.022,
+                        "target": 4
+                    },
+                    {
+                        "source": 6,
+                        "value": 0.022,
+                        "target": 4
+                    },
+                    {
+                        "source": 7,
+                        "value": 0.082,
+                        "target": 4
+                    },
+                    {
+                        "source": 8,
+                        "value": 0.1,
+                        "target": 4
+                    },
+                    {
+                        "source": 9,
+                        "value": 0.338,
+                        "target": 4
+                    },
+                    {
+                        "source": 10,
+                        "value": 0.089,
+                        "target": 4
+                    },
+                    {
+                        "source": 11,
+                        "value": 0.026,
+                        "target": 4
+                    },
+                    {
+                        "source": 12,
+                        "value": 0.067,
+                        "target": 4
+                    },
+                    {
+                        "source": 13,
+                        "value": 0.154,
+                        "target": 4
+                    },
+                    {
+                        "source": 14,
+                        "value": 0.099,
+                        "target": 4
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.028,
+                        "target": 15
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.077,
+                        "target": 16
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.097,
+                        "target": 17
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.033,
+                        "target": 18
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.163,
+                        "target": 19
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.087,
+                        "target": 20
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.412,
+                        "target": 21
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.040,
+                        "target": 22
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.051,
+                        "target": 23
+                    },
+                    {
+                        "source": 4,
+                        "value": 0.012,
+                        "target": 24
+                    }
+                ]
+            };
+
+            var chart = d3.select("#chart").append("svg").chart("Sankey.Path");
+            chart
+                .name(label)
+                .colorNodes(function (name, node) {
+                    return color(node, 1) || colors.fallback;
+                })
+                .colorLinks(function (link) {
+                    return color(link.source, 4) || color(link.target, 1) || colors.fallback;
+                })
+                .nodeWidth(25)
+                .nodePadding(20)
+                .spread(true)
+                .iterations(0)
+                .draw(json);
+
+            function label(node) {
+                return node.name.replace(/\s*\(.*?\)$/, '');
+            }
+            function color(node, depth) {
+                var id = node.id.replace(/(_score)?(_\d+)?$/, '');
+                if (colors[id]) {
+                    return colors[id];
+                } else if (depth > 0 && node.targetLinks && node.targetLinks.length == 1) {
+                    return color(node.targetLinks[0].source, depth - 1);
+                } else {
+                    return null;
+                }
+            }
+        </script>
+    </body>
+
+    </html>

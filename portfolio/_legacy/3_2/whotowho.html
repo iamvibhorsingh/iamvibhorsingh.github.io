@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<head>
+<script src="https://t.contentsquare.net/uxa/873c6699ef385.js"></script>
+</head>
+<meta charset="utf-8">
+
+
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<h1>Supplementary Visualization</h1>
+<div id="my_dataviz"></div>
+<h4>This vis acts as an aid to the mian visualization. It helps to answer which country donated to whom. Width of connection/link is directly proportional to amount of transaction</h4>
+
+<style>
+    
+    body {
+           font-family: Helvetica, Arial, sans-serif;
+           background-color: '#94A8A9';
+    }
+    h1 {
+            background-color: #0a0909;
+            color: white;
+            padding: 10px;
+        }
+    
+    h2 {
+        font-size: 20px;
+        font: Arial;
+    }
+   
+    svg {
+        border: solid 1px #a9a9a9;
+
+    }
+
+    #my_dataviz{
+        font-family: Helvetica, Arial, sans-serif;
+        background-color: '#94A8A9';
+    }
+    
+    svg {
+        background-color: '#E7EAEA';
+    }
+    
+</style>
+
+<script>
+
+
+var margin = {top: 50, right: 70, bottom: 250, left: 100},
+  width = 1300 - margin.left - margin.right,
+  height = 900 - margin.top - margin.bottom;
+
+
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.json("data.json", function( data) {
+
+  
+  var allNodes = data.nodes.map(function(d){return d.name})
+
+  
+  var x = d3.scalePoint()
+    .range([0, width])
+    .domain(allNodes)
+  
+  var color = d3.scaleOrdinal()
+                .domain([1, 2])
+                .range(['#38fc9a', '#ff7e38'])
+  
+
+  
+  var nodes = svg
+    .selectAll("mynodes")
+    .data(data.nodes)
+    .enter()
+    .append("circle")
+      .attr("cx", function(d){ return(x(d.name))})
+      .attr("cy", height-30)
+      .attr("r", function(d){ return d.r})
+      .style("fill", function(d){ return color(d.grp)})
+      .attr("stroke", "#E7EAEA")
+
+  
+  var labels = svg
+    .selectAll("mylabels")
+    .data(data.nodes)
+    .enter()
+    .append("text")
+      .attr("x", 0)
+      .attr("y", 0)
+      .text(function(d){ return(d.name)} )
+      .style("text-anchor", "end")
+      .attr("transform", function(d){ return( "translate(" + (x(d.name)) + "," + (height-15) + ")rotate(-60)")})
+      .style("font-size", 10)
+
+  
+  var idToNode = {};
+  data.nodes.forEach(function (n) {
+    idToNode[n.id] = n;
+  });
+  
+
+  // Add the links
+  var links = svg
+    .selectAll('mylinks')
+    .data(data.links)
+    .enter()
+    .append('path')
+    .attr('d', function (d) {
+      start = x(idToNode[d.source].name)    
+      end = x(idToNode[d.target].name)      
+      return ['M', start, height-30,    
+        'A',                            
+        (start - end)/2, ',',    
+        (start - end)/2, 0, 0, ',',
+        start < end ? 1 : 0, end, ',', height-30] 
+        .join(' ');
+    })
+    .style("fill", "none")
+    .attr("stroke", "black")
+    .style('stroke-width', '1.5')                    //function(link_d){ return link_d.w}
+    .style('opacity', 0.04)
+
+    
+    nodes
+      .on('mouseover', function (d) {
+        
+        nodes.style('fill', "#B8B8B8")
+        d3.select(this).style('fill', function(d){ return color(d.grp)}) 
+        
+        links
+          .style('stroke', function (link_d) { if(link_d.source === d.id) {
+                                                    return '#38fc9a';}
+                                              else if(link_d.target === d.id) {
+                                                  return '#ff7e38';
+                                              }
+                                             else {
+                                                 return '#b8b8b8';
+                                             }})
+          .style('stroke-width', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? link_d.w : 1;})
+          .style('opacity', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 1 : 0.02;}
+) 
+       labels
+        .style("font-size", function(label_d){ return label_d.name === d.name ? 20 : 12 } )
+        .attr("y", function(label_d){ return label_d.name === d.name ? 10 : 0 } )
+ })
+      .on('mouseleave', function (d) {
+        nodes.style('fill', function(d){ return color(d.grp)})
+        links
+          .style('stroke', 'black')
+          .style('stroke-width', '1.5')                      //function(link_d){ return link_d.w}
+          .style('opacity', 0.04)
+        labels
+        .style("font-size", 10 )
+        .attr("y", 0)
+      })
+    
+    
+})
+
+
+svg
+  .append("text")
+    .attr("text-anchor", "middle")
+    .style("fill", "#B8B8B8")
+    .style("font-size", "12px")
+    .attr("x", 560)
+    .attr("y", -20)
+    .html("Hover over the nodes to see who transacted with who. Green nodes donated and orange nodes received")
+    
+    
+    
+    svg.append("text").attr("x", -80).attr("y", -25).text("Legend").style("font-size", "13px").style("font-weight", "bold").attr("alignment-baseline","middle");
+    svg.append("circle").attr("r", 7).attr("cx", -80).attr("cy", 0).attr("fill", "#38fc9a");
+    svg.append("text").attr("x", -64).attr("y", 2).text("Donated More").style("font-size", "13px").attr("alignment-baseline","middle");
+    svg.append("circle").attr("r", 7).attr("cx", -80).attr("cy", 30).attr("fill", "#ff7e38");
+    svg.append("text").attr("x", -64).attr("y", 32).text("Received More").style("font-size", "13px").attr("alignment-baseline","middle");
+
+   //svg.append("rect").attr("x", -85).attr("y", 60).attr("width", 40).attr("height", 12).attr("fill", "#b8b8b8");
+
+    
+</script>

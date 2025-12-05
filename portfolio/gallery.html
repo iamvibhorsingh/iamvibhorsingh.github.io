@@ -1,309 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<script src="https://t.contentsquare.net/uxa/873c6699ef385.js"></script>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Gallery | Vibhor Singh</title>
+     <meta name="description" content="A collection of photos from my travels and explorations.">
 
-<meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-<meta name="description" content="">
-<meta name="keywords" content="">
-<meta name="author" content="">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+     <!-- Fonts -->
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+          rel="stylesheet">
 
-<title>Photos I have clicked</title>
+     <!-- CSS -->
+     <link rel="stylesheet" href="css/style.css">
 
-<link rel="stylesheet" href="css/bootstrap.min.css">
-<link rel="stylesheet" href="css/font-awesome.min.css">
-<link rel="stylesheet" href="css/magnific-popup.css">
-
-<!-- Main css -->
-<link rel="stylesheet" href="css/style.css">
-<link href="https://fonts.googleapis.com/css?family=Lora|Merriweather:300,400" rel="stylesheet">
-
+     <!-- Icons -->
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
+     <div class="background-grid"></div>
 
-<!-- PRE LOADER -->
-
-<div class="preloader">
-     <div class="sk-spinner sk-spinner-wordpress">
-          <span class="sk-inner-circle"></span>
-     </div>
-</div>
-
-<!-- Navigation section  -->
-
-<div class="navbar navbar-default navbar-static-top" role="navigation">
-     <div class="container">
-
-          <div class="navbar-header">
-               <button class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon icon-bar"></span>
-                    <span class="icon icon-bar"></span>
-                    <span class="icon icon-bar"></span>
-               </button>
-               <a href="index.html" class="navbar-brand">VIBHOR SINGH</a>
-          </div>
-          <div class="collapse navbar-collapse">
-               <ul class="nav navbar-nav navbar-right">
-                    <li><a href="index.html">Home</a></li>
-                    <li class="active"><a href="gallery.html">Gallery</a></li>
-               </ul>
-          </div>
-
-  </div>
-</div>
-
-<!-- Home Section -->
-
-<section id="home" class="main-gallery parallax-section">
-     <div class="overlay"></div>
-     <div class="container">
-          <div class="row">
-
-               <div class="col-md-12 col-sm-12">
-                    <h1>My clicks</h1>
-               </div>
-
-          </div>
-     </div>
-</section>
-
-<!-- Gallery Section -->
-
-<section id="gallery">
-     <div class="container">
-          <div class="row">
-
-               <div class="col-md-offset-1 col-md-10 col-sm-12">
-                    <h2>Hey there! These are some of the photos I have clicked while exploring NYC.</h2>
-                    <p>I use my Samsung Galaxy S10 to click all my photos and edit using Snapseed. Hopefully, in the future I'll get a dedicated camera and get better at editing.</p>
+     <header class="navbar">
+          <div class="container">
+               <a href="index.html" class="logo">VS<span class="dot">.</span></a>
+               <nav>
+                    <ul class="nav-links">
+                         <li><a href="index.html#projects">Projects</a></li>
+                         <li><a href="index.html#gallery">Gallery</a></li>
+                         <li><a href="index.html#contact">Contact</a></li>
+                    </ul>
+                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                         <i class="fas fa-moon"></i>
+                    </button>
+               </nav>
+               <div class="hamburger">
                     <span></span>
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/1.jpg" class="image-popup">
-                                   <img src="images/1.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
+                    <span></span>
+                    <span></span>
+               </div>
+          </div>
+     </header>
 
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/2.jpg" class="image-popup">
-                                   <img src="images/2.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
+     <main>
+          <section class="gallery-section" style="padding-top: 120px;">
+               <div class="container">
+                    <h1 class="section-title">Gallery</h1>
+                    <p class="section-subtitle">A glimpse of NYC through my lens.</p>
 
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/3.jpg" class="image-popup">
-                                   <img src="images/3.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
+                    <div class="gallery-grid">
+                         <div class="gallery-item"><img src="images/1.jpg" alt="Gallery Image 1" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/2.jpg" alt="Gallery Image 2" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/3.jpg" alt="Gallery Image 3" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/4.jpg" alt="Gallery Image 4" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/5.jpg" alt="Gallery Image 5" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/6.jpg" alt="Gallery Image 6" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/7.jpg" alt="Gallery Image 7" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/8.jpg" alt="Gallery Image 8" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/9.jpeg" alt="Gallery Image 9" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/10.jpg" alt="Gallery Image 10" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/11.jpeg" alt="Gallery Image 11" loading="lazy">
                          </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/4.jpg" class="image-popup">
-                                   <img src="images/4.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/5.jpg" class="image-popup">
-                                   <img src="images/5.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/6.jpg" class="image-popup">
-                                   <img src="images/6.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/7.jpg" class="image-popup">
-                                   <img src="images/7.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/8.jpg" class="image-popup">
-                                   <img src="images/8.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/9.jpeg" class="image-popup">
-                                   <img src="images/9.jpeg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/10.jpg" class="image-popup">
-                                   <img src="images/10.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/11.jpeg" class="image-popup">
-                                   <img src="images/11.jpeg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/12.jpg" class="image-popup">
-                                   <img src="images/12.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/13.jpg" class="image-popup">
-                                   <img src="images/13.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/14.jpg" class="image-popup">
-                                   <img src="images/14.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/15.jpg" class="image-popup">
-                                   <img src="images/15.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/16.jpg" class="image-popup">
-                                   <img src="images/16.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/17.jpg" class="image-popup">
-                                   <img src="images/17.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/18.jpg" class="image-popup">
-                                   <img src="images/18.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/20.jpg" class="image-popup">
-                                   <img src="images/20.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/21.jpg" class="image-popup">
-                                   <img src="images/21.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/22.jpg" class="image-popup">
-                                   <img src="images/22.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/23.jpg" class="image-popup">
-                                   <img src="images/23.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/24.jpg" class="image-popup">
-                                   <img src="images/24.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-                    
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/19.jpg" class="image-popup">
-                                   <img src="images/19.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/25.jpg" class="image-popup">
-                                   <img src="images/25.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-6 col-sm-6">
-                         <div class="gallery-thumb">
-                              <a href="images/26.jpg" class="image-popup">
-                                   <img src="images/26.jpg" class="img-responsive" alt="Gallery Image">
-                              </a>
-                         </div>
-                    </div>
-
-                    <div class="col-md-12 col-sm-12">
-                         <p>More to come soon!</p>
+                         <div class="gallery-item"><img src="images/12.jpg" alt="Gallery Image 12" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/13.jpg" alt="Gallery Image 13" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/14.jpg" alt="Gallery Image 14" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/15.jpg" alt="Gallery Image 15" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/16.jpg" alt="Gallery Image 16" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/17.jpg" alt="Gallery Image 17" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/18.jpg" alt="Gallery Image 18" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/19.jpg" alt="Gallery Image 19" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/20.jpg" alt="Gallery Image 20" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/21.jpg" alt="Gallery Image 21" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/22.jpg" alt="Gallery Image 22" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/23.jpg" alt="Gallery Image 23" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/24.jpg" alt="Gallery Image 24" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/25.jpg" alt="Gallery Image 25" loading="lazy"></div>
+                         <div class="gallery-item"><img src="images/26.jpg" alt="Gallery Image 26" loading="lazy"></div>
                     </div>
                </div>
+          </section>
+     </main>
 
+     <footer class="contact-section">
+          <div class="container">
+               <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+                         class="fas fa-coffee"></i>.</p>
           </div>
-     </div>
-</section>
-<!-- Back top -->
-<a href="#back-top" class="go-top"><i class="fa fa-angle-up"></i></a>
+     </footer>
 
-<!-- SCRIPTS -->
+     <script src="js/main.js"></script>
+     <style>
+          .gallery-item {
+               overflow: hidden;
+               border-radius: 8px;
+               border: 1px solid var(--border-color);
+               transition: var(--transition-medium);
+               aspect-ratio: 1;
+          }
 
-<script src="js/jquery.js"></script>
-<script src="js/bootstrap.min.js"></script>
-<script src="js/jquery.magnific-popup.min.js"></script>
-<script src="js/magnific-popup-options.js"></script>
-<script src="js/jquery.parallax.js"></script>
-<script src="js/custom.js"></script>
+          .gallery-item:hover {
+               transform: scale(1.02);
+               border-color: var(--accent-color);
+          }
 
+          .gallery-item img {
+               width: 100%;
+               height: 100%;
+               object-fit: cover;
+               transition: var(--transition-medium);
+          }
+
+          .gallery-item:hover img {
+               transform: scale(1.1);
+          }
+     </style>
 </body>
+
 </html>

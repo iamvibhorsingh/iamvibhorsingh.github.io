@@ -1,0 +1,325 @@
+donor,recipient,coalesced_purpose_name,commitment_amount_usd_constant
+Canada,Brazil,Industrial development,29748658
+Canada,Brazil,Power generation/non-renewable sources,6054352
+Canada,Brazil,Rail transport,17693
+Canada,Chile,Industrial development,18676468
+Canada,Colombia,Industrial development,23245209
+Canada,Czech Republic,Air transport,76296
+Canada,Czech Republic,INDUSTRIAL DEVELOPMENT,364197
+Canada,Czech Republic,Industrial development,874777
+Canada,Czech Republic,Power generation/non-renewable sources,1000172
+Canada,Estonia,Industrial development,33293
+Canada,Hungary,Industrial development,709294
+Canada,Hungary,Power generation/non-renewable sources,702523
+Canada,India,Air transport,14224407
+Canada,India,Industrial development,54685827
+Canada,India,Power generat./non-renewable sources,108570
+Canada,India,Power generation/non-renewable sources,19357050
+Canada,India,Rail transport,159410
+Canada,India,Rescheduling and refinancing,43475461
+Canada,Poland,Air transport,1476778
+Canada,Poland,Industrial development,3662485
+Canada,Poland,Power generation/non-renewable sources,56107
+Canada,Romania,Air transport,1581431
+Canada,Romania,Industrial development,685484
+Canada,Romania,Power generation/non-renewable sources,41378
+Canada,Slovak Republic,INDUSTRIAL DEVELOPMENT,299000
+Canada,Slovak Republic,Industrial development,1322773
+Canada,Slovak Republic,Power generation/non-renewable sources,328173
+Canada,Slovak Republic,Rail transport,17509
+Canada,Slovenia,Industrial development,49950
+Canada,South Africa,Industrial development,26700909
+Canada,Thailand,Air transport,443224
+Canada,Thailand,Industrial development,70008809
+Canada,Thailand,Power generation/non-renewable sources,26416174
+France,Brazil,Power generat./non-renewable sources,53868372
+France,Brazil,Rail transport,111245166
+France,Brazil,Rescheduling and refinancing,39176633
+France,Chile,Air transport,859097
+France,Chile,Industrial development,524894
+France,Chile,Rail transport,138444885
+France,Chile,Rescheduling and refinancing,15930523
+France,Colombia,Air transport,19509180
+France,Colombia,Industrial development,11935741
+France,Colombia,Rail transport,187097740
+France,Cyprus,Air transport,84362
+France,Cyprus,Industrial development,10278526
+France,Czech Republic,INDUSTRIAL DEVELOPMENT,145066
+France,Czech Republic,Industrial development,179040
+France,Czech Republic,Power generation/non-renewable sources,336951
+France,Estonia,Air transport,1049001
+France,Estonia,Rail transport,856711
+France,Hungary,INDUSTRIAL DEVELOPMENT,106081
+France,Hungary,RAIL TRANSPORT,5304
+France,India,Air transport,93048552
+France,India,Industrial development,736412685
+France,India,Power generation/non-renewable sources,238543251
+France,India,Rail transport,165780050
+France,India,Rescheduling and refinancing,166467553
+France,Korea,Industrial development,28328996
+France,Korea,Rail transport,22092
+France,Latvia,Industrial development,280691
+France,Lithuania,Industrial development,876296
+France,Lithuania,Power generation/non-renewable sources,195245
+France,Poland,AIR TRANSPORT,10316
+France,Poland,INDUSTRIAL DEVELOPMENT,3026909
+France,Poland,Industrial development,2174876
+France,Poland,Rail transport,1262932
+France,Qatar,POWER GENERAT./NON-RENEWABLE SOURCES,42125
+France,Romania,Air transport,77926
+France,Romania,INDUSTRIAL DEVELOPMENT,235888
+France,Romania,Industrial development,950624
+France,Slovak Republic,INDUSTRIAL DEVELOPMENT,101380
+France,Slovak Republic,Power generation/non-renewable sources,49943
+France,Slovenia,Rail transport,15810
+France,South Africa,Air transport,2331311
+France,South Africa,Rail transport,1034209
+France,Taiwan,INDUSTRIAL DEVELOPMENT,70830
+France,Thailand,Air transport,638493
+France,Thailand,Industrial development,23981834
+France,Thailand,Power generat./non-renewable sources,137589766
+France,Thailand,Power generation/non-renewable sources,9766637
+France,Thailand,Rail transport,109211256
+Germany,Brazil,Industrial development,82355164
+Germany,Brazil,Power generat./non-renewable sources,35041145
+Germany,Brazil,Rail transport,39749314
+Germany,Brazil,Rescheduling and refinancing,383805718
+Germany,Chile,Industrial development,12253925
+Germany,Chile,Rescheduling and refinancing,192130578
+Germany,Colombia,Air transport,15829434
+Germany,Colombia,Industrial development,53036463
+Germany,Colombia,Power generation/non-renewable sources,33166434
+Germany,Colombia,Rail transport,191557984
+Germany,Czech Republic,Power generation/non-renewable sources,1179767
+Germany,Estonia,Industrial development,1104
+Germany,Hungary,Power generation/non-renewable sources,58275
+Germany,India,Industrial development,1768993054
+Germany,India,Power generation/non-renewable sources,1564258419
+Germany,India,Rail transport,284985226
+Germany,India,Rescheduling and refinancing,663229570
+Germany,Korea,Industrial development,75072695
+Germany,Korea,Rail transport,29015007
+Germany,Lithuania,Power generation/non-renewable sources,2392351
+Germany,Poland,RESCHEDULING AND REFINANCING,13905028436
+Germany,Slovak Republic,Power generation/non-renewable sources,138020
+Germany,Slovenia,Industrial development,16875940
+Germany,Slovenia,Rescheduling and refinancing,38210381
+Germany,South Africa,Industrial development,937574
+Germany,Thailand,Industrial development,166368356
+Germany,Thailand,Power generation/non-renewable sources,54313899
+Germany,Thailand,Rail transport,162391210
+Germany,Thailand,Rescheduling and refinancing,589880
+Italy,Brazil,Industrial development,780657
+Italy,Brazil,Power generation/non-renewable sources,15677
+Italy,Chile,Industrial development,569118
+Italy,Colombia,Air transport,12425310
+Italy,Colombia,Industrial development,8956908
+Italy,Colombia,Power generation/non-renewable sources,30399251
+Italy,Czech Republic,Rail transport,688635
+Italy,Hungary,Industrial development,491160
+Italy,India,Industrial development,254284699
+Italy,India,Power generat./non-renewable sources,186669744
+Italy,India,Rescheduling and refinancing,74692017
+Italy,Poland,Industrial development,5914647
+Italy,Poland,Rail transport,1342614
+Italy,Romania,Industrial development,358478
+Italy,Slovak Republic,Industrial development,1454923
+Italy,Slovenia,Rail transport,1221400
+Italy,Thailand,Rail transport,1488852
+Japan,Brazil,Air transport,100165
+Japan,Brazil,Industrial development,301942282
+Japan,Brazil,Rail transport,1249130
+Japan,Brazil,Rescheduling and refinancing,116009608
+Japan,Chile,Industrial development,5379848
+Japan,Chile,Rail transport,67201891
+Japan,Colombia,Air transport,23
+Japan,Colombia,Industrial development,161290
+Japan,Colombia,Rail transport,26351
+Japan,Czech Republic,Industrial development,90879943
+Japan,Czech Republic,Rail transport,126292586
+Japan,India,Industrial development,2540561929
+Japan,India,Power generat./non-renewable sources,794455536
+Japan,India,Power generation/non-renewable sources,4087006797
+Japan,India,Rail transport,11519785524
+Japan,India,Rescheduling and refinancing,856661065
+Japan,Korea,Industrial development,508053866
+Japan,Korea,Rail transport,903052049
+Japan,Poland,RAIL TRANSPORT,2569417
+Japan,Romania,Industrial development,80413016
+Japan,Romania,RAIL TRANSPORT,279437002
+Japan,Saudi Arabia,Industrial development,222224525
+Japan,South Africa,Industrial development,185091
+Japan,South Africa,Rail transport,65416241
+Japan,Taiwan,Industrial development,1201758
+Japan,Thailand,Air transport,2648319527
+Japan,Thailand,Industrial development,1348021971
+Japan,Thailand,Power generation/non-renewable sources,22364340
+Japan,Thailand,Rail transport,5249205847
+Japan,United Arab Emirates,Industrial development,699213
+Netherlands,Colombia,Industrial development,2025344
+Netherlands,India,Air transport,704628
+Netherlands,India,Industrial development,50767936
+Netherlands,India,Power generation/non-renewable sources,724396
+Netherlands,India,Rail transport,42065271
+Netherlands,India,Rescheduling and refinancing,47946095
+Netherlands,Slovak Republic,Air transport,31781
+Netherlands,South Africa,Industrial development,1380782
+Netherlands,Thailand,Industrial development,13813129
+Norway,Brazil,Industrial development,80831
+Norway,Chile,Industrial development,392917
+Norway,Estonia,Industrial development,25546
+Norway,India,Air transport,2316419
+Norway,India,Industrial development,160646315
+Norway,India,Power generation/non-renewable sources,322
+Norway,Latvia,Power generation/non-renewable sources,56939
+Norway,Lithuania,Power generation/non-renewable sources,9465
+Norway,South Africa,Air transport,13527
+Norway,South Africa,Industrial development,15424548
+Norway,South Africa,Power generation/non-renewable sources,13640
+Norway,South Africa,Rail transport,24172
+Norway,Thailand,Air transport,60502
+Norway,Thailand,Industrial development,6304303
+Sweden,Chile,Industrial development,1084383
+Sweden,Czech Republic,Industrial development,102544
+Sweden,Estonia,Air transport,1681389
+Sweden,Estonia,Industrial development,615725
+Sweden,Estonia,Power generation/non-renewable sources,1539971
+Sweden,Estonia,Rail transport,139108
+Sweden,India,Industrial development,12572753
+Sweden,India,Power generation/non-renewable sources,26060699
+Sweden,India,Rail transport,4306879
+Sweden,Latvia,Air transport,1086851
+Sweden,Latvia,Industrial development,726843
+Sweden,Latvia,Power generation/non-renewable sources,93161
+Sweden,Latvia,Rail transport,330198
+Sweden,Lithuania,Air transport,1093514
+Sweden,Lithuania,Industrial development,104441
+Sweden,Lithuania,Power generation/non-renewable sources,956932
+Sweden,Lithuania,Rail transport,175481
+Sweden,Poland,Air transport,250129
+Sweden,Poland,Industrial development,589007
+Sweden,Poland,Rail transport,383
+Sweden,Slovak Republic,Industrial development,400873
+Sweden,South Africa,Industrial development,1198432
+Sweden,South Africa,Power generation/non-renewable sources,64374
+Sweden,Thailand,Industrial development,13259316
+United Kingdom,Brazil,Industrial development,39174808
+United Kingdom,Brazil,Power generation/non-renewable sources,98816805
+United Kingdom,Brazil,Rescheduling and refinancing,6537274
+United Kingdom,Chile,Rescheduling and refinancing,4483183
+United Kingdom,Colombia,Industrial development,1214104
+United Kingdom,Colombia,Power generation/non-renewable sources,10098161
+United Kingdom,Czech Republic,Industrial development,357921
+United Kingdom,Czech Republic,Power generation/non-renewable sources,412548
+United Kingdom,Estonia,Power generation/non-renewable sources,740939
+United Kingdom,India,Air transport,226060281
+United Kingdom,India,Industrial development,141881911
+United Kingdom,India,Power generat./non-renewable sources,8341156
+United Kingdom,India,Power generation/non-renewable sources,621381168
+United Kingdom,India,Rail transport,214915085
+United Kingdom,India,Rescheduling and refinancing,215490015
+United Kingdom,Lithuania,POWER GENERAT./NON-RENEWABLE SOURCES,1236144
+United Kingdom,Poland,Air transport,2702617
+United Kingdom,Poland,INDUSTRIAL DEVELOPMENT,5113346
+United Kingdom,Poland,Industrial development,37674165
+United Kingdom,Poland,Rail transport,411633
+United Kingdom,Romania,INDUSTRIAL DEVELOPMENT,323178
+United Kingdom,Slovak Republic,Industrial development,336613
+United Kingdom,South Africa,Industrial development,29567081
+United Kingdom,South Africa,Power generation/non-renewable sources,68659652
+United Kingdom,Thailand,Industrial development,123175026
+United Kingdom,Thailand,Rail transport,12874688
+United States,Australia,Air transport,2414954172
+United States,Australia,Industrial development,8970500
+United States,Australia,Rail transport,68372551
+United States,Austria,Air transport,769908525
+United States,Belgium,Air transport,184346233
+United States,Brazil,Air transport,3456194517
+United States,Brazil,Industrial development,1785108528
+United States,Brazil,Power generation/non-renewable sources,999174363
+United States,Brazil,Rail transport,309560040
+United States,Canada,Air transport,4066635837
+United States,Canada,Industrial development,1961661
+United States,Chile,Air transport,777158312
+United States,Chile,Industrial development,675643062
+United States,Chile,Power generation/non-renewable sources,67384606
+United States,Chile,Rail transport,16601
+United States,Colombia,Air transport,221288646
+United States,Colombia,Industrial development,789030171
+United States,Colombia,Power generation/non-renewable sources,1530577061
+United States,Colombia,Rail transport,154388
+United States,Czech Republic,Air transport,519148254
+United States,Czech Republic,Industrial development,74391574
+United States,Czech Republic,Power generation/non-renewable sources,111369234
+United States,Czech Republic,Rail transport,189023
+United States,Denmark,Air transport,83221323
+United States,Estonia,Industrial development,37708473
+United States,Finland,Air transport,180621823
+United States,France,Air transport,237532627
+United States,Greece,Air transport,402975319
+United States,Greece,Industrial development,7939384
+United States,Greece,Power generation/non-renewable sources,10684686
+United States,Hungary,AIR TRANSPORT,330249
+United States,Hungary,Air transport,182987467
+United States,Hungary,Industrial development,597708744
+United States,Hungary,Power generation/non-renewable sources,33516217
+United States,Hungary,Rail transport,72743
+United States,Iceland,Air transport,18060045
+United States,India,Air transport,2273859378
+United States,India,Industrial development,1295117393
+United States,India,Power generat./non-renewable sources,269035
+United States,India,Power generation/non-renewable sources,1518862446
+United States,India,Rail transport,35997362
+United States,India,Rescheduling and refinancing,260453117
+United States,Ireland,Air transport,793462113
+United States,Ireland,Industrial development,52303341
+United States,Ireland,Power generation/non-renewable sources,88873275
+United States,Italy,Air transport,2356747779
+United States,Japan,Air transport,2080977585
+United States,Korea,Air transport,5260158081
+United States,Korea,Industrial development,866792664
+United States,Korea,Power generation/non-renewable sources,1397886659
+United States,Korea,Rail transport,105533013
+United States,Kuwait,Industrial development,278059881
+United States,Kuwait,Power generation/non-renewable sources,24748632
+United States,Latvia,Industrial development,28634509
+United States,Lithuania,Air transport,24831025
+United States,Lithuania,Industrial development,36849047
+United States,Lithuania,Rail transport,77461
+United States,Luxembourg,Air transport,555039832
+United States,New Zealand,Air transport,22137111
+United States,New Zealand,Industrial development,203451199
+United States,Norway,Air transport,343290701
+United States,Poland,Air transport,815085967
+United States,Poland,Industrial development,548534715
+United States,Poland,Power generation/non-renewable sources,396007
+United States,Poland,RAIL TRANSPORT,32633
+United States,Portugal,Air transport,130233430
+United States,Portugal,Industrial development,270172
+United States,Qatar,Industrial development,80976522
+United States,Qatar,Power generation/non-renewable sources,623401645
+United States,Romania,AIR TRANSPORT,659908
+United States,Romania,Air transport,267830165
+United States,Romania,Industrial development,169640623
+United States,Romania,Power generation/non-renewable sources,262377263
+United States,Romania,Rail transport,649960
+United States,Saudi Arabia,Air transport,3423114025
+United States,Saudi Arabia,Industrial development,254167658
+United States,Saudi Arabia,Power generation/non-renewable sources,126190249
+United States,Saudi Arabia,Rail transport,386553
+United States,South Africa,Air transport,840454769
+United States,South Africa,Industrial development,9681699
+United States,South Africa,Power generation/non-renewable sources,1620571
+United States,South Africa,Rail transport,533570
+United States,Spain,Air transport,86329744
+United States,Spain,Industrial development,7062587
+United States,Spain,Power generation/non-renewable sources,404165959
+United States,Sweden,Industrial development,35282669
+United States,Taiwan,Air transport,1631451348
+United States,Taiwan,Industrial development,616602612
+United States,Thailand,Air transport,1378790278
+United States,Thailand,Industrial development,1460262364
+United States,Thailand,Power generation/non-renewable sources,619621837
+United States,Thailand,Rail transport,18742
+United States,United Arab Emirates,Air transport,522553
+United States,United Kingdom,Air transport,957343964

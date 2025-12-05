@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal Visualizations | Vibhor Singh</title>
+    <meta name="description" content="Visualizing data over time.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            /* 16:9 Aspect Ratio */
+            height: 0;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-grid"></div>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="../index.html" class="logo">VS<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../index.html#projects">Projects</a></li>
+                    <li><a href="../gallery.html">Gallery</a></li>
+                    <li><a href="../index.html#contact">Contact</a></li>
+                </ul>
+                <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <article class="blog-post-container">
+            <a href="../index.html#projects" class="back-link"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+
+            <header class="blog-header">
+                <h1 class="blog-title">Temporal Visualizations</h1>
+                <div class="blog-meta">
+                    <span><i class="far fa-calendar"></i> April 10, 2020</span>
+                    <span><i class="fas fa-tag"></i> Visualization</span>
+                </div>
+            </header>
+
+            <div class="blog-content">
+                <p>This visualization demonstrates changes in data over time, providing a dynamic view of trends and
+                    patterns that static charts cannot convey.</p>
+
+                <div class="video-container">
+                    <video controls>
+                        <source src="visualization.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <p><em>Animation showing the temporal evolution of the dataset.</em></p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="contact-section">
+        <div class="container">
+            <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+                    class="fas fa-coffee"></i>.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+
+</html>
