@@ -2039,8 +2039,7 @@ function initH3Features() {
             $('#h3-count').text(count.toLocaleString());
 
             if (count > MAX_H3_RENDER_CELLS) {
-                clearH3Grid();
-                showToast(`Too many cells (${count}) to render.`, 'info');
+                showToast(`Too many cells (${count}) to render. Previous grid still visible. Cells available for copy.`, 'info', 3000);
                 currentH3Cells = cells;
                 updateH3Code(resolution, leafBounds.getCenter());
                 return;
