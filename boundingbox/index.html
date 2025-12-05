@@ -1,7 +1,8 @@
 <html lang="en">
+
 <head>
     <title>Powerful Bounding Box maker</title>
-    
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="language" content="en">
@@ -13,32 +14,36 @@
 
     <link rel="stylesheet" href="css/bbox.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.css" />
-    
+
     <!-- Load jQuery first -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
-    
+
     <!-- Load Leaflet core before any Leaflet plugins -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
+
     <!-- Load Leaflet plugins and dependencies after core -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.umd.js"></script>
-    
+    <script src="https://unpkg.com/h3-js"></script>
+
     <!-- Load custom scripts last -->
     <script src="js/maps/wkt.parser.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="js/bbox.js"></script>
-   
+
 </head>
+
 <body>
 
     <ul id="map-ui-proj">
-        <li><label class="epsglabel" id="projection_label" for="projection" title="EPSG projection code - 3857 (Web Mercator) or 4326 (WGS84)">EPSG:</label><input id="projection" size="6" title="Change coordinate projection (3857=Web Mercator, 4326=WGS84)"/></li>
+        <li><label class="epsglabel" id="projection_label" for="projection"
+                title="EPSG projection code - 3857 (Web Mercator) or 4326 (WGS84)">EPSG:</label><input id="projection"
+                size="6" title="Change coordinate projection (3857=Web Mercator, 4326=WGS84)" /></li>
         <li id="manual-search" style="display: none;">
-            <input type="text" id="location-search" placeholder="Search location..." size="20"/>
+            <input type="text" id="location-search" placeholder="Search location..." size="20" />
             <button type="button" id="search-btn" title="Search">🔍</button>
         </li>
     </ul>
@@ -68,9 +73,15 @@
         <li id="help">
             <button type="button" title="Help" aria-label="Help"></button>
         </li>
+        <li id="h3-tools">
+            <button type="button" title="H3 Polyfill Tools" aria-label="H3 Polyfill Tools">
+                <img src="images/h3Logo-color.svg" alt="H3" style="width: 22px; height: 22px; display: block;">
+                <span id="h3-new-badge" class="new-badge">New</span>
+            </button>
+        </li>
     </ul>
     <div id="map"></div>
-    
+
     <!-- Simple right sidebar for entering coordinates -->
     <div id="rsidebar" class="simple-sidebar right-sidebar" style="display: none;">
         <div class="sidebar-header">
@@ -83,7 +94,7 @@
             <textarea placeholder="Paste GeoJSON, WKT, ogrinfo extent output or a bbox..." title="Paste It!"></textarea>
         </div>
     </div>
-    
+
     <!-- Simple left sidebar for help -->
     <div id="lsidebar" class="simple-sidebar left-sidebar" style="display: none;">
         <div class="sidebar-header">
@@ -116,18 +127,53 @@
             <form id="feedback-form">
                 <label for="feedback-name">Name (optional):</label>
                 <input type="text" id="feedback-name" placeholder="Your name">
-                
+
                 <label for="feedback-email">Email (optional):</label>
                 <input type="email" id="feedback-email" placeholder="your@email.com">
-                
+
                 <label for="feedback-message">Message: *</label>
-                <textarea id="feedback-message" placeholder="Tell us what you think, report bugs, or suggest features..." required></textarea>
-                
+                <textarea id="feedback-message"
+                    placeholder="Tell us what you think, report bugs, or suggest features..." required></textarea>
+
                 <div class="feedback-buttons">
                     <button type="submit" id="send-feedback">Send Feedback</button>
                     <button type="button" id="cancel-feedback">Cancel</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- H3 Tools Sidebar -->
+    <div id="h3-sidebar" class="simple-sidebar right-sidebar" style="display: none;">
+        <div class="sidebar-header">
+            <h3>Uber H3 Grid Tools</h3>
+            <button class="close-btn" onclick="$('#h3-tools button').click()">×</button>
+        </div>
+        <div class="sidebar-content">
+            <div class="h3-section">
+                <label for="h3-resolution">Resolution: <span id="h3-res-val">7</span></label>
+                <input type="range" id="h3-resolution" min="0" max="15" value="7" step="1">
+            </div>
+
+            <div class="h3-section">
+                <label class="toggle-label">
+                    <input type="checkbox" id="h3-compact">
+                    <span>Compact Coverage</span>
+                </label>
+            </div>
+
+            <div class="h3-stats">
+                <div>Cells: <span id="h3-count">-</span></div>
+            </div>
+
+            <div class="h3-actions">
+                <button id="copy-h3-indices" class="btn_one">Copy H3 Indices</button>
+            </div>
+
+            <div class="h3-code-section">
+                <h4>Python Code Snippet</h4>
+                <textarea id="h3-code-output" readonly></textarea>
+            </div>
         </div>
     </div>
 
@@ -152,17 +198,20 @@
             <div id="wgscoords" class="coords">
                 <div id="bbounds">
                     <span id="bbboundslabel" class="bboxlabel">Box</span>
-                    <button type="button" id="boxboundsbtn" data-clipboard-target="boxbounds" title="Copy Box WGS84" aria-label="Copy Box WGS84"><img src="images/copy.png" alt="Copy"></button>
+                    <button type="button" id="boxboundsbtn" data-clipboard-target="boxbounds" title="Copy Box WGS84"
+                        aria-label="Copy Box WGS84"><img src="images/copy.png" alt="Copy"></button>
                     <span id="boxbounds" class="bboxllpos"></span>
                 </div>
                 <div id="mbounds">
                     <span id="mboundslabel" class="bboxlabel">Map</span>
-                    <button type="button" id="mapboundsbtn" data-clipboard-target="mapbounds" title="Copy Map WGS84" aria-label="Copy Map WGS84"><img src="images/copy.png" alt="Copy"></button>
+                    <button type="button" id="mapboundsbtn" data-clipboard-target="mapbounds" title="Copy Map WGS84"
+                        aria-label="Copy Map WGS84"><img src="images/copy.png" alt="Copy"></button>
                     <span id="mapbounds" class="bboxllpos"></span>
                 </div>
                 <div id="mcenter">
                     <span id="mcenterlabel" class="bboxlabel">Center</span>
-                    <button type="button" id="centerbtn" data-clipboard-target="center" title="Copy Center WGS84" aria-label="Copy Center WGS84"><img src="images/copy.png" alt="Copy"></button>
+                    <button type="button" id="centerbtn" data-clipboard-target="center" title="Copy Center WGS84"
+                        aria-label="Copy Center WGS84"><img src="images/copy.png" alt="Copy"></button>
                     <span id="center" class="bboxllpossmall"></span>
                 </div>
                 <div id="mmouse">
@@ -181,7 +230,9 @@
             <div id="projcoords" class="coords">
                 <div id="bbounds">
                     <span id="bbboundslabel" class="bboxlabel">Box</span>
-                    <button type="button" id="boxboundsmercbtn" data-clipboard-target="boxboundsmerc" title="Copy Box Projected" aria-label="Copy Box Projected"><img src="images/copy.png" alt="Copy"></button>
+                    <button type="button" id="boxboundsmercbtn" data-clipboard-target="boxboundsmerc"
+                        title="Copy Box Projected" aria-label="Copy Box Projected"><img src="images/copy.png"
+                            alt="Copy"></button>
                     <span id="boxboundsmerc" class="bboxprojpos"></span>
                 </div>
                 <div id="mcenter">
@@ -231,14 +282,15 @@
         </div>
     </section>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GTJTE1MMWK"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GTJTE1MMWK"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-  gtag('config', 'G-GTJTE1MMWK');
-</script>
+        gtag('config', 'G-GTJTE1MMWK');
+    </script>
 </body>
+
 </html>

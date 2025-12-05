@@ -1,16 +1,12 @@
-/*
-**
-** bboxfinder.com
-** js/bbox.js
-**
-** Updated to remove Flash dependency (ZeroClipboard) and modernize JavaScript (ES6+).
-**
-*/
-
 let map, rsidebar, lsidebar, drawControl, drawnItems = null;
 let bounds = null; // Global bounds variable for the visual black box
 let activeScreenshotLayer = null; // The specific layer to be used for the screenshot
 let activeBounds = null; // To store the bounds for PNG download
+
+// H3 Globals
+let h3Layer = null; // Leaflet layer group for H3 hexagons
+let currentH3Cells = []; // Array of current H3 indices
+const MAX_H3_RENDER_CELLS = 3000; // Safety limit for rendering
 
 let proj4defs = null;
 const projdefs = { "4326": L.CRS.EPSG4326, "3857": L.CRS.EPSG3857 };
@@ -19,6 +15,11 @@ const currentmouse = L.latLng(0, 0);
 
 const MAX_RECENT_BBOXES = 10;
 let coordinatePrecision = 6;
+
+// Satellite view layers
+let currentLayer = 'street';
+let streetLayer = null;
+let satelliteLayer = null;
 
 
 L.Rectangle.prototype.setBounds = function (latLngBounds) {
@@ -307,136 +308,87 @@ function addLayer(layer, name, title, zIndex, on, callback) {
     };
     item.appendChild(link);
     ui.appendChild(item);
-};
+}
 
 function formatBounds(bounds, proj) {
-    const gdal = $("input[name='gdal-checkbox']").prop('checked') || false;
-    const lngLatOrder = $("input[name='coord-order']:checked").val() === 'lng-lat';
-    const precision = coordinatePrecision;
+    try {
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+        const precision = parseInt($('#precision').val()) || 6;
+        const coordOrder = $('input[name="coord-order"]:checked').val() || 'lng-lat';
+        const isGDAL = $('#gdal').is(':checked');
+        const separator = isGDAL ? ' ' : ', ';
 
-    let formattedBounds = '';
-    let southwest = bounds.getSouthWest();
-    let northeast = bounds.getNorthEast();
+        let minx, miny, maxx, maxy;
 
-    let xmin = 0;
-    let ymin = 0;
-    let xmax = 0;
-    let ymax = 0;
-
-    if (proj == '4326') {
-        xmin = southwest.lng.toFixed(precision);
-        ymin = southwest.lat.toFixed(precision);
-        xmax = northeast.lng.toFixed(precision);
-        ymax = northeast.lat.toFixed(precision);
-    } else {
-        try {
-            let proj_to_use = null;
-            if (typeof (projdefs[proj]) !== 'undefined') {
-                proj_to_use = projdefs[proj];
-            } else if (proj4defs && proj4defs[proj]) {
-                projdefs[proj] = new L.Proj.CRS(proj, proj4defs[proj][1]);
-                proj_to_use = projdefs[proj];
+        if (proj === '4326') {
+            minx = sw.lng; miny = sw.lat;
+            maxx = ne.lng; maxy = ne.lat;
+        } else {
+            if (typeof projdefs !== 'undefined' && projdefs[proj]) {
+                const p1 = projdefs[proj].project(sw);
+                const p2 = projdefs[proj].project(ne);
+                minx = p1.x; miny = p1.y;
+                maxx = p2.x; maxy = p2.y;
+            } else if (typeof proj4defs !== 'undefined' && proj4defs[proj]) {
+                // proj4(dest, point) assumes WGS84 source
+                const p1 = proj4(proj4defs[proj][1], [sw.lng, sw.lat]);
+                const p2 = proj4(proj4defs[proj][1], [ne.lng, ne.lat]);
+                minx = p1[0]; miny = p1[1];
+                maxx = p2[0]; maxy = p2[1];
             } else {
-                // Fallback to 4326 if projection not available
-                xmin = southwest.lng.toFixed(6);
-                ymin = southwest.lat.toFixed(6);
-                xmax = northeast.lng.toFixed(6);
-                ymax = northeast.lat.toFixed(6);
+                return 'Unknown Projection';
             }
-
-            if (proj_to_use) {
-                southwest = proj_to_use.project(southwest);
-                northeast = proj_to_use.project(northeast);
-                xmin = southwest.x.toFixed(precision);
-                ymin = southwest.y.toFixed(precision);
-                xmax = northeast.x.toFixed(precision);
-                ymax = northeast.y.toFixed(precision);
-            }
-        } catch (error) {
-            console.warn('Projection error, falling back to 4326:', error);
-            // Fallback to 4326
-            xmin = southwest.lng.toFixed(precision);
-            ymin = southwest.lat.toFixed(precision);
-            xmax = northeast.lng.toFixed(precision);
-            ymax = northeast.lat.toFixed(precision);
         }
-    }
 
-    if (gdal) {
-        if (lngLatOrder) {
-            formattedBounds = xmin + ',' + ymin + ',' + xmax + ',' + ymax; // lng,lat,lng,lat
+        // Apply coordinate order
+        if (coordOrder === 'lat-lng') {
+            return `${miny.toFixed(precision)}${separator}${minx.toFixed(precision)}${separator}${maxy.toFixed(precision)}${separator}${maxx.toFixed(precision)}`;
         } else {
-            formattedBounds = ymin + ',' + xmin + ',' + ymax + ',' + xmax; // lat,lng,lat,lng
+            return `${minx.toFixed(precision)}${separator}${miny.toFixed(precision)}${separator}${maxx.toFixed(precision)}${separator}${maxy.toFixed(precision)}`;
         }
-    } else {
-        if (lngLatOrder) {
-            formattedBounds = xmin + ' ' + ymin + ' ' + xmax + ' ' + ymax; // lng lat lng lat
-        } else {
-            formattedBounds = ymin + ' ' + xmin + ' ' + ymax + ' ' + xmax; // lat lng lat lng
-        }
+    } catch (e) {
+        console.error("formatBounds error:", e);
+        return '';
     }
-
-    return formattedBounds;
 }
 
-function formatTile(point, zoom) {
-    const xTile = Math.floor((point.lng + 180) / 360 * Math.pow(2, zoom));
-    const yTile = Math.floor((1 - Math.log(Math.tan(point.lat * Math.PI / 180) + 1 / Math.cos(point.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
-    return xTile.toString() + ',' + yTile.toString();
+function formatPoint(latlng, proj) {
+    if (!latlng) return '';
+    try {
+        const precision = parseInt($('#precision').val()) || 6;
+        const coordOrder = $('input[name="coord-order"]:checked').val() || 'lng-lat';
+        const isGDAL = $('#gdal').is(':checked');
+        const separator = isGDAL ? ' ' : ', ';
+
+        let x, y;
+        if (proj === '4326') {
+            x = latlng.lng; y = latlng.lat;
+        } else {
+            if (typeof projdefs !== 'undefined' && projdefs[proj]) {
+                const p = projdefs[proj].project(latlng);
+                x = p.x; y = p.y;
+            } else if (typeof proj4defs !== 'undefined' && proj4defs[proj]) {
+                const p = proj4(proj4defs[proj][1], [latlng.lng, latlng.lat]);
+                x = p[0]; y = p[1];
+            } else {
+                return '0, 0';
+            }
+        }
+
+        // Apply coordinate order
+        if (coordOrder === 'lat-lng') {
+            return `${y.toFixed(precision)}${separator}${x.toFixed(precision)}`;
+        } else {
+            return `${x.toFixed(precision)}${separator}${y.toFixed(precision)}`;
+        }
+    } catch (e) { return ''; }
 }
 
-function formatPoint(point, proj) {
-    const gdal = $("input[name='gdal-checkbox']").prop('checked') || false;
-    const lngLatOrder = $("input[name='coord-order']:checked").val() === 'lng-lat';
-    const precision = coordinatePrecision;
-
-    let formattedPoint = '';
-    let x, y;
-
-    if (proj == '4326') {
-        x = point.lng.toFixed(precision);
-        y = point.lat.toFixed(precision);
-    } else {
-        try {
-            let proj_to_use = null;
-            if (typeof (projdefs[proj]) !== 'undefined') {
-                proj_to_use = projdefs[proj];
-            } else if (proj4defs && proj4defs[proj]) {
-                projdefs[proj] = new L.Proj.CRS(proj, proj4defs[proj][1]);
-                proj_to_use = projdefs[proj];
-            } else {
-                // Fallback to 4326 if projection not available
-                x = point.lng.toFixed(6);
-                y = point.lat.toFixed(6);
-            }
-
-            if (proj_to_use) {
-                point = proj_to_use.project(point);
-                x = point.x.toFixed(precision);
-                y = point.y.toFixed(precision);
-            }
-        } catch (error) {
-            console.warn('Projection error, falling back to 4326:', error);
-            // Fallback to 4326
-            x = point.lng.toFixed(precision);
-            y = point.lat.toFixed(precision);
-        }
-    }
-
-    if (gdal) {
-        if (lngLatOrder) {
-            formattedPoint = x + ',' + y; // lng,lat
-        } else {
-            formattedPoint = y + ',' + x; // lat,lng
-        }
-    } else {
-        if (lngLatOrder) {
-            formattedPoint = x + ' ' + y; // lng lat
-        } else {
-            formattedPoint = y + ' ' + x; // lat lng
-        }
-    }
-    return formattedPoint;
+function formatTile(latlng, zoom) {
+    const x = Math.floor((latlng.lng + 180) / 360 * Math.pow(2, zoom));
+    const y = Math.floor((1 - Math.log(Math.tan(latlng.lat * Math.PI / 180) + 1 / Math.cos(latlng.lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+    return `${x},${y}`;
 }
 
 function validateStringAsBounds(bounds) {
@@ -701,20 +653,6 @@ function loadBboxFromHash() {
     return true;
 }
 
-function updateBboxInfo(bounds) {
-    if (!bounds || !bounds.isValid()) {
-        $('#area-value').text('-');
-        $('#dimensions-value').text('-');
-        return;
-    }
-
-    const area = calculateBboxArea(bounds);
-    $('#area-value').text(formatArea(area));
-
-    const dims = calculateBboxDimensions(bounds);
-    $('#dimensions-value').text(`${dims.width.toFixed(4)}° × ${dims.height.toFixed(4)}°`);
-}
-
 function updateProjectionInfo(projCode) {
     const descriptions = {
         '3857': 'Web Mercator - Used by Google Maps, OpenStreetMap, and most web mapping services. Good for web display but distorts area at high latitudes.',
@@ -732,9 +670,11 @@ function updateProjectionInfo(projCode) {
     } else if (proj4defs && proj4defs[projCode]) {
         $('#proj-description').text(`${proj4defs[projCode][0]} - Custom projection system.`);
     } else {
-        $('#proj-description').text('');
+        $('#proj-description').text('Unknown projection system.');
     }
 }
+
+
 
 $(function () { // Modern equivalent of $(document).ready
     console.log('BBox Finder: Starting initialization...');
@@ -743,12 +683,89 @@ $(function () { // Modern equivalent of $(document).ready
 
     $("#projection").val(currentproj);
 
+    // Initialize H3 Features
+    initH3Features();
+
+    var help_text = "BBox Finder - Quick Start Guide\n\n" +
+        "TOOLBAR BUTTONS (Top Right):\n" +
+        "✏️  Enter Coordinates - Paste GeoJSON, WKT, or bbox coordinates\n" +
+        "📍 My Location - GPS positioning with IP fallback\n" +
+        "📋 Recent Bboxes - Access your last 10 bounding boxes\n" +
+        "🗑️  Clear All - Remove all drawn features\n" +
+        "🔗 Share URL - Copy shareable link with current bbox\n" +
+        "💬 Feedback - Send us your thoughts or report issues\n" +
+        "❓ Help - This guide\n" +
+        "⬡ H3 Tools - Toggle Uber H3 hexagonal grid tools\n\n" +
+
+        "DRAWING TOOLS (Left Side):\n" +
+        "Use the drawing controls to create:\n" +
+        "• Rectangle - Draw rectangular bounding boxes\n" +
+        "• Circle - Draw circular areas\n" +
+        "• Polygon - Draw custom polygons\n" +
+        "• Polyline - Draw lines\n" +
+        "• Marker - Place point markers\n" +
+        "• Edit/Delete - Modify or remove features\n\n" +
+
+        "UBER H3 TOOLS (New!):\n" +
+        "• Resolution Slider - Visualize hexagons (0-15)\n" +
+        "• Compact - Toggle optimized coverage\n" +
+        "• Copy Indices - Get list of H3 cell IDs\n" +
+        "• Code Gen - Get H3 Python/JS snippets\n\n" +
+
+        "NEW FEATURES:\n" +
+        "📏 Precision Control - Adjust decimal places (1-12) for coordinates\n" +
+        "📐 Area Calculation - See bbox area in m² or km² automatically\n" +
+        "📊 Dimensions - View width × height in degrees\n" +
+        "🔗 URL Sharing - Share bboxes via URL (auto-loads on page load)\n" +
+        "💾 Recent History - Last 10 bboxes saved automatically\n" +
+        "ℹ️  Projection Info - Learn about each coordinate system\n\n" +
+
+        "COORDINATE FORMATS (Bottom Panel):\n" +
+        "• Lng,Lat ↔ Lat,Lng: Change coordinate order\n" +
+        "• GDAL format: Use comma separators instead of spaces\n" +
+        "• Precision: Control decimal places (default: 6)\n" +
+        "• Copy buttons: Click 📋 next to any coordinate to copy\n\n" +
+
+        "PROJECTIONS (Top Left):\n" +
+        "• Type EPSG codes (3857, 4326, 27700, etc.) and press Enter\n" +
+        "• Autocomplete available - type 3+ characters\n" +
+        "• See projection description in \"Bounding Box Info\" section\n" +
+        "• Common: 3857 (Web Mercator), 4326 (WGS84), 27700 (British Grid)\n\n" +
+
+        "EXPORT FORMATS:\n" +
+        "• Copy WKT - Well-Known Text format\n" +
+        "• Copy GeoJSON BBox - JSON array format\n" +
+        "• Copy Leaflet Array - For Leaflet.js library\n" +
+        "• Download PNG - Screenshot of map area (when bbox drawn)\n\n" +
+
+        "PASTE DATA:\n" +
+        "Click ✏️ \"Enter Coordinates\" to paste:\n" +
+        "• GeoJSON features and geometries\n" +
+        "• WKT (Well-Known Text) geometries\n" +
+        "• Bounding box coordinates (xmin,ymin,xmax,ymax)\n" +
+        "• ogrinfo extent output\n\n" +
+
+        "TIPS:\n" +
+        "• All bboxes are auto-saved to Recent History\n" +
+        "• Use Share URL to collaborate with others\n" +
+        "• Adjust precision for your use case (2 for rough, 8 for precise)\n" +
+        "• Projection descriptions help choose the right system\n" +
+        "• Recent bboxes persist in browser storage\n\n" +
+
+        "SUPPORT:\n" +
+        "For help, bug reports, or feature requests:\n" +
+        "• Click 💬 Feedback button\n" +
+        "• Email: contact@vibhorsingh.com";
+
+
+    $('#lsidebar textarea').val(help_text);
+
     // Initialize the map using standard Leaflet
     console.log('BBox Finder: Initializing map...');
     map = L.map('map').setView([0, 0], 3);
 
-    // Add the tile layer using a modern Mapbox style URL and your token
-    const streetLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    // Define Mapbox Layer
+    const mapboxLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 18,
         id: 'mapbox/streets-v11',
@@ -757,90 +774,37 @@ $(function () { // Modern equivalent of $(document).ready
         accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3lxM2R3MTcybzJpcHdhanU1dTB5dCJ9.vBNwuEDJXfsxT-lfLNCbWA'
     });
 
-    // Add satellite layer
-    const satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 18,
-        id: 'mapbox/satellite-v9',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3lxM2R3MTcybzJpcHdhanU1dTB5dCJ9.vBNwuEDJXfsxT-lfLNCbWA'
+    // Define OpenStreetMap Layer (Fallback)
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
-    streetLayer.addTo(map);
-    let currentLayer = 'street';
+    // Add Mapbox first
+    mapboxLayer.addTo(map);
+    streetLayer = mapboxLayer; // Set as current street layer
 
-    console.log('BBox Finder: Map and tile layer added');
+    // Initialize satellite layer (not added to map yet)
+    satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+        maxZoom: 19
+    });
 
-    $('#lsidebar textarea').val(`BBox Finder - Quick Start Guide
+    // Fallback Logic: If Mapbox fails (e.g. 403 on localhost), switch to OSM
+    mapboxLayer.on('tileerror', function (e) {
+        // Only trigger once to avoid flickering/loops
+        if (map.hasLayer(mapboxLayer)) {
+            console.warn('Mapbox tile error (likely token restriction), switching to OpenStreetMap fallback.');
+            map.removeLayer(mapboxLayer);
+            osmLayer.addTo(map);
+            streetLayer = osmLayer; // Update street layer reference
+            showToast('Mapbox blocked on localhost. Switched to OpenStreetMap.', 'info');
+        }
+    });
 
-TOOLBAR BUTTONS (Top Right):
-✏️  Enter Coordinates - Paste GeoJSON, WKT, or bbox coordinates
-📍 My Location - GPS positioning with IP fallback
-📋 Recent Bboxes - Access your last 10 bounding boxes
-🗑️  Clear All - Remove all drawn features
-🔗 Share URL - Copy shareable link with current bbox
-💬 Feedback - Send us your thoughts or report issues
-❓ Help - This guide
-
-DRAWING TOOLS (Left Side):
-Use the drawing controls to create:
-• Rectangle - Draw rectangular bounding boxes
-• Circle - Draw circular areas
-• Polygon - Draw custom polygons
-• Polyline - Draw lines
-• Marker - Place point markers
-• Edit/Delete - Modify or remove features
-
-NEW FEATURES:
-📏 Precision Control - Adjust decimal places (1-12) for coordinates
-📐 Area Calculation - See bbox area in m² or km² automatically
-📊 Dimensions - View width × height in degrees
-🔗 URL Sharing - Share bboxes via URL (auto-loads on page load)
-💾 Recent History - Last 10 bboxes saved automatically
-ℹ️  Projection Info - Learn about each coordinate system
-
-COORDINATE FORMATS (Bottom Panel):
-• Lng,Lat ↔ Lat,Lng: Change coordinate order
-• GDAL format: Use comma separators instead of spaces
-• Precision: Control decimal places (default: 6)
-• Copy buttons: Click 📋 next to any coordinate to copy
-
-PROJECTIONS (Top Left):
-• Type EPSG codes (3857, 4326, 27700, etc.) and press Enter
-• Autocomplete available - type 3+ characters
-• See projection description in "Bounding Box Info" section
-• Common: 3857 (Web Mercator), 4326 (WGS84), 27700 (British Grid)
-
-EXPORT FORMATS:
-• Copy WKT - Well-Known Text format
-• Copy GeoJSON BBox - JSON array format
-• Copy Leaflet Array - For Leaflet.js library
-• Download PNG - Screenshot of map area (when bbox drawn)
-
-PASTE DATA:
-Click ✏️ "Enter Coordinates" to paste:
-• GeoJSON features and geometries
-• WKT (Well-Known Text) geometries
-• Bounding box coordinates (xmin,ymin,xmax,ymax)
-• ogrinfo extent output
-
-TIPS:
-• All bboxes are auto-saved to Recent History
-• Use Share URL to collaborate with others
-• Adjust precision for your use case (2 for rough, 8 for precise)
-• Projection descriptions help choose the right system
-• Recent bboxes persist in browser storage
-
-SUPPORT:
-For help, bug reports, or feature requests:
-• Click 💬 Feedback button
-• Email: contact@vibhorsingh.com
-`)
-
-    setTimeout(function () {
-        map.invalidateSize();
-    }, 100);
+    mapboxLayer.on('tileload', function () {
+        console.log('Mapbox: Tile loaded successfully');
+    });
 
     setTimeout(function () {
         console.log('BBox Finder: Attempting to initialize GeoSearch...');
@@ -1194,17 +1158,32 @@ For help, bug reports, or feature requests:
 
     $('#copy-wkt').on('click', function () {
         const output = getFormattedBox('wkt');
-        navigator.clipboard.writeText(output).then(() => alert('WKT copied!'));
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('WKT copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy WKT:', err);
+            showToast('Failed to copy WKT', 'error');
+        });
     });
 
     $('#copy-geojson-bbox').on('click', function () {
         const output = getFormattedBox('geojson-bbox');
-        navigator.clipboard.writeText(output).then(() => alert('GeoJSON BBox copied!'));
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('GeoJSON BBox copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy GeoJSON BBox:', err);
+            showToast('Failed to copy GeoJSON BBox', 'error');
+        });
     });
 
     $('#copy-leaflet-array').on('click', function () {
         const output = getFormattedBox('leaflet');
-        navigator.clipboard.writeText(output).then(() => alert('Leaflet array copied!'));
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('Leaflet array copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy Leaflet array:', err);
+            showToast('Failed to copy Leaflet array', 'error');
+        });
     });
 
     $('#download-png').on('click', function () {
@@ -1607,27 +1586,56 @@ For help, bug reports, or feature requests:
                         console.log('Projection changed successfully to:', inputValue);
                         showToast(`Projection changed to EPSG:${inputValue}`, 'success', 2000);
                     } else {
-                        console.warn('Unknown projection:', inputValue);
-                        $('#projlabel').text(`EPSG:${inputValue} - Unknown projection`);
-                        currentproj = inputValue;
+                        // Dynamic fetch from EPSG.io
+                        console.log(`Projection ${inputValue} not found locally. Fetching from epsg.io...`);
 
-                        try {
-                            $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
-                            $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
-                            $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
-                            $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
+                        // Show loading state
+                        $('#projlabel').text(`EPSG:${inputValue} - Fetching definition...`);
 
-                            if (drawnItems.getLayers().length > 0) {
-                                const layerBounds = drawnItems.getBounds();
-                                if (layerBounds.isValid()) {
-                                    $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
+                        fetch(`https://epsg.io/${inputValue}.proj4`)
+                            .then(response => {
+                                if (!response.ok) throw new Error('Network response was not ok');
+                                return response.text();
+                            })
+                            .then(proj4String => {
+                                if (!proj4String || proj4String.includes('<!DOCTYPE html>')) {
+                                    throw new Error('Invalid proj4 string received');
                                 }
-                            }
-                        } catch (error) {
-                            console.error('Failed to apply unknown projection:', error);
-                            alert(`EPSG:${inputValue} is not supported. Please use a supported projection code like 3857, 4326, or 27700.`);
-                            $(this).val(currentproj);
-                        }
+
+                                console.log(`Fetched definition for ${inputValue}:`, proj4String);
+
+                                // Add to definitions
+                                const defName = `EPSG:${inputValue}`;
+                                proj4.defs(defName, proj4String);
+                                proj4defs[inputValue] = [defName, proj4String];
+
+                                // Update current projection
+                                currentproj = inputValue;
+                                $('#projlabel').text(`EPSG:${inputValue} - ${defName}`);
+
+                                // Update all coordinate displays
+                                $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
+                                $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
+                                $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
+                                $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
+
+                                // Update projection info if function exists
+                                if (drawnItems.getLayers().length > 0) {
+                                    const layerBounds = drawnItems.getBounds();
+                                    if (layerBounds.isValid()) {
+                                        $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
+                                    }
+                                }
+
+                                updateProjectionInfo(inputValue);
+                                showToast(`Projection EPSG:${inputValue} loaded successfully!`, 'success', 2000);
+                            })
+                            .catch(error => {
+                                console.error('Failed to fetch projection:', error);
+                                $('#projlabel').text(`EPSG:${inputValue} - Fetch Failed`);
+                                showToast(`Could not load projection ${inputValue}.`, 'error');
+                                $(this).val(currentproj); // Revert to previous projection
+                            });
                     }
                 }
             });
@@ -1652,8 +1660,11 @@ For help, bug reports, or feature requests:
         });
 
     // Re-render display on any format change to update all coordinates
-    $("#coord-format").on('change', function () {
-        console.log('Coordinate format changed');
+    $('input[name="coord-order"], #gdal').on('change', function () {
+        console.log('Coordinate format changed:', {
+            order: $('input[name="coord-order"]:checked').val(),
+            gdal: $('#gdal').is(':checked')
+        });
 
         // Update all displayed coordinates with new format
         $('#mapbounds').text(formatBounds(map.getBounds(), '4326'));
@@ -1671,6 +1682,8 @@ For help, bug reports, or feature requests:
                 $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
             }
         }
+
+        showToast('Coordinate format updated', 'success', 1500);
     });
 
     // handle feedback button click events
@@ -1860,3 +1873,240 @@ For help, bug reports, or feature requests:
         }
     });
 });
+
+function updateBboxInfo(bounds) {
+    if (!bounds) {
+        $('#area-value').text('-');
+        $('#dimensions-value').text('-');
+        return;
+    }
+
+    // Update H3 Grid if enabled
+    if (typeof updateH3Grid === 'function') {
+        try {
+            updateH3Grid();
+        } catch (e) {
+            console.error('H3 Grid update failed:', e);
+        }
+    }
+
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+
+    // Calculate distance/area using Leaflet
+    const southWest = L.latLng(sw.lat, sw.lng);
+    const northEast = L.latLng(ne.lat, ne.lng);
+    const northWest = L.latLng(ne.lat, sw.lng);
+
+    // Distance in meters
+    const width = southWest.distanceTo(L.latLng(sw.lat, ne.lng));
+    const height = southWest.distanceTo(northWest);
+
+    const widthKm = (width / 1000).toFixed(2);
+    const heightKm = (height / 1000).toFixed(2);
+
+    $('#dimensions-value').text(`${widthKm} km x ${heightKm} km`);
+
+    // Approximate area (treat as rectangle for simple display)
+    const areaSqKm = (widthKm * heightKm).toFixed(2);
+    $('#area-value').text(`${areaSqKm} km²`);
+}
+
+function initH3Features() {
+    // 1. Sidebar Toggle
+    $('#h3-tools button').on('click', function () {
+        const sidebar = $('#h3-sidebar');
+        const isActive = $(this).hasClass('active');
+
+        // Close other sidebars
+        $('.sidebar-content').parent().hide();
+        $('.simple-sidebar').hide();
+        $('#map-ui button').removeClass('active');
+
+        if (!isActive) {
+            sidebar.show();
+            $(this).addClass('active');
+            updateH3Grid();
+
+            // Discovery: Remove badge on first click
+            localStorage.setItem('h3_badge_seen', 'true');
+            $('#h3-new-badge').fadeOut();
+        } else {
+            clearH3Grid();
+        }
+    });
+
+    // 2. Controls
+    $('#h3-resolution').on('input change', function () {
+        $('#h3-res-val').text($(this).val());
+        updateH3Grid();
+    });
+
+    $('#h3-compact').on('change', function () {
+        updateH3Grid();
+    });
+
+    // 3. Copy Button
+    $('#copy-h3-indices').on('click', function () {
+        if (!currentH3Cells || currentH3Cells.length === 0) {
+            showToast('No hexagons to copy', 'error');
+            return;
+        }
+
+        const content = JSON.stringify(currentH3Cells);
+        navigator.clipboard.writeText(content).then(() => {
+            showToast(`Copied ${currentH3Cells.length} H3 indices!`, 'success');
+        }).catch(() => {
+            showToast('Failed to copy', 'error');
+        });
+    });
+
+
+    function clearH3Grid() {
+        if (h3Layer && map) {
+            map.removeLayer(h3Layer);
+            h3Layer = null;
+        }
+        currentH3Cells = [];
+        $('#h3-count').text('-');
+    }
+
+    function updateH3Grid() {
+        // Only update if sidebar is open
+        if (!$('#h3-sidebar').is(':visible')) return;
+
+        // Check if bounds exist. 
+        // We use activeBounds which is the global LatLngBounds object for the current box.
+        if (!activeBounds || !activeBounds.isValid()) {
+            $('#h3-count').text('Draw a box first');
+            return;
+        }
+
+        // Get current bounds from the global activeBounds
+        const leafBounds = activeBounds;
+
+        const resolution = parseInt($('#h3-resolution').val());
+        const isCompact = $('#h3-compact').is(':checked');
+
+        const sw = leafBounds.getSouthWest();
+        const ne = leafBounds.getNorthEast();
+
+        // H3 v4 polygon definition: [lat, lng] loops
+        const polygon = [
+            [sw.lat, sw.lng],
+            [ne.lat, sw.lng], // NW
+            [ne.lat, ne.lng], // NE
+            [sw.lat, ne.lng], // SE
+            [sw.lat, sw.lng]  // Close loop
+        ];
+
+        try {
+            // 0. Safety Check: Estimate cell count before computing
+            // OOM Protection: polygonToCells crashes browser if > 5-10M cells are attempted.
+            // We use a hard limit for *computation* attempt.
+            const COMPUTATION_LIMIT = 100000;
+
+            const avgHexArea = h3.getHexagonAreaAvg(resolution, h3.UNITS.km2);
+
+            // Calculate Box Area in km^2
+            const southWest = L.latLng(sw.lat, sw.lng);
+            const northWest = L.latLng(ne.lat, sw.lng);
+            // Width at center latitude for better approximation
+            const centerLat = (sw.lat + ne.lat) / 2;
+            const centerWest = L.latLng(centerLat, sw.lng);
+            const centerEast = L.latLng(centerLat, ne.lng);
+
+            const widthKm = centerWest.distanceTo(centerEast) / 1000;
+            const heightKm = southWest.distanceTo(northWest) / 1000;
+            const areaKm2 = widthKm * heightKm;
+
+            const estimatedCount = areaKm2 / avgHexArea;
+
+            if (estimatedCount > COMPUTATION_LIMIT) {
+                $('#h3-count').text('~' + Math.floor(estimatedCount).toLocaleString() + ' (Too large)'); // Est.
+                showToast(`Area too large for Res ${resolution} (Est. ${Math.floor(estimatedCount).toLocaleString()} cells). Zoom in.`, 'error');
+                clearH3Grid();
+                return;
+            }
+
+            let cells = h3.polygonToCells(polygon, resolution);
+
+            if (isCompact) {
+                cells = h3.compactCells(cells);
+            }
+
+            const count = cells.length;
+            $('#h3-count').text(count.toLocaleString());
+
+            if (count > MAX_H3_RENDER_CELLS) {
+                clearH3Grid();
+                showToast(`Too many cells (${count}) to render.`, 'info');
+                currentH3Cells = cells;
+                updateH3Code(resolution, leafBounds.getCenter());
+                return;
+            }
+
+            if (h3Layer) map.removeLayer(h3Layer);
+
+            const geoJsonFeatures = cells.map(cell => {
+                const boundary = h3.cellToBoundary(cell);
+                return {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [boundary.map(p => [p[1], p[0]])] // Flip to [lng, lat]
+                    },
+                    "properties": { "id": cell }
+                };
+            });
+
+            h3Layer = L.geoJSON({
+                "type": "FeatureCollection",
+                "features": geoJsonFeatures
+            }, {
+                style: {
+                    color: '#ff4757',
+                    weight: 1,
+                    opacity: 0.6,
+                    fillOpacity: 0.2
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.bindTooltip(feature.properties.id, { sticky: true });
+                }
+            }).addTo(map);
+
+            currentH3Cells = cells;
+            updateH3Code(resolution, leafBounds.getCenter());
+
+        } catch (err) {
+            console.error("H3 Error:", err);
+        }
+    }
+
+    function updateH3Code(res, center) {
+        const lat = center.lat.toFixed(4);
+        const lng = center.lng.toFixed(4);
+        const code = `import h3\n\n# Center point at Resolution ${res}\ncenter = h3.latlng_to_cell(${lat}, ${lng}, ${res})\n\n# Get neighbors\nring = h3.grid_disk(center, 1)\n`;
+        $('#h3-code-output').val(code);
+    }
+
+    // 4. Feature Discovery
+    checkH3Discovery();
+}
+
+function checkH3Discovery() {
+    // 1. Badge logic
+    const seen = localStorage.getItem('h3_badge_seen');
+    if (seen) {
+        $('#h3-new-badge').hide();
+    }
+
+    // 2. Toast logic
+    const toastSeen = localStorage.getItem('h3_toast_shown');
+    if (!toastSeen) {
+        setTimeout(() => {
+            showToast("New: Uber H3 Hexagon Tools available!", 'info', 5000);
+            localStorage.setItem('h3_toast_shown', 'true');
+        }, 3000);
+    }
+}

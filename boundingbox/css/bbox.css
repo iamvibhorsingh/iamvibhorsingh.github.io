@@ -5,7 +5,10 @@
 **
 ** Modernized with CSS variables and Flexbox layout.
 **
+**
 */
+
+@import url("h3_styles.css");
 
 :root {
     --primary-bg: #fff;
@@ -798,6 +801,9 @@ body.dark-mode #loading-overlay {
 #feedback-form input {
     height: 35px;
 }
+
+/* Import H3 Styles */
+
 
 #feedback-form textarea {
     min-height: 150px;
