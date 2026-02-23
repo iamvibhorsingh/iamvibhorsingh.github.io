@@ -275,28 +275,30 @@ body,
 
 /* Output Format Buttons */
 #output-formats {
-    flex: 1;
+    flex: 2;
     border-left: 1px solid var(--border-color);
     padding-left: 15px;
-    min-width: 200px;
+    min-width: 280px;
 }
 
 .format-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
     margin-top: 8px;
 }
 
 .btn_one {
-    padding: 8px 12px;
+    padding: 6px 8px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background: var(--primary-bg);
     color: var(--text-color);
     cursor: pointer;
-    font-size: var(--font-size-small);
+    font-size: 11px;
     transition: background-color 0.2s;
+    white-space: nowrap;
+    text-align: center;
 }
 
 .btn_one:hover {
@@ -605,8 +607,9 @@ body,
 /* Toast notification */
 #toast-notification {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: #333;
     color: white;
     padding: 12px 20px;
@@ -614,18 +617,19 @@ body,
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     z-index: 10000;
     display: none;
-    max-width: 300px;
-    animation: slideIn 0.3s ease-out;
+    max-width: 400px;
+    text-align: center;
+    animation: slideDown 0.3s ease-out;
 }
 
-@keyframes slideIn {
+@keyframes slideDown {
     from {
-        transform: translateX(400px);
+        transform: translateX(-50%) translateY(-30px);
         opacity: 0;
     }
 
     to {
-        transform: translateX(0);
+        transform: translateX(-50%) translateY(0);
         opacity: 1;
     }
 }
@@ -845,4 +849,200 @@ body.dark-mode #loading-overlay {
 
 #cancel-feedback:hover {
     background: #ddd;
+}
+
+/* --- First-time hint overlay --- */
+#draw-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 16px 28px;
+    border-radius: 8px;
+    text-align: center;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    max-width: 320px;
+}
+
+#draw-hint span {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+#draw-hint small {
+    display: block;
+    font-size: 11px;
+    opacity: 0.7;
+}
+
+#draw-hint.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- Coordinate format scope note --- */
+.format-scope-note {
+    font-size: 10px;
+    color: #999;
+    font-style: italic;
+    margin-top: 2px;
+    line-height: 1.3;
+}
+
+body.dark-mode .format-scope-note {
+    color: #777;
+}
+
+/* --- Mobile Responsive --- */
+@media (max-width: 768px) {
+    /* Toolbar: horizontal row at top */
+    #map-ui {
+        right: 10px;
+        top: 10px;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    #map-ui li {
+        margin-bottom: 0;
+    }
+
+    #map-ui-proj {
+        left: 10px;
+        top: 50px;
+    }
+
+    /* Info box: stack everything vertically */
+    #info {
+        flex-direction: column;
+        gap: 10px;
+        padding: 8px;
+        max-height: 50vh;
+        overflow-y: auto;
+    }
+
+    .coords {
+        min-width: unset;
+        width: 100%;
+    }
+
+    .coords > div {
+        font-size: 12px;
+        gap: 6px;
+    }
+
+    .bboxlabel {
+        flex-basis: 40px;
+        font-size: 11px;
+    }
+
+    .bboxllpos,
+    .bboxprojpos {
+        font-size: 11px;
+        word-break: break-all;
+    }
+
+    .bboxllpossmall,
+    .bboxprojpossmall,
+    .tilesmall,
+    .zoomsmall {
+        font-size: 10px;
+    }
+
+    /* Remove left borders, add top borders for stacked sections */
+    #coord-format,
+    #bbox-info,
+    #output-formats {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        padding-left: 0;
+        padding-top: 10px;
+        min-width: unset;
+    }
+
+    /* Format buttons: 2 columns still works on mobile */
+    .format-buttons {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Sidebars: full width on mobile */
+    .simple-sidebar {
+        width: calc(100vw - 20px) !important;
+        max-width: none;
+        left: 10px;
+        right: 10px;
+    }
+
+    .right-sidebar,
+    .recent-sidebar,
+    .feedback-sidebar {
+        right: 10px;
+        left: 10px;
+        width: auto !important;
+    }
+
+    .left-sidebar {
+        bottom: auto;
+        top: 50px;
+        right: 10px;
+        left: 10px;
+        width: auto !important;
+    }
+
+    /* Toast: narrower on mobile */
+    #toast-notification {
+        max-width: calc(100vw - 40px);
+        font-size: 13px;
+    }
+
+    /* Leaflet draw toolbar: smaller */
+    .leaflet-draw-toolbar a {
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Very small screens: single column buttons */
+    .format-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    #map-ui {
+        right: 5px;
+        top: 5px;
+    }
+
+    #map-ui li {
+        padding: 3px;
+    }
+
+    #map-ui button {
+        width: 22px;
+        height: 22px;
+    }
+
+    #map-ui-proj {
+        left: 50px;
+        top: 45px;
+    }
+
+    #info-toggle li {
+        padding: 4px 6px;
+        font-size: 11px;
+    }
+
+    .simple-sidebar {
+        min-width: unset;
+        min-height: unset;
+    }
 }

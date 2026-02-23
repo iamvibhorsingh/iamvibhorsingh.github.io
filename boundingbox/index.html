@@ -1,37 +1,96 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>Powerful Bounding Box maker</title>
+    <title>Bounding Box Tool - Create, Convert & Export BBox Coordinates | Free Online Map Tool</title>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="language" content="en">
     <meta name="google" content="notranslate">
+    <meta name="description" content="Free online bounding box tool. Draw bounding boxes on a map and export as WKT, GeoJSON, KML, Overpass API, OGC BBOX, STAC and more. Supports 3900+ EPSG projections, Uber H3 hexagonal grids, and coordinate conversion.">
+    <meta name="keywords" content="bounding box, bbox, bbox finder, bounding box tool, WKT, GeoJSON, KML, Overpass API, OGC BBOX, STAC, coordinate converter, EPSG, map tool, GIS tool, spatial data, WFS, WMS, H3 hexagons">
+    <meta name="author" content="Vibhor Singh">
+    <meta name="robots" content="index, follow">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="images/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="images/android-chrome-512x512.png">
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <link rel="canonical" href="https://iamvibhorsingh.github.io/boundingbox/">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Bounding Box Tool - Free Online BBox Creator & Converter">
+    <meta property="og:description" content="Draw bounding boxes on a map and export as WKT, GeoJSON, KML, Overpass API, OGC BBOX, STAC and more. Supports 3900+ EPSG projections.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://iamvibhorsingh.github.io/boundingbox/">
+    <meta property="og:image" content="https://iamvibhorsingh.github.io/boundingbox/images/android-chrome-512x512.png">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Bounding Box Tool - Free Online BBox Creator & Converter">
+    <meta name="twitter:description" content="Draw bounding boxes on a map and export as WKT, GeoJSON, KML, Overpass API, OGC BBOX, STAC and more.">
+    <meta name="twitter:image" content="https://iamvibhorsingh.github.io/boundingbox/images/android-chrome-512x512.png">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Bounding Box Tool",
+        "description": "Free online tool to draw bounding boxes on a map and export coordinates in WKT, GeoJSON, KML, Overpass API, OGC BBOX, STAC and other GIS formats. Supports 3900+ EPSG projections and Uber H3 hexagonal grids.",
+        "url": "https://iamvibhorsingh.github.io/boundingbox/",
+        "applicationCategory": "GIS Tool",
+        "operatingSystem": "Any",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "Vibhor Singh"
+        },
+        "featureList": [
+            "Draw bounding boxes on interactive map",
+            "Export to WKT, GeoJSON, KML, CSV, Overpass API, OGC BBOX, STAC",
+            "3900+ EPSG projection support",
+            "Uber H3 hexagonal grid visualization",
+            "Coordinate order toggle (Lat/Lng vs Lng/Lat)",
+            "URL sharing for bounding boxes",
+            "Dark mode"
+        ]
+    }
+    </script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css" crossorigin="anonymous">
 
     <link rel="stylesheet" href="css/bbox.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.css" crossorigin="anonymous" />
 
     <!-- Load jQuery first -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js" integrity="sha384-oVpH0DXO9nadZxTmPSQo3YwWqfN/Up9aRDHCxLrw8A2LjkFNcM/XILw4KGMaL95z" crossorigin="anonymous"></script>
 
     <!-- Load Leaflet core before any Leaflet plugins -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
 
     <!-- Load Leaflet plugins and dependencies after core -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.umd.js"></script>
-    <script src="https://unpkg.com/h3-js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js" integrity="sha384-JP5UPxIO2Tm2o79Fb0tGYMa44jkWar53aBoCbd8ah0+LcCDoohTIYr+zIXyfGIJN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js" integrity="sha384-BIsA8GBrihzaRmijjpqTCihj8D5Vox3hyBFg9sJiTGAEOv6KusZ8QOCKbTFEAfhm" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.js" integrity="sha384-aDnBHDK9AhLbrYhThBxEVMriFbix8Sz2059IlD3HbZhz7+WNmz+pSkOcI7MY72cE" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.umd.js" integrity="sha384-hRLVGjv/5g5uHvtM+2E7RVhdUxQrIBllMHa139zPNM8LGNAIdHNxKaTBNCsBSEBO" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/h3-js@4.4.0/dist/h3-js.umd.js" integrity="sha384-Nk1k8oEtywe2AB2bxte3YzJLs/iA2WDd/TxHoEzUxlrrqoAA38iRHP0PVNyID2Jj" crossorigin="anonymous"></script>
 
     <!-- Load custom scripts last -->
     <script src="js/maps/wkt.parser.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
     <script src="js/bbox.js"></script>
 
 </head>
@@ -81,6 +140,12 @@
         </li>
     </ul>
     <div id="map"></div>
+
+    <!-- First-time hint -->
+    <div id="draw-hint">
+        <span>Draw a rectangle on the map to get started</span>
+        <small>R = rectangle &middot; Esc = cancel &middot; H = help</small>
+    </div>
 
     <!-- Simple right sidebar for entering coordinates -->
     <div id="rsidebar" class="simple-sidebar right-sidebar" style="display: none;">
@@ -245,7 +310,8 @@
                 </div>
             </div>
             <div id="coord-format">
-                <div class="bboxlabel">Coordinate Format</div>
+                <div class="bboxlabel">Display Format</div>
+                <div class="format-scope-note">Affects coordinate display only, not export buttons</div>
                 <form>
                     <input type="radio" name="coord-order" value="lng-lat" id="lnglat" checked>
                     <label for="lnglat">Lng,Lat</label><br>
@@ -273,10 +339,16 @@
             <div id="output-formats">
                 <div class="bboxlabel">Box Formats</div>
                 <div class="format-buttons">
-                    <button class="btn_one" id="copy-wkt">Copy WKT</button>
-                    <button class="btn_one" id="copy-geojson-bbox">Copy GeoJSON BBox</button>
-                    <button class="btn_one" id="copy-leaflet-array">Copy Leaflet Array</button>
-                    <button class="btn_one" id="download-png" style="display: none;">Download as PNG</button>
+                    <button class="btn_one" id="copy-wkt" title="Well-Known Text polygon for GIS software">Copy WKT</button>
+                    <button class="btn_one" id="copy-geojson-bbox" title="JSON array [xmin, ymin, xmax, ymax]">Copy GeoJSON BBox</button>
+                    <button class="btn_one" id="copy-geojson-polygon" title="Full GeoJSON Feature with Polygon geometry">Copy GeoJSON Polygon</button>
+                    <button class="btn_one" id="copy-leaflet-array" title="Leaflet.js bounds array format">Copy Leaflet Array</button>
+                    <button class="btn_one" id="copy-csv" title="Plain comma-separated xmin,ymin,xmax,ymax">Copy CSV</button>
+                    <button class="btn_one" id="copy-overpass" title="Bounding box filter for OpenStreetMap Overpass queries">Copy Overpass API</button>
+                    <button class="btn_one" id="copy-ogc-bbox" title="BBOX parameter for OGC WMS/WFS service requests">Copy OGC BBOX</button>
+                    <button class="btn_one" id="copy-kml" title="LatLonBox element for Google Earth KML files">Copy KML</button>
+                    <button class="btn_one" id="copy-stac-bbox" title="SpatioTemporal Asset Catalog bbox for satellite imagery">Copy STAC BBox</button>
+                    <button class="btn_one" id="download-png" title="Screenshot the bbox area as a PNG image" style="display: none;">Download as PNG</button>
                 </div>
             </div>
         </div>

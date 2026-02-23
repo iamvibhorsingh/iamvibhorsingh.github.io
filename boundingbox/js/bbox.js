@@ -441,6 +441,26 @@ function getFormattedBox(format) {
             return `[${xmin}, ${ymin}, ${xmax}, ${ymax}]`;
         case 'leaflet':
             return `[[${ymin}, ${xmin}], [${ymax}, ${xmax}]]`;
+        case 'overpass':
+            return `[bbox:${ymin},${xmin},${ymax},${xmax}]`;
+        case 'ogc-bbox':
+            return `BBOX=${xmin},${ymin},${xmax},${ymax},EPSG:4326`;
+        case 'kml':
+            return `<LatLonBox>\n  <north>${ymax}</north>\n  <south>${ymin}</south>\n  <east>${xmax}</east>\n  <west>${xmin}</west>\n</LatLonBox>`;
+        case 'geojson-polygon':
+            return JSON.stringify({
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]]
+                },
+                "bbox": [xmin, ymin, xmax, ymax]
+            }, null, 2);
+        case 'csv':
+            return `${xmin},${ymin},${xmax},${ymax}`;
+        case 'stac-bbox':
+            return `[${xmin}, ${ymin}, ${xmax}, ${ymax}]`;
         default:
             return "Unknown format.";
     }
@@ -649,6 +669,7 @@ function loadBboxFromHash() {
     map.fire('draw:created', evt);
     map.fitBounds(loadedBounds);
 
+    $('#draw-hint').addClass('hidden');
     console.log('Loaded bounding box from URL');
     return true;
 }
@@ -734,8 +755,14 @@ $(function () { // Modern equivalent of $(document).ready
 
         "EXPORT FORMATS:\n" +
         "• Copy WKT - Well-Known Text format\n" +
-        "• Copy GeoJSON BBox - JSON array format\n" +
+        "• Copy GeoJSON BBox - JSON array [xmin, ymin, xmax, ymax]\n" +
+        "• Copy GeoJSON Polygon - Full GeoJSON Feature with Polygon geometry\n" +
         "• Copy Leaflet Array - For Leaflet.js library\n" +
+        "• Copy CSV - Plain comma-separated values (xmin,ymin,xmax,ymax)\n" +
+        "• Copy Overpass API - [bbox:south,west,north,east] for OSM queries\n" +
+        "• Copy OGC BBOX - BBOX parameter for WMS/WFS requests\n" +
+        "• Copy KML - <LatLonBox> element for Google Earth\n" +
+        "• Copy STAC BBox - SpatioTemporal Asset Catalog format\n" +
         "• Download PNG - Screenshot of map area (when bbox drawn)\n\n" +
 
         "PASTE DATA:\n" +
@@ -744,6 +771,14 @@ $(function () { // Modern equivalent of $(document).ready
         "• WKT (Well-Known Text) geometries\n" +
         "• Bounding box coordinates (xmin,ymin,xmax,ymax)\n" +
         "• ogrinfo extent output\n\n" +
+
+        "KEYBOARD SHORTCUTS:\n" +
+        "• R - Draw rectangle\n" +
+        "• P - Draw polygon\n" +
+        "• M - Place marker\n" +
+        "• D - Toggle dark mode\n" +
+        "• H - Toggle this help panel\n" +
+        "• Esc - Cancel drawing / close sidebars\n\n" +
 
         "TIPS:\n" +
         "• All bboxes are auto-saved to Recent History\n" +
@@ -903,7 +938,9 @@ $(function () { // Modern equivalent of $(document).ready
                     map.setView([lat, lon], 15);
 
                     const marker = L.marker([lat, lon]).addTo(map);
-                    marker.bindPopup(`<b>${result.display_name}</b>`).openPopup();
+                    const popupEl = document.createElement('b');
+                    popupEl.textContent = result.display_name || 'Unknown location';
+                    marker.bindPopup(popupEl).openPopup();
 
                     setTimeout(() => {
                         map.removeLayer(marker);
@@ -974,9 +1011,17 @@ $(function () { // Modern equivalent of $(document).ready
     });
     map.addLayer(bounds);
 
+    // Hide hint when user starts drawing (via Leaflet.Draw toolbar)
+    map.on('draw:drawstart', function () {
+        $('#draw-hint').addClass('hidden');
+    });
+
     map.on('draw:created', function (e) {
         const layer = e.layer;
         drawnItems.addLayer(layer);
+
+        // Hide the first-time hint permanently once a bbox is drawn
+        $('#draw-hint').addClass('hidden');
 
         // Only Rectangles and Polygons can become the active screenshot layer.
         if (layer instanceof L.Rectangle || layer instanceof L.Polygon) {
@@ -1186,6 +1231,66 @@ $(function () { // Modern equivalent of $(document).ready
         });
     });
 
+    $('#copy-overpass').on('click', function () {
+        const output = getFormattedBox('overpass');
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('Overpass API bbox copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy Overpass bbox:', err);
+            showToast('Failed to copy Overpass bbox', 'error');
+        });
+    });
+
+    $('#copy-ogc-bbox').on('click', function () {
+        const output = getFormattedBox('ogc-bbox');
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('OGC BBOX parameter copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy OGC BBOX:', err);
+            showToast('Failed to copy OGC BBOX', 'error');
+        });
+    });
+
+    $('#copy-kml').on('click', function () {
+        const output = getFormattedBox('kml');
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('KML LatLonBox copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy KML:', err);
+            showToast('Failed to copy KML', 'error');
+        });
+    });
+
+    $('#copy-geojson-polygon').on('click', function () {
+        const output = getFormattedBox('geojson-polygon');
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('GeoJSON Polygon copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy GeoJSON Polygon:', err);
+            showToast('Failed to copy GeoJSON Polygon', 'error');
+        });
+    });
+
+    $('#copy-csv').on('click', function () {
+        const output = getFormattedBox('csv');
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('CSV bbox copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy CSV:', err);
+            showToast('Failed to copy CSV', 'error');
+        });
+    });
+
+    $('#copy-stac-bbox').on('click', function () {
+        const output = getFormattedBox('stac-bbox');
+        navigator.clipboard.writeText(output).then(() => {
+            showToast('STAC BBox copied!', 'success', 2000);
+        }).catch(err => {
+            console.error('Failed to copy STAC BBox:', err);
+            showToast('Failed to copy STAC BBox', 'error');
+        });
+    });
+
     $('#download-png').on('click', function () {
         if (!activeBounds) {
             alert("Please draw or select a bounding box first.");
@@ -1196,6 +1301,7 @@ $(function () { // Modern equivalent of $(document).ready
 
         html2canvas(document.getElementById('map'), {
             useCORS: true,
+            allowTaint: true,
             logging: false
         }).then(function (canvas) {
             // Show controls again
@@ -1205,8 +1311,14 @@ $(function () { // Modern equivalent of $(document).ready
                 const nw = map.latLngToContainerPoint(activeBounds.getNorthWest());
                 const se = map.latLngToContainerPoint(activeBounds.getSouthEast());
 
-                const cropWidth = se.x - nw.x;
-                const cropHeight = se.y - nw.y;
+                let cropX = Math.max(0, Math.round(nw.x));
+                let cropY = Math.max(0, Math.round(nw.y));
+                let cropWidth = Math.round(se.x - nw.x);
+                let cropHeight = Math.round(se.y - nw.y);
+
+                // Clamp to canvas bounds
+                if (cropX + cropWidth > canvas.width) cropWidth = canvas.width - cropX;
+                if (cropY + cropHeight > canvas.height) cropHeight = canvas.height - cropY;
 
                 if (cropWidth <= 0 || cropHeight <= 0) {
                     throw new Error("Invalid bounding box dimensions for capture.");
@@ -1220,20 +1332,48 @@ $(function () { // Modern equivalent of $(document).ready
 
                 // Crop the original canvas
                 croppedCtx.drawImage(canvas,
-                    nw.x, nw.y,
+                    cropX, cropY,
                     cropWidth, cropHeight,
                     0, 0,
                     cropWidth, cropHeight
                 );
 
-                // Create a link to download the image
-                const link = document.createElement('a');
-                link.download = 'map_capture.png';
-                link.href = croppedCanvas.toDataURL('image/png');
-                link.click();
+                // Try toDataURL first, fall back to toBlob
+                try {
+                    const link = document.createElement('a');
+                    link.download = 'map_capture.png';
+                    link.href = croppedCanvas.toDataURL('image/png');
+                    link.click();
+                } catch (securityError) {
+                    // Canvas tainted by cross-origin tiles — try toBlob fallback
+                    console.warn('toDataURL failed (tainted canvas), trying toBlob...', securityError);
+                    croppedCanvas.toBlob(function (blob) {
+                        if (blob) {
+                            const link = document.createElement('a');
+                            link.download = 'map_capture.png';
+                            link.href = URL.createObjectURL(blob);
+                            link.click();
+                            setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+                        } else {
+                            // Last resort: open the full uncropped canvas in a new tab
+                            showToast('Cross-origin tiles prevent direct download. Opening in new tab — right-click to save.', 'info', 5000);
+                            const w = window.open('');
+                            w.document.write('<img src="' + canvas.toDataURL() + '"/>');
+                        }
+                    }, 'image/png');
+                }
             } catch (error) {
                 console.error('Error during canvas cropping:', error);
-                alert('Could not create image from the bounding box. Please ensure the box is visible on the map.');
+                // Last resort: download the full uncropped map
+                try {
+                    const link = document.createElement('a');
+                    link.download = 'map_capture.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    showToast('Downloaded full map (crop failed)', 'info', 3000);
+                } catch (e) {
+                    alert('Could not create image. Cross-origin map tiles prevent screenshot capture. Try zooming so the bbox is fully visible.');
+                }
             }
 
         }).catch(function (error) {
@@ -1416,7 +1556,14 @@ $(function () { // Modern equivalent of $(document).ready
                     map.setView(latlng, 10);
 
                     const locationMarker = L.marker(latlng).addTo(map);
-                    locationMarker.bindPopup(`Approximate location based on IP<br/>City: ${data.city}, ${data.country_name}<br/>Note: This is less accurate than GPS`).openPopup();
+                    const ipPopup = document.createElement('div');
+                    ipPopup.appendChild(document.createTextNode('Approximate location based on IP'));
+                    ipPopup.appendChild(document.createElement('br'));
+                    const cityText = String(data.city || '') + ', ' + String(data.country_name || '');
+                    ipPopup.appendChild(document.createTextNode('City: ' + cityText));
+                    ipPopup.appendChild(document.createElement('br'));
+                    ipPopup.appendChild(document.createTextNode('Note: This is less accurate than GPS'));
+                    locationMarker.bindPopup(ipPopup).openPopup();
 
                     setTimeout(() => {
                         map.removeLayer(locationMarker);
@@ -1755,8 +1902,11 @@ $(function () { // Modern equivalent of $(document).ready
         showToast(isDarkMode ? 'Dark mode enabled' : 'Light mode enabled', 'success', 2000);
     });
 
-    // Load dark mode preference
-    if (localStorage.getItem('darkMode') === 'enabled') {
+    // Load dark mode preference (respect system preference as fallback)
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'enabled') {
+        $('body').addClass('dark-mode');
+    } else if (savedDarkMode === null && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         $('body').addClass('dark-mode');
     }
 
@@ -1870,6 +2020,79 @@ $(function () { // Modern equivalent of $(document).ready
         if (centerMarker) {
             map.removeLayer(centerMarker);
             centerMarker = null;
+        }
+    });
+
+    // --- Keyboard Shortcuts ---
+    $(document).on('keydown', function (e) {
+        // Skip if user is typing in an input, textarea, or contenteditable
+        const tag = e.target.tagName.toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+        switch (e.key) {
+            case 'r':
+            case 'R':
+                // Activate rectangle draw tool
+                if (drawControl && drawControl._toolbars && drawControl._toolbars.draw) {
+                    const toolbar = drawControl._toolbars.draw;
+                    if (toolbar._modes && toolbar._modes.rectangle) {
+                        toolbar._modes.rectangle.handler.enable();
+                        $('#draw-hint').addClass('hidden');
+                    }
+                }
+                break;
+
+            case 'p':
+            case 'P':
+                // Activate polygon draw tool
+                if (drawControl && drawControl._toolbars && drawControl._toolbars.draw) {
+                    const toolbar = drawControl._toolbars.draw;
+                    if (toolbar._modes && toolbar._modes.polygon) {
+                        toolbar._modes.polygon.handler.enable();
+                        $('#draw-hint').addClass('hidden');
+                    }
+                }
+                break;
+
+            case 'm':
+            case 'M':
+                // Activate marker tool
+                if (drawControl && drawControl._toolbars && drawControl._toolbars.draw) {
+                    const toolbar = drawControl._toolbars.draw;
+                    if (toolbar._modes && toolbar._modes.marker) {
+                        toolbar._modes.marker.handler.enable();
+                    }
+                }
+                break;
+
+            case 'Escape':
+                // Close any open sidebars
+                $('.simple-sidebar:visible').each(function () {
+                    $(this).hide();
+                });
+                $('#map-ui button').removeClass('enabled active');
+                // Cancel any active drawing
+                if (drawControl && drawControl._toolbars && drawControl._toolbars.draw) {
+                    const toolbar = drawControl._toolbars.draw;
+                    Object.keys(toolbar._modes || {}).forEach(function (mode) {
+                        if (toolbar._modes[mode].handler._enabled) {
+                            toolbar._modes[mode].handler.disable();
+                        }
+                    });
+                }
+                break;
+
+            case 'h':
+            case 'H':
+                // Toggle help
+                $('#help button').click();
+                break;
+
+            case 'd':
+            case 'D':
+                // Toggle dark mode
+                $('#dark-mode button').click();
+                break;
         }
     });
 });
