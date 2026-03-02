@@ -901,6 +901,7 @@ body.dark-mode .format-scope-note {
 
 /* --- Mobile Responsive --- */
 @media (max-width: 768px) {
+
     /* Toolbar: horizontal row at top */
     #map-ui {
         right: 10px;
@@ -934,7 +935,7 @@ body.dark-mode .format-scope-note {
         width: 100%;
     }
 
-    .coords > div {
+    .coords>div {
         font-size: 12px;
         gap: 6px;
     }
@@ -1012,6 +1013,7 @@ body.dark-mode .format-scope-note {
 }
 
 @media (max-width: 480px) {
+
     /* Very small screens: single column buttons */
     .format-buttons {
         grid-template-columns: 1fr;
@@ -1044,5 +1046,78 @@ body.dark-mode .format-scope-note {
     .simple-sidebar {
         min-width: unset;
         min-height: unset;
+    }
+}
+
+/* --- MCP Server Notification Banner --- */
+#mcp-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 300px;
+    background: rgba(33, 33, 33, 0.92);
+    color: #e0e0e0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    z-index: 1001;
+    display: none;
+    max-width: 320px;
+    font-size: 16px;
+    line-height: 1.5;
+    animation: mcpSlideUp 0.4s ease-out;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes mcpSlideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#mcp-banner a {
+    color: #64b5f6;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+#mcp-banner a:hover {
+    text-decoration: underline;
+    color: #90caf9;
+}
+
+#mcp-banner-close {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+#mcp-banner-close:hover {
+    color: #fff;
+}
+
+body.dark-mode #mcp-banner {
+    background: rgba(48, 48, 48, 0.95);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+@media (max-width: 768px) {
+    #mcp-banner {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        max-width: none;
     }
 }

@@ -2332,3 +2332,33 @@ function checkH3Discovery() {
         }, 3000);
     }
 }
+
+function checkMcpDiscovery() {
+    var MCP_BANNER_KEY = 'mcp_banner_dismissed';
+    var MCP_BANNER_EXPIRY_DAYS = 10;
+
+    var dismissed = localStorage.getItem(MCP_BANNER_KEY);
+    if (dismissed) {
+        var dismissedAt = parseInt(dismissed, 10);
+        var daysSince = (Date.now() - dismissedAt) / (1000 * 60 * 60 * 24);
+        if (daysSince < MCP_BANNER_EXPIRY_DAYS) {
+            return; // Still within the suppression window
+        }
+    }
+
+    // Show banner after a short delay
+    setTimeout(function () {
+        $('#mcp-banner').fadeIn(200);
+    }, 600);
+
+    // Dismiss handler
+    $('#mcp-banner-close').on('click', function () {
+        $('#mcp-banner').fadeOut(300);
+        localStorage.setItem(MCP_BANNER_KEY, String(Date.now()));
+    });
+}
+
+// Initialize MCP banner check on page load
+$(function () {
+    checkMcpDiscovery();
+});
