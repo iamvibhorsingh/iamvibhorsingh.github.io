@@ -2,34 +2,29 @@
 
 /* Modern color scheme - Professional Data Engineer Theme */
 :root {
-    --primary-color: #06B6D4;
-    /* Cyan-500 - Modern tech feel */
-    --primary-dark: #0891B2;
-    /* Cyan-600 */
-    --accent-color: #3B82F6;
-    /* Blue-500 */
-    --background-dark: #0F172A;
-    /* Slate-900 */
-    --background-light: rgba(30, 41, 59, 0.7);
-    /* Slate-800 with opacity */
-    --text-light: #F1F5F9;
-    /* Slate-100 */
-    --text-muted: #94A3B8;
-    /* Slate-400 */
-    --border-color: rgba(148, 163, 184, 0.2);
-    /* Slate-400 with opacity */
+    /* Premium Dark Theme - Apple-like polish with subtle futuristic accents */
+    --primary-color: #00f2ff; /* Cyan */
+    --primary-dark: #00c8d4;
+    --accent-color: #7000ff; /* Purple */
+    --background-dark: #0a0a0c;
+    --background-light: rgba(255, 255, 255, 0.03);
+    --text-light: #f5f5f7;
+    --text-muted: #a1a1aa;
+    --border-color: rgba(255, 255, 255, 0.08);
     --success-color: #10B981;
-    /* Emerald-500 */
-    --glass-blur: blur(12px);
+    --glass-blur: blur(20px);
+    --transition-fast: 0.2s ease;
+    --transition-medium: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     padding: 0;
     margin: 0;
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(6, 182, 212, 0.15)), url("https://images.unsplash.com/photo-1544411047-c491e34a24e0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjF9&auto=format&fit=crop&w=1950&q=80") center center;
-    background-size: cover;
-    background-attachment: fixed;
+    background-color: var(--background-dark);
+    /* We will replace the background image with a cleaner hero section */
+    background-image: radial-gradient(circle at 50% 0%, rgba(112, 0, 255, 0.15), transparent 50%), 
+                      radial-gradient(circle at 80% 80%, rgba(0, 242, 255, 0.1), transparent 50%);
     width: 100vw;
     height: 100vh;
     overflow: hidden;
@@ -85,21 +80,23 @@ body {
 }
 
 #middle h1 {
-    font-family: 'Josefin Sans', sans-serif;
-    color: var(--primary-color);
-    font-size: 70px;
-    font-weight: 700;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-light);
+    font-size: 80px;
+    font-weight: 800;
     margin: 0;
-    letter-spacing: -2px;
-    text-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
+    letter-spacing: -3px;
+    background: linear-gradient(90deg, #fff, #a1a1aa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 #middle h2 {
-    font-size: 20px;
-    margin-top: 15px;
+    font-size: 22px;
+    margin-top: 20px;
     color: var(--text-muted);
     font-weight: 400;
-    letter-spacing: 1px;
+    letter-spacing: -0.5px;
     max-width: 800px;
     line-height: 1.5;
 }
@@ -111,22 +108,21 @@ body {
 
 .btn-portfolio {
     display: inline-block;
-    padding: 12px 30px;
-    background: var(--primary-color);
+    padding: 14px 36px;
+    background: var(--text-light);
     color: var(--background-dark);
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
     border-radius: 50px;
-    font-size: 18px;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+    font-size: 16px;
+    transition: var(--transition-fast);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
 }
 
 .btn-portfolio:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
     background: #fff;
-    color: var(--primary-color);
 }
 
 /* Update containers */
@@ -135,41 +131,43 @@ body {
     max-width: 1000px;
     height: 85vh;
     padding: 5vh 5vw;
-    background: var(--background-light);
+    background: rgba(10, 10, 12, 0.6);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     color: var(--text-light);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     border: 1px solid var(--border-color);
     z-index: 9;
     position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -45%);
+    transform: translate(-50%, -45%) scale(0.98);
     overflow-y: auto;
 
     /* Animation State */
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: var(--transition-medium);
 }
 
 .container.active {
     opacity: 1;
     visibility: visible;
     pointer-events: all;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .container h1 {
-    font-family: 'Josefin Sans', sans-serif;
-    color: var(--primary-color);
-    border-bottom: 2px solid var(--border-color);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    color: var(--text-light);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 15px;
     margin-bottom: 30px;
-    font-size: 48px;
+    font-size: 40px;
+    letter-spacing: -1px;
 }
 
 .container p {
@@ -245,26 +243,28 @@ body {
 
 /* Project cards */
 .project-card {
-    background: rgba(30, 41, 59, 0.4);
+    background: rgba(255, 255, 255, 0.02);
     border: 1px solid var(--border-color);
-    border-left: 4px solid var(--primary-color);
     padding: 30px;
     margin-bottom: 30px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    border-radius: 16px;
+    transition: var(--transition-medium);
 }
 
 .project-card:hover {
-    transform: translateY(-5px);
-    background: rgba(30, 41, 59, 0.8);
+    transform: translateY(-4px);
+    background: rgba(255, 255, 255, 0.04);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    border-left-width: 6px;
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .project-card h2 {
-    color: var(--primary-color);
+    color: var(--text-light);
     margin-bottom: 10px;
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: -0.5px;
 }
 
 /* Fix for particles */
@@ -360,9 +360,9 @@ body {
     width: 10vw;
     height: 10vw;
     text-align: center;
-    font-size: 20px;
+    font-size: 18px;
     transform: rotate(-90deg);
-    color: #fff;
+    color: var(--text-muted);
     position: fixed;
     left: 0;
     bottom: 40vh;
@@ -371,17 +371,18 @@ body {
     justify-content: center;
     z-index: 4;
     border-radius: 0px 0px 100px 100px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 #work {
     width: 10vw;
     height: 10vw;
     text-align: center;
-    font-size: 20px;
+    font-size: 18px;
     transform: rotate(90deg);
-    color: #fff;
+    color: var(--text-muted);
     position: fixed;
     right: 0;
     bottom: 40vh;
@@ -390,16 +391,17 @@ body {
     justify-content: center;
     z-index: 4;
     border-radius: 0px 0px 100px 100px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 #contact {
     width: 10vw;
     height: 10vw;
     text-align: center;
-    font-size: 20px;
-    color: #fff;
+    font-size: 18px;
+    color: var(--text-muted);
     position: fixed;
     bottom: 0;
     left: 45vw;
@@ -408,8 +410,9 @@ body {
     justify-content: center;
     z-index: 4;
     border-radius: 100px 100px 0px 0px;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 2px;
+    text-transform: uppercase;
 }
 
 /* Tech Badges */
