@@ -186,38 +186,41 @@
     <a id="contact" href="#contact_container" onclick="showcontact()" class="animated fadeIn"
         style="animation-delay:0.8s;" aria-label="Contact Vibhor Singh">contact</a>
     <header id="middle">
-        <h1>Vibhor Singh.</h1>
-        <h2>Data Engineer • Distributed Systems • Cloud Infrastructure</h2>
+        <div class="hero-content">
+            <h1>Vibhor Singh.</h1>
+            <h2>Data Engineer • Distributed Systems • Cloud Infrastructure</h2>
 
-        <div class="cta-container">
-            <a href="portfolio/index.html" class="btn-portfolio">View Full Portfolio</a>
+            <div class="cta-container">
+                <a href="portfolio/index.html" class="btn-portfolio">View Full Portfolio</a>
+            </div>
+
+            <div id="menu">
+                <a href="#about_container" onclick="showabout()">about</a>
+                <a href="#work_container" onclick="showwork()">work</a>
+            </div>
+            
+            <div class="animated fadeIn"
+                style="animation-delay:0.8s; margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn_one" onclick="window.location.href='https://vibhorsingh.com/supercharged-overpass/'"
+                    aria-label="Supercharged Overpass - GeoGuessr Tool"
+                    style="background: linear-gradient(135deg, #F59E0B 0%, #DC2626 100%); border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;">
+                    <i class="fas fa-map-marked-alt" style="margin-right: 8px;"></i>Supercharge your GeoGuessing!
+                </button>
+                <button class="btn_one"
+                    onclick="window.open('https://chromewebstore.google.com/detail/lookstuffup/boagbbfpkdeklbfneiegcdgmfofckhfc', '_blank')"
+                    aria-label="Get LookStuffUp Chrome Extension"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;">
+                    <i class="fab fa-chrome" style="margin-right: 8px;"></i>Get LookStuffUp Extension
+                </button>
+                <button class="btn_one" onclick="window.location.href='https://vibhorsingh.com/boundingbox'"
+                    aria-label="BoundingBox Tool - Advanced GIS Tool"
+                    style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;">
+                    <i class="fas fa-draw-polygon" style="margin-right: 8px;"></i>Best BBox Tool on the Web! With MCP Support!
+                </button>
+            </div>
         </div>
-
-        <div id="menu">
-            <a href="#about_container" onclick="showabout()">about</a>
-            <a href="#work_container" onclick="showwork()">work</a>
-        </div>
-        </nav>
-
-        <div class="animated fadeIn"
-            style="animation-delay:0.8s; margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-            <button class="btn_one" onclick="window.location.href='https://vibhorsingh.com/supercharged-overpass/'"
-                aria-label="Supercharged Overpass - GeoGuessr Tool"
-                style="background: linear-gradient(135deg, #F59E0B 0%, #DC2626 100%); border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;">
-                <i class="fas fa-map-marked-alt" style="margin-right: 8px;"></i>Supercharge your GeoGuessing!
-            </button>
-            <button class="btn_one"
-                onclick="window.open('https://chromewebstore.google.com/detail/lookstuffup/boagbbfpkdeklbfneiegcdgmfofckhfc', '_blank')"
-                aria-label="Get LookStuffUp Chrome Extension"
-                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;">
-                <i class="fab fa-chrome" style="margin-right: 8px;"></i>Get LookStuffUp Extension
-            </button>
-            <button class="btn_one" onclick="window.location.href='https://vibhorsingh.com/boundingbox'"
-                aria-label="BoundingBox Tool - Advanced GIS Tool"
-                style="background: linear-gradient(135deg, #10B981 0%, #059669 100%); border: none; padding: 12px 24px; font-size: 16px; cursor: pointer; border-radius: 5px; font-weight: bold;">
-                <i class="fas fa-draw-polygon" style="margin-right: 8px;"></i>Best BBox Tool on the Web! With MCP
-                Support!
-            </button>
+        <div class="hero-visual">
+            <img src="assets/visuals/home/hero-home-v1.webp" alt="Abstract representation of distributed systems and data engineering" class="hero-image" onerror="this.style.display='none'">
         </div>
     </header>
     <main id="work_container" class="container" role="main" aria-label="Projects and Work">
