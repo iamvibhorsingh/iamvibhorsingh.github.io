@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+ 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path Signature Pairs Trading | Vibhor Singh</title>
+    <meta name="description"
+        content="An experiment in teaching a classic pairs trading strategy to care about the path, not just the price, using Lévy area from path signature theory.">
+    <meta name="author" content="Vibhor Singh">
+    <link rel="canonical" href="https://vibhorsingh.com/portfolio/blog/pairs-trading.html" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Path Signature Pairs Trading | Vibhor Singh">
+    <meta property="og:description"
+        content="Using Lévy area from path signature theory to filter pairs trades by the shape of the price path, not just the spread.">
+    <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/pairs-trading.html">
+ 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+ 
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+ 
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+ 
+<body>
+    <div class="background-grid"></div>
+ 
+    <header class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="logo">VS<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../../index.html#about_container">About</a></li>
+                    <li><a href="../../index.html#work_container">Projects</a></li>
+                    <li><a href="../../index.html#gallery_container">Gallery</a></li>
+                    <li><a href="../../index.html#contact_container">Contact</a></li>
+                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+ 
+    <main>
+        <article class="blog-post-container">
+            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to
+                Blog</a>
+ 
+            <header class="blog-header">
+                <h1 class="blog-title">Teaching a Pairs Trade to Care About the Path</h1>
+                <div class="blog-meta">
+                    <span><i class="far fa-calendar"></i> March 16, 2026</span>
+                    <span><i class="fas fa-tag"></i> Quant Trading</span>
+                </div>
+            </header>
+ 
+            <div class="blog-content">
+                <p>Imagine two scenarios where a pair of stocks ends up at the exact same extreme spread.</p>
+                <p>In one, Asset A drifts steadily upward while B barely moves - a slow, parallel divergence that could
+                    be permanent. In the other, A spikes first, B partially follows after a delay, and the two prices
+                    trace a little loop against each other.</p>
+                <p>A standard trading signal sees those as identical. But they aren't - and I wanted to know whether
+                    capturing that difference could make trade entries smarter.</p>
+                <p>That question turned into <a href="https://github.com/iamvibhorsingh/path_signature_trading"
+                        target="_blank" rel="noopener noreferrer">Path Signature Pairs Trading</a>: a small experiment
+                    at the intersection of quantitative trading and a piece of pure math called the <strong><a href="https://en.wikipedia.org/wiki/L%C3%A9vy%27s_stochastic_area" 
+                        target="_blank" rel="noopener noreferrer">Lévy area</a></strong>.</p>
+                <p>The short version: the math did reveal real structure in the data. Turning that structure into better
+                    trades was harder - and that tension ended up being the most interesting part of the whole project.</p>
+ 
+                <h3>What is pairs trading?</h3>
+                <p>Pairs trading is one of those classic quantitative finance ideas that's easy to explain. You take two
+                    assets that usually move together - like Coca-Cola and Pepsi, or two major index funds like SPY and
+                    QQQ - and when they drift unusually far apart, you bet they'll come back together. You buy the one
+                    that's fallen behind and sell the one that's run ahead, profiting when the gap closes.</p>
+                <p>The standard way to measure that divergence is with a <strong>z-score</strong>. Think of a z-score as
+                    a "weirdness meter": it tells you how many standard deviations the current spread is from its recent
+                    average. A z-score of +2 means the pair is unusually far apart - about as extreme as the top 2.5% of
+                    historical readings. A z-score near 0 means everything looks normal. When the z-score gets extreme
+                    enough, the strategy enters a trade expecting things to revert.</p>
+                <p>This works fine, but it throws away a lot of information. A z-score tells you <em>how far apart</em>
+                    two assets are. It says nothing about <em>how they got there</em>.</p>
+
+                <h3>Why the path matters</h3>
+                <p>Go back to the two scenarios from the opening. In the first there is the slow, steady drift - maybe something fundamental
+                    changed. A new regulation, an earnings surprise, a sector shift. The divergence might not revert at
+                    all. In the second scenario of a spike-then-follow - there's a clear leader-follower dynamic. One asset
+                    moves, the other reacts with a delay, and that kind of divergence tends to resolve.</p>
+                <p>To see the difference geometrically, imagine plotting Asset A's price on one axis and Asset B's
+                    price on the other, then tracing the path over time. When both assets drift apart in parallel,
+                    the path is roughly a straight line - there's no enclosed area. But when one asset moves first
+                    and the other follows with a delay, the path curves back on itself and traces a loop.</p>
+                <figure>
+                    <img src="../images/projects/levy_area_concept.png"
+                        alt="Two scenarios: parallel drift vs lead-lag loop" class="blog-hero-image">
+                    <figcaption><center>Similar endpoints, but two very different paths. The Lévy area captures the difference.</center></figcaption>
+                </figure>
+                <br>
+                <p>The <strong>Lévy area</strong> measures exactly this: the signed area
+                    enclosed by two paths as they evolve together. It comes from a branch of mathematics called <strong><a href="https://arxiv.org/abs/1603.03788" 
+                        target="_blank" rel="noopener noreferrer">path
+                        signature theory</a></strong> - essentially a framework for summarizing the <em>shape</em> of a
+                    journey rather than just the destination. Instead of asking “where did these prices end up?”, path
+                    signatures ask “what pattern did these prices trace along the way?”</p>
+                <p>I didn't use the full signature machinery - it can get quite involved. I focused on one specific
+                    piece, the Lévy area, because it's the simplest component that captures ordering and lead–lag
+                    structure. Intuitively, it measures whether Asset A tended to move <em>before</em> Asset B, or vice
+                    versa - whether there was a leader and a follower, or whether they just drifted apart in parallel.</p>
+                <p>A large Lévy area (positive or negative) means the paths looped - one asset led the other - and the
+                    divergence is more likely to revert. A Lévy area near zero means no clear lead–lag, which could mean
+                    the divergence is structural and might stick.</p>
+                <p>That decision to use just this one piece ended up being one of the most important choices in the
+                    project. When you're exploring a new idea, keeping the experiment small and interpretable matters a
+                    lot more than throwing in everything the theory offers.</p>
+ 
+                <h3>What I built</h3>
+                <p>I kept the codebase intentionally small and research-oriented. The pipeline downloads minute-level
+                    price data from Yahoo Finance, computes rolling Lévy areas for asset pairs, and then compares two
+                    strategies on <strong>out-of-sample data</strong> (data the strategy has never seen during setup - a
+                    standard safeguard against fooling yourself with hindsight):</p>
+                <ul>
+                    <li><strong>Baseline:</strong> enter a trade whenever the z-score gets extreme enough.</li>
+                    <li><strong>Signature-filtered:</strong> enter the same trade, but <em>only</em> when the Lévy area
+                        also confirms meaningful lead–lag structure.</li>
+                </ul>
+                <p>That distinction matters. The Lévy area isn't telling the strategy <em>what</em> to trade or
+                    <em>which direction</em> to bet - the z-score still handles that. The area only answers one narrow
+                    question: <strong>“Should I trust this divergence enough to act on it?”</strong></p>
+                <p>I liked that framing because it kept the experiment honest. Instead of asking the new feature to do
+                    everything, I only asked it to improve decision quality around the edges.</p>
+                <p>Before looking at any trading results, I built a <strong>shuffle test</strong> - a diagnostic that
+                    randomly scrambles the price movements and recomputes the Lévy area hundreds of times. This creates
+                    a baseline of “what would the area look like if there were no real pattern at all?” If the real area
+                    looks meaningfully different from the shuffled noise, that's evidence the structure is genuine
+                    rather than an artifact of randomness.</p>
+                <p>I also built a <strong>synthetic data mode</strong> with known lead–lag baked in - one asset is
+                    programmed to follow the other with a delay. Before claiming the feature works on messy market data,
+                    I wanted to confirm it could at least detect the behavior it was designed to detect in a controlled
+                    setting. That turned out to be one of the most valuable engineering decisions in the project.</p>
+ 
+                <h3>What happened</h3>
+                <p>I tested on four real pairs using 1-minute bars over a recent week: XOM/SLB (energy stocks), SPY/QQQ
+                    (broad market index funds), KO/PEP (consumer staples), and BTC/ETH (cryptocurrency).</p>
+ 
+                <div class="blog-image-grid">
+                    <figure>
+                        <img src="https://raw.githubusercontent.com/iamvibhorsingh/path_signature_trading/master/results/path_signature_backtest_SPY_QQQ.png"
+                            alt="Path-signature backtest for SPY/QQQ" class="blog-hero-image">
+                        <figcaption>SPY/QQQ: the filter flipped Sharpe from negative to positive - the largest improvement across all pairs.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://raw.githubusercontent.com/iamvibhorsingh/path_signature_trading/master/results/path_signature_backtest_KO_PEP.png"
+                            alt="Path-signature backtest for KO/PEP" class="blog-hero-image">
+                        <figcaption>KO/PEP: already strong baseline performance with a modest boost from the filter.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://raw.githubusercontent.com/iamvibhorsingh/path_signature_trading/master/results/path_signature_backtest_XOM_SLB.png"
+                            alt="Path-signature backtest for XOM/SLB" class="blog-hero-image">
+                        <figcaption>XOM/SLB: the filter improved win rate (83% → 86%) but slightly hurt overall Sharpe.</figcaption>
+                    </figure>
+                    <figure>
+                        <img src="https://raw.githubusercontent.com/iamvibhorsingh/path_signature_trading/master/results/path_signature_backtest_BTC-USD_ETH-USD.png"
+                            alt="Path-signature backtest for BTC/ETH" class="blog-hero-image">
+                        <figcaption>BTC/ETH: the filter trimmed 6 trades and nudged both Sharpe and win rate higher.</figcaption>
+                    </figure>
+                </div>
+                <br>
+                <p>The signature-filtered strategy improved the <strong>Sharpe ratio</strong> - a common measure of
+                    return per unit of risk, where higher means you're getting more reward for the volatility you're
+                    taking on - on 3 of the 4 pairs. The most striking result was SPY/QQQ, where the filter
+                    flipped Sharpe from slightly negative to positive. BTC/ETH also improved, with the filter trimming
+                    6 trades while nudging both Sharpe and win rate higher. KO/PEP, which already
+                    had the strongest baseline performance, saw a small boost. On XOM/SLB, the filter improved
+                    win rate from 83.3% to 85.7% but overall Sharpe slipped from 0.381 to 0.355.</p>
+                <p>That XOM/SLB result turned out to be one of the most useful things I saw. It forced me to separate two
+                    ideas that are easy to blur together: <strong>detecting structure in data</strong> and
+                    <strong>making money from that structure</strong>.</p>
+                <p>The filter did exactly what it was designed to do - it removed the lower-confidence entries and
+                    improved trade quality. But the two trades it filtered out happened to be profitable ones.
+                    "This feature is working correctly" and "this feature is making me money" turned out to be
+                    different statements, and that gap is probably the single biggest takeaway from the whole
+                    project.</p>
+ 
+                <h3>What I learned</h3>
+                <p>Two lessons stood out beyond the results themselves.</p>
+                <p><strong><li>Good math doesn't excuse bad trading assumptions.</strong> This project doesn't model
+                    slippage (the difference between your intended trade price and what you actually buy/sell at), transaction
+                    costs, or richer execution logic. It uses a short window of minute-level data and a pretty minimal
+                    backtest structure. That doesn't make the experiment invalid, but it means the results are
+                    exploratory, not conclusive. I wanted to be upfront about that, because it's very easy in
+                    quantitative work to over-interpret a backtest - especially one that confirms your hypothesis.</li></p>
+                <p><strong><li>Some ideas are more useful as filters than as full-blown predictors.</strong> The Lévy area
+                    didn't need to become the whole strategy to be worth exploring. It just needed to improve decision
+                    quality at the margins - a narrower but more honest role. I think that insight applies well beyond
+                    this project. Not every new feature needs to be the main event; sometimes the most practical
+                    contribution is knowing when <em>not</em> to act.</li></p>
+ 
+                <h3>What I'd explore next</h3>
+                <p>If I kept pushing this, I'd focus on two things the current results actually point toward. The
+                    XOM/SLB result - where better trade quality didn't translate into better returns - makes me
+                    curious whether the area magnitude could work as a <strong>continuous position-sizing
+                        signal</strong> rather than a binary on/off filter, since the current threshold throws away
+                    information about <em>how strong</em> the lead–lag is. And I'd want to test <strong>volatility-aware
+                        windows</strong> - the fixed-size lookback probably isn't the right lens for every pair,
+                    especially ones as different as energy stocks and crypto.</p>
+                <p>Beyond that: longer time horizons and larger samples, transaction cost modeling, and testing
+                    higher-order signature terms to see whether richer path information helps or just adds noise.</p>
+ 
+                <h3>Final thoughts</h3>
+                <p>I like to work onprojects like this because they sit in a sweet spot between theory and practice. On one side,
+                    there's a beautiful mathematical idea - paths have geometry, and that geometry contains information.
+                    On the other side, there's the blunt reality that markets don't care how elegant your equations
+                    are. It keeps you grounded.</p>
+                <p>This project was a reminder that sometimes the most interesting edge isn't in a new model or
+                    more data - it's in looking at the same old signal from a slightly different angle and asking:
+                    <em>am I paying too muchattention to the destination, when I should be studying the path?</em></p>
+            </div>
+        </article>
+    </main>
+ 
+    <footer class="contact-section">
+        <div class="container">
+            <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and
+                <i class="fas fa-coffee"></i>.
+            </p>
+        </div>
+    </footer>
+ 
+    <script src="../js/main.js"></script>
+</body>
+ 
+</html>
