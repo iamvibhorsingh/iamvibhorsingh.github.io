@@ -5,7 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Geospatial Visualizations | Vibhor Singh</title>
-    <meta name="description" content="Exploring spatial data through interactive maps using D3.js.">
+    <meta name="description" content="Exploring spatial data through interactive maps using D3.js and geographic visualizations.">
+    <meta name="author" content="Vibhor Singh">
+    <link rel="canonical" href="https://vibhorsingh.com/portfolio/blog/geospatial-viz.html" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Geospatial Visualizations | Vibhor Singh">
+    <meta property="og:description" content="Exploring spatial data through interactive maps using D3.js and geographic visualizations.">
+    <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/geospatial-viz.html">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,95 +21,78 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet">
 
-    <!DOCTYPE html>
-    <html lang="en">
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Geospatial Visualizations | Vibhor Singh</title>
-        <meta name="description" content="Exploring spatial data through interactive maps using D3.js.">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
-            rel="stylesheet">
+    <!-- D3.js -->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
 
-        <!-- CSS -->
-        <link rel="stylesheet" href="../css/style.css">
+    <style>
+        #visualization-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 2rem 0;
+            overflow-x: auto;
+        }
 
-        <!-- Icons -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        svg {
+            display: block;
+            margin: 0 auto;
+        }
 
-        <!-- D3.js -->
-        <script src="https://d3js.org/d3.v4.min.js"></script>
-        <script src="https://d3js.org/topojson.v1.min.js"></script>
+        .mesh {
+            fill: none;
+            stroke: #000;
+            stroke-width: 0.5px;
+        }
 
-        <style>
-            /* Custom D3 Styles */
-            #visualization-container {
-                background: rgba(255, 255, 255, 0.9);
-                border-radius: 8px;
-                padding: 1rem;
-                margin: 2rem 0;
-                overflow-x: auto;
-            }
+        .land {
+            fill: #4a4a4a;
+        }
 
-            svg {
-                display: block;
-                margin: 0 auto;
-            }
+        .key-dot {
+            display: inline-block;
+            height: 12px;
+            width: 12px;
+            margin-right: 0.5em;
+            border-radius: 50%;
+        }
 
-            .mesh {
-                fill: none;
-                stroke: #000;
-                stroke-width: 0.5px;
-            }
+        .legend-item {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
 
-            .land {
-                fill: #4a4a4a;
-            }
-
-            .key-dot {
-                display: inline-block;
-                height: 12px;
-                width: 12px;
-                margin-right: 0.5em;
-                border-radius: 50%;
-            }
-
-            .legend-item {
-                font-size: 0.9rem;
-                color: var(--text-secondary);
-                margin-bottom: 0.5rem;
-                display: flex;
-                align-items: center;
-            }
-
-            .pies path {
-                stroke: none;
-            }
-        </style>
-    </head>
+        .pies path {
+            stroke: none;
+        }
+    </style>
+</head>
 
 <body>
     <div class="background-grid"></div>
 
     <header class="navbar">
         <div class="container">
-            <a href="../index.html" class="logo">VS<span class="dot">.</span></a>
+            <a href="../../index.html" class="logo">VS<span class="dot">.</span></a>
             <nav>
                 <ul class="nav-links">
-                    <li><a href="../index.html">Home</a></li>
-                    <li><a href="../index.html#projects">Projects</a></li>
+                    <li><a href="../../index.html">Home</a></li>
+                    <li><a href="../../index.html#work_container">Projects</a></li>
                     <li><a href="../gallery.html">Gallery</a></li>
-                    <li><a href="../index.html#contact">Contact</a></li>
+                    <li><a href="../../index.html#contact_container">Contact</a></li>
+                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
                 </ul>
-                <button class="theme-toggle" aria-label="Toggle Dark Mode">
-                    <i class="fas fa-moon"></i>
-                </button>
             </nav>
             <div class="hamburger">
                 <span></span>
@@ -114,7 +104,7 @@
 
     <main>
         <article class="blog-post-container">
-            <a href="../index.html#projects" class="back-link"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+            <a href="../../index.html#work_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to Projects</a>
 
             <header class="blog-header">
                 <h1 class="blog-title">Geospatial Visualizations</h1>
@@ -158,221 +148,51 @@
     </main>
 
     <footer class="contact-section">
-        <!DOCTYPE html>
-        <html lang="en">
+        <div class="container">
+            <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+                    class="fas fa-coffee"></i>.</p>
+        </div>
+    </footer>
 
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Geospatial Visualizations | Vibhor Singh</title>
-            <meta name="description" content="Exploring spatial data through interactive maps using D3.js.">
+    <script src="../js/main.js"></script>
+    <script>
+        var width = 800;
+        var height = 500;
 
-            <!-- Fonts -->
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link
-                href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
-                rel="stylesheet">
+        var projection = d3.geoMercator().center([-10, 50]).scale(120).translate([width / 2, height / 2]);
+        var path = d3.geoPath().projection(projection);
 
-            <!DOCTYPE html>
-            <html lang="en">
+        var svg = d3.select("#visualization-container").append("svg")
+            .attr("width", "100%")
+            .attr("height", height)
+            .attr("viewBox", "0 0 " + width + " " + height)
+            .call(d3.zoom().scaleExtent([1, 8]).on("zoom", function () {
+                g.attr("transform", d3.event.transform)
+            }));
 
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Geospatial Visualizations | Vibhor Singh</title>
-                <meta name="description" content="Exploring spatial data through interactive maps using D3.js.">
+        var g = svg.append("g");
+        var g1 = g.append("g");
+        var g2 = g.append("g");
 
-                <!-- Fonts -->
-                <link rel="preconnect" href="https://fonts.googleapis.com">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
-                    rel="stylesheet">
+        d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function (error, world) {
+            if (error) throw error;
 
-                <!-- CSS -->
-                <link rel="stylesheet" href="../css/style.css">
+            g1.insert("path", ".land")
+                .datum(topojson.feature(world, world.objects.countries))
+                .attr("class", "land")
+                .attr("d", path);
 
-                <!-- Icons -->
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            g1.append("path")
+                .datum(topojson.mesh(world, world.objects.countries, function (a, b) { return a !== b; }))
+                .attr("class", "mesh")
+                .attr("d", path);
+        });
 
-                <!-- D3.js -->
-                <script src="https://d3js.org/d3.v4.min.js"></script>
-                <script src="https://d3js.org/topojson.v1.min.js"></script>
+        var arc = d3.arc().innerRadius(0).outerRadius(5);
+        var pie = d3.pie().sort(null).value(function (d) { return d; });
+        var color = d3.schemeCategory10;
 
-                <style>
-                    /* Custom D3 Styles */
-                    #visualization-container {
-                        background: rgba(255, 255, 255, 0.9);
-                        border-radius: 8px;
-                        padding: 1rem;
-                        margin: 2rem 0;
-                        overflow-x: auto;
-                    }
-
-                    svg {
-                        display: block;
-                        margin: 0 auto;
-                    }
-
-                    .mesh {
-                        fill: none;
-                        stroke: #000;
-                        stroke-width: 0.5px;
-                    }
-
-                    .land {
-                        fill: #4a4a4a;
-                    }
-
-                    .key-dot {
-                        display: inline-block;
-                        height: 12px;
-                        width: 12px;
-                        margin-right: 0.5em;
-                        border-radius: 50%;
-                    }
-
-                    .legend-item {
-                        font-size: 0.9rem;
-                        color: var(--text-secondary);
-                        margin-bottom: 0.5rem;
-                        display: flex;
-                        align-items: center;
-                    }
-
-                    .pies path {
-                        stroke: none;
-                    }
-                </style>
-            </head>
-
-        <body>
-            <div class="background-grid"></div>
-
-            <header class="navbar">
-                <div class="container">
-                    <a href="../index.html" class="logo">VS<span class="dot">.</span></a>
-                    <nav>
-                        <ul class="nav-links">
-                            <li><a href="../index.html">Home</a></li>
-                            <li><a href="../index.html#projects">Projects</a></li>
-                            <li><a href="../gallery.html">Gallery</a></li>
-                            <li><a href="../index.html#contact">Contact</a></li>
-                        </ul>
-                        <button class="theme-toggle" aria-label="Toggle Dark Mode">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                    </nav>
-                    <div class="hamburger">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-            </header>
-
-            <main>
-                <article class="blog-post-container">
-                    <a href="../index.html#projects" class="back-link"><i class="fas fa-arrow-left"></i> Back to
-                        Projects</a>
-
-                    <header class="blog-header">
-                        <h1 class="blog-title">Geospatial Visualizations</h1>
-                        <div class="blog-meta">
-                            <span><i class="far fa-calendar"></i> March 4, 2020</span>
-                            <span><i class="fas fa-tag"></i> Visualization</span>
-                        </div>
-                    </header>
-
-                    <div class="blog-content">
-                        <p>This visualization explores the geographical distribution of donation purposes. It aims to
-                            answer
-                            questions about how different regions prioritize various types of aid.</p>
-
-                        <h3>Key Insights</h3>
-                        <ul>
-                            <li><strong>Industrial Development:</strong> Majority of countries receive donations for
-                                industrial
-                                development.</li>
-                            <li><strong>Air Transport:</strong> Countries in Western Europe, as well as Canada and
-                                Iceland, tend
-                                to receive more funding for Air Transport.</li>
-                            <li><strong>Power Generation:</strong> Eastern European countries receive significant
-                                funding for
-                                Power Generation.</li>
-                        </ul>
-
-                        <div id="visualization-container"></div>
-
-                        <h3>Legend</h3>
-                        <div class="legend">
-                            <div class="legend-item"><span class="key-dot"
-                                    style="background: #d62728;"></span>Industrial
-                                Development</div>
-                            <div class="legend-item"><span class="key-dot"
-                                    style="background: #9467bd;"></span>Rescheduling and
-                                Refinancing</div>
-                            <div class="legend-item"><span class="key-dot" style="background: #ff7f0e;"></span>Air
-                                Transport
-                            </div>
-                            <div class="legend-item"><span class="key-dot" style="background: #2ca02c;"></span>Power
-                                Generation/non-Renewable Sources</div>
-                            <div class="legend-item"><span class="key-dot" style="background: #1f77b4;"></span>Rail
-                                Transport
-                            </div>
-                        </div>
-                    </div>
-                </article>
-            </main>
-
-            <footer class="contact-section">
-                <div class="container">
-                    <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
-                            class="fas fa-coffee"></i>.</p>
-                </div>
-            </footer>
-
-            <script src="../js/main.js"></script>
-            <script>
-                var width = 800;
-                var height = 500;
-
-                var projection = d3.geoMercator().center([-10, 50]).scale(120).translate([width / 2, height / 2]);
-                var path = d3.geoPath().projection(projection);
-
-                var svg = d3.select("#visualization-container").append("svg")
-                    .attr("width", "100%")
-                    .attr("height", height)
-                    .attr("viewBox", "0 0 " + width + " " + height)
-                    .call(d3.zoom().scaleExtent([1, 8]).on("zoom", function () {
-                        g.attr("transform", d3.event.transform)
-                    }));
-
-                var g = svg.append("g");
-                var g1 = g.append("g");
-                var g2 = g.append("g");
-
-                d3.json("https://unpkg.com/world-atlas@1/world/110m.json", function (error, world) {
-                    if (error) throw error;
-
-                    g1.insert("path", ".land")
-                        .datum(topojson.feature(world, world.objects.countries))
-                        .attr("class", "land")
-                        .attr("d", path);
-
-                    g1.append("path")
-                        .datum(topojson.mesh(world, world.objects.countries, function (a, b) { return a !== b; }))
-                        .attr("class", "mesh")
-                        .attr("d", path);
-                });
-
-                var arc = d3.arc().innerRadius(0).outerRadius(5);
-                var pie = d3.pie().sort(null).value(function (d) { return d; });
-                var color = d3.schemeCategory10;
-
-                // Embedded CSV Data to avoid CORS issues
-                var csvString = `Country,data,Donate,Receive,Lat,Long
+        var csvString = `Country,data,Donate,Receive,Lat,Long
 Australia,1-21-0-1-0,2446616312,2572618261,-35.26666667,149.133333
 Austria,0-6-0-0-0,784068952,770267419,48.2,16.366667
 Belgium,0-2-0-0-0,2144445270,184346233,50.83333333,4.333333
@@ -421,30 +241,30 @@ United States,0-0-0-0-0,1.11E+11,104524992,24.46666667,54.366667
 ,,,,51.5,-0.083333
 ,,,,38.883333,-77`;
 
-                var water = d3.csvParse(csvString);
+        var water = d3.csvParse(csvString);
 
-                var marks = g2.selectAll("g")
-                    .data(water)
-                    .enter()
-                    .append("g")
-                    .attr("transform", function (d) {
-                        var p = projection([d.Long, d.Lat]);
-                        return p ? "translate(" + p + ")" : "translate(0,0)";
-                    })
-                    .attr("class", "pies");
+        var marks = g2.selectAll("g")
+            .data(water)
+            .enter()
+            .append("g")
+            .attr("transform", function (d) {
+                var p = projection([d.Long, d.Lat]);
+                return p ? "translate(" + p + ")" : "translate(0,0)";
+            })
+            .attr("class", "pies");
 
-                var pies = marks.selectAll(".pies")
-                    .data(function (d) { return pie(d.data.split(['-'])); })
-                    .enter()
-                    .append('g')
-                    .attr('class', 'arc');
+        var pies = marks.selectAll(".pies")
+            .data(function (d) { return pie(d.data.split(['-'])); })
+            .enter()
+            .append('g')
+            .attr('class', 'arc');
 
-                pies.append("path")
-                    .attr('d', arc)
-                    .attr("fill", function (d, i) {
-                        return color[i];
-                    });
-            </script>
-        </body>
+        pies.append("path")
+            .attr('d', arc)
+            .attr("fill", function (d, i) {
+                return color[i];
+            });
+    </script>
+</body>
 
-        </html>
+</html>

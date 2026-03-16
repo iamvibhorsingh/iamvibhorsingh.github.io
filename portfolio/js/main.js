@@ -2,11 +2,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile Menu Toggle
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
+    const imageModalTriggers = document.querySelectorAll('.image-modal-trigger');
+    const galleryImageTriggers = Array.from(document.querySelectorAll('.gallery-image-trigger'));
+    const heroImageModal = document.querySelector('#hero-image-modal');
+    const heroImageModalCloseTargets = document.querySelectorAll('[data-close-modal="true"]');
+    const heroImageModalEyebrow = heroImageModal?.querySelector('.image-modal-eyebrow');
+    const heroImageModalTitle = heroImageModal?.querySelector('#hero-image-modal-title');
+    const heroImageModalAsset = heroImageModal?.querySelector('.image-modal-asset');
+    const heroImageModalPrev = heroImageModal?.querySelector('.image-modal-prev');
+    const heroImageModalNext = heroImageModal?.querySelector('.image-modal-next');
+    let lastFocusedElement = null;
+    let currentGalleryIndex = -1;
     
-    hamburger.addEventListener('click', () => {
-        navLinks.classList.toggle('active');
-        hamburger.classList.toggle('toggle');
-    });
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('toggle');
+        });
+    }
+
+    // Theme Toggle
+    const themeToggle = document.querySelector('.theme-toggle');
+    const themeIcon = themeToggle?.querySelector('i');
+
+    function applyTheme(theme) {
+        document.body.classList.toggle('light-theme', theme === 'light');
+        if (themeIcon) {
+            themeIcon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+    }
+
+    applyTheme(localStorage.getItem('theme') || 'dark');
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const next = document.body.classList.contains('light-theme') ? 'dark' : 'light';
+            localStorage.setItem('theme', next);
+            applyTheme(next);
+        });
+    }
 
     // Smooth Scrolling for Anchor Links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -47,6 +81,82 @@ document.addEventListener('DOMContentLoaded', () => {
             navbar.style.boxShadow = 'none';
         }
     });
+
+    const updateGalleryNavigationState = () => {
+        const hasGalleryNavigation = currentGalleryIndex !== -1 && galleryImageTriggers.length > 1;
+        [heroImageModalPrev, heroImageModalNext].forEach(button => {
+            if (!button) return;
+            button.classList.toggle('is-hidden', !hasGalleryNavigation);
+        });
+    };
+
+    const openHeroImageModal = (trigger, options = {}) => {
+        if (!heroImageModal || !heroImageModalAsset || !heroImageModalTitle || !heroImageModalEyebrow) return;
+        const { preserveFocus = false } = options;
+
+        if (!preserveFocus) {
+            lastFocusedElement = document.activeElement;
+        }
+
+        currentGalleryIndex = trigger.classList.contains('gallery-image-trigger')
+            ? galleryImageTriggers.indexOf(trigger)
+            : -1;
+        heroImageModalAsset.src = trigger.dataset.modalSrc || heroImageModalAsset.src;
+        heroImageModalAsset.alt = trigger.dataset.modalAlt || trigger.querySelector('img')?.alt || 'Expanded image';
+        heroImageModalTitle.textContent = trigger.dataset.modalTitle || 'Image preview';
+        heroImageModalEyebrow.textContent = trigger.dataset.modalEyebrow || 'Preview';
+        updateGalleryNavigationState();
+        heroImageModal.classList.add('is-open');
+        heroImageModal.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+
+        const closeButton = heroImageModal.querySelector('.image-modal-close');
+        if (closeButton && !preserveFocus) {
+            closeButton.focus();
+        }
+    };
+
+    const closeHeroImageModal = () => {
+        if (!heroImageModal) return;
+        heroImageModal.classList.remove('is-open');
+        heroImageModal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        currentGalleryIndex = -1;
+        updateGalleryNavigationState();
+
+        if (lastFocusedElement instanceof HTMLElement) {
+            lastFocusedElement.focus();
+        }
+    };
+
+    const navigateGalleryModal = (direction) => {
+        if (currentGalleryIndex === -1 || !galleryImageTriggers.length) return;
+        currentGalleryIndex = (currentGalleryIndex + direction + galleryImageTriggers.length) % galleryImageTriggers.length;
+        openHeroImageModal(galleryImageTriggers[currentGalleryIndex], { preserveFocus: true });
+    };
+
+    if (imageModalTriggers.length && heroImageModal) {
+        imageModalTriggers.forEach(trigger => {
+            trigger.addEventListener('click', () => openHeroImageModal(trigger));
+        });
+
+        heroImageModalCloseTargets.forEach(target => {
+            target.addEventListener('click', closeHeroImageModal);
+        });
+
+        heroImageModalPrev?.addEventListener('click', () => navigateGalleryModal(-1));
+        heroImageModalNext?.addEventListener('click', () => navigateGalleryModal(1));
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && heroImageModal.classList.contains('is-open')) {
+                closeHeroImageModal();
+            } else if (event.key === 'ArrowLeft' && heroImageModal.classList.contains('is-open') && currentGalleryIndex !== -1) {
+                navigateGalleryModal(-1);
+            } else if (event.key === 'ArrowRight' && heroImageModal.classList.contains('is-open') && currentGalleryIndex !== -1) {
+                navigateGalleryModal(1);
+            }
+        });
+    }
 
     // Intersection Observer for Fade-in Animations
     const observerOptions = {

@@ -25,16 +25,17 @@
 
      <header class="navbar">
           <div class="container">
-               <a href="index.html" class="logo">VS<span class="dot">.</span></a>
+               <a href="../index.html" class="logo">VS<span class="dot">.</span></a>
                <nav>
                     <ul class="nav-links">
-                         <li><a href="index.html#projects">Projects</a></li>
-                         <li><a href="index.html#gallery">Gallery</a></li>
-                         <li><a href="index.html#contact">Contact</a></li>
+                         <li><a href="../index.html" class="highlight">Home</a></li>
+                         <li><a href="../index.html#work_container">Projects</a></li>
+                         <li><a href="../index.html#gallery_container">Gallery</a></li>
+                         <li><a href="../index.html#contact_container">Contact</a></li>
+                         <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                              <i class="fas fa-moon"></i>
+                         </button>
                     </ul>
-                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
-                         <i class="fas fa-moon"></i>
-                    </button>
                </nav>
                <div class="hamburger">
                     <span></span>
@@ -51,37 +52,62 @@
                     <p class="section-subtitle">A glimpse of NYC through my lens.</p>
 
                     <div class="gallery-grid">
-                         <div class="gallery-item"><img src="images/1.jpg" alt="Gallery Image 1" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/2.jpg" alt="Gallery Image 2" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/3.jpg" alt="Gallery Image 3" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/4.jpg" alt="Gallery Image 4" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/5.jpg" alt="Gallery Image 5" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/6.jpg" alt="Gallery Image 6" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/7.jpg" alt="Gallery Image 7" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/8.jpg" alt="Gallery Image 8" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/9.jpeg" alt="Gallery Image 9" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/10.jpg" alt="Gallery Image 10" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/11.jpeg" alt="Gallery Image 11" loading="lazy">
-                         </div>
-                         <div class="gallery-item"><img src="images/12.jpg" alt="Gallery Image 12" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/13.jpg" alt="Gallery Image 13" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/14.jpg" alt="Gallery Image 14" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/15.jpg" alt="Gallery Image 15" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/16.jpg" alt="Gallery Image 16" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/17.jpg" alt="Gallery Image 17" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/18.jpg" alt="Gallery Image 18" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/19.jpg" alt="Gallery Image 19" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/20.jpg" alt="Gallery Image 20" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/21.jpg" alt="Gallery Image 21" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/22.jpg" alt="Gallery Image 22" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/23.jpg" alt="Gallery Image 23" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/24.jpg" alt="Gallery Image 24" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/25.jpg" alt="Gallery Image 25" loading="lazy"></div>
-                         <div class="gallery-item"><img src="images/26.jpg" alt="Gallery Image 26" loading="lazy"></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 1" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/1.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 1" data-modal-alt="Expanded view of gallery image 1"><img src="images/1.jpg" alt="Gallery Image 1" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 2" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/2.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 2" data-modal-alt="Expanded view of gallery image 2"><img src="images/2.jpg" alt="Gallery Image 2" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 3" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/3.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 3" data-modal-alt="Expanded view of gallery image 3"><img src="images/3.jpg" alt="Gallery Image 3" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 4" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/4.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 4" data-modal-alt="Expanded view of gallery image 4"><img src="images/4.jpg" alt="Gallery Image 4" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 5" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/5.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 5" data-modal-alt="Expanded view of gallery image 5"><img src="images/5.jpg" alt="Gallery Image 5" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 6" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/6.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 6" data-modal-alt="Expanded view of gallery image 6"><img src="images/6.jpg" alt="Gallery Image 6" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 7" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/7.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 7" data-modal-alt="Expanded view of gallery image 7"><img src="images/7.jpg" alt="Gallery Image 7" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 8" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/8.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 8" data-modal-alt="Expanded view of gallery image 8"><img src="images/8.jpg" alt="Gallery Image 8" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 9" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/9.jpeg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 9" data-modal-alt="Expanded view of gallery image 9"><img src="images/9.jpeg" alt="Gallery Image 9" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 10" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/10.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 10" data-modal-alt="Expanded view of gallery image 10"><img src="images/10.jpg" alt="Gallery Image 10" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 11" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/11.jpeg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 11" data-modal-alt="Expanded view of gallery image 11"><img src="images/11.jpeg" alt="Gallery Image 11" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 12" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/12.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 12" data-modal-alt="Expanded view of gallery image 12"><img src="images/12.jpg" alt="Gallery Image 12" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 13" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/13.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 13" data-modal-alt="Expanded view of gallery image 13"><img src="images/13.jpg" alt="Gallery Image 13" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 14" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/14.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 14" data-modal-alt="Expanded view of gallery image 14"><img src="images/14.jpg" alt="Gallery Image 14" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 15" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/15.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 15" data-modal-alt="Expanded view of gallery image 15"><img src="images/15.jpg" alt="Gallery Image 15" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 16" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/16.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 16" data-modal-alt="Expanded view of gallery image 16"><img src="images/16.jpg" alt="Gallery Image 16" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 17" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/17.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 17" data-modal-alt="Expanded view of gallery image 17"><img src="images/17.jpg" alt="Gallery Image 17" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 18" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/18.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 18" data-modal-alt="Expanded view of gallery image 18"><img src="images/18.jpg" alt="Gallery Image 18" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 19" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/19.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 19" data-modal-alt="Expanded view of gallery image 19"><img src="images/19.jpg" alt="Gallery Image 19" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 20" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/20.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 20" data-modal-alt="Expanded view of gallery image 20"><img src="images/20.jpg" alt="Gallery Image 20" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 21" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/21.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 21" data-modal-alt="Expanded view of gallery image 21"><img src="images/21.jpg" alt="Gallery Image 21" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 22" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/22.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 22" data-modal-alt="Expanded view of gallery image 22"><img src="images/22.jpg" alt="Gallery Image 22" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 23" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/23.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 23" data-modal-alt="Expanded view of gallery image 23"><img src="images/23.jpg" alt="Gallery Image 23" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 24" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/24.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 24" data-modal-alt="Expanded view of gallery image 24"><img src="images/24.jpg" alt="Gallery Image 24" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 25" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/25.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 25" data-modal-alt="Expanded view of gallery image 25"><img src="images/25.jpg" alt="Gallery Image 25" loading="lazy"></button></div>
+                         <div class="gallery-item"><button type="button" class="gallery-image-trigger image-modal-trigger" aria-label="Open gallery image 26" aria-haspopup="dialog" aria-controls="hero-image-modal" data-modal-src="images/26.jpg" data-modal-eyebrow="Gallery" data-modal-title="Gallery image 26" data-modal-alt="Expanded view of gallery image 26"><img src="images/26.jpg" alt="Gallery Image 26" loading="lazy"></button></div>
                     </div>
                </div>
           </section>
      </main>
+
+     <div class="image-modal" id="hero-image-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="hero-image-modal-title">
+          <div class="image-modal-backdrop" data-close-modal="true"></div>
+          <div class="image-modal-panel">
+               <div class="image-modal-header">
+                    <div>
+                         <p class="image-modal-eyebrow">Gallery</p>
+                         <h2 id="hero-image-modal-title">Image preview</h2>
+                    </div>
+                    <button type="button" class="image-modal-close" aria-label="Close image popup" data-close-modal="true">
+                         <i class="fas fa-times"></i>
+                    </button>
+               </div>
+               <div class="image-modal-body">
+                    <button type="button" class="image-modal-nav image-modal-prev" aria-label="View previous gallery image">
+                         <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="image-modal-media">
+                         <img src="images/1.jpg" alt="Expanded gallery image" class="image-modal-asset">
+                    </div>
+                    <button type="button" class="image-modal-nav image-modal-next" aria-label="View next gallery image">
+                         <i class="fas fa-chevron-right"></i>
+                    </button>
+               </div>
+          </div>
+     </div>
 
      <footer class="contact-section">
           <div class="container">
@@ -91,31 +117,6 @@
      </footer>
 
      <script src="js/main.js"></script>
-     <style>
-          .gallery-item {
-               overflow: hidden;
-               border-radius: 8px;
-               border: 1px solid var(--border-color);
-               transition: var(--transition-medium);
-               aspect-ratio: 1;
-          }
-
-          .gallery-item:hover {
-               transform: scale(1.02);
-               border-color: var(--accent-color);
-          }
-
-          .gallery-item img {
-               width: 100%;
-               height: 100%;
-               object-fit: cover;
-               transition: var(--transition-medium);
-          }
-
-          .gallery-item:hover img {
-               transform: scale(1.1);
-          }
-     </style>
 </body>
 
 </html>
