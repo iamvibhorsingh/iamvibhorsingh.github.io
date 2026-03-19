@@ -1,26 +1,73 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/gita/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gita Explorer — Discover the Bhagavad Gita</title>
-    <meta name="description" content="Explore the Bhagavad Gita like never before. Verse of the Day, interactive sunburst chart, and an emotional Oracle compass to find verses that speak to your soul." />
-    <meta property="og:title" content="Gita Explorer" />
-    <meta property="og:description" content="Discover the Bhagavad Gita — 700 verses, 18 chapters, one timeless wisdom." />
-    <meta property="og:type" content="website" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/gita/assets/index-Bk4R-pjI.js"></script>
-    <link rel="modulepreload" crossorigin href="/gita/assets/rolldown-runtime-COnpUsM8.js">
-    <link rel="modulepreload" crossorigin href="/gita/assets/vendor-Be0EHlUR.js">
-    <link rel="modulepreload" crossorigin href="/gita/assets/vendor-echarts-BnBvjBjY.js">
-    <link rel="modulepreload" crossorigin href="/gita/assets/vendor-react-BRQoWF0t.js">
-    <link rel="modulepreload" crossorigin href="/gita/assets/vendor-motion-HW6AwmkB.js">
-    <link rel="stylesheet" crossorigin href="/gita/assets/index-Bx1h_Kh-.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/gita/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bhagavad Gita Explorer | Read, Search & Understand the Gita</title>
+
+  <!-- Core SEO Meta Tags -->
+  <meta name="description"
+    content="Explore the Bhagavad Gita online. Read all 700 verses (shlokas) with translations, meaning, and wisdom. Features an interactive sunburst chart and an AI emotional Oracle compass for spiritual guidance." />
+  <meta name="keywords"
+    content="Bhagavad Gita, Bhagwat Geeta, Lord Krishna, Arjuna, Hindu philosophy, Gita verses, Gita chapters, spiritual guidance, Dharma, Karma Yoga, Bhakti Yoga, Jnana Yoga, AI Oracle, Gita Explorer" />
+  <meta name="author" content="Gita Explorer" />
+  <meta name="robots" content="index, follow" />
+  <meta name="language" content="English" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Bhagavad Gita Explorer | Timeless Wisdom & Spiritual Guidance" />
+  <meta property="og:description"
+    content="Discover the complete Bhagavad Gita with 18 chapters and 700 verses. Find peace and answers through our interactive verses and emotional Oracle compass." />
+  <meta property="og:site_name" content="Bhagavad Gita Explorer" />
+  <meta property="og:image" content="/gita/og-image.jpg" /> <!-- Assuming an OG image, user can add later -->
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Bhagavad Gita Explorer | Timeless Wisdom & Spiritual Guidance" />
+  <meta name="twitter:description"
+    content="Read and explore the Bhagavad Gita online. Find verses that speak to your soul with our interactive Oracle compass." />
+  <meta name="twitter:image" content="/gita/og-image.jpg" />
+
+  <!-- AI Search & Summarization Support (Sitelinks, WebApp) -->
+  <meta name="application-name" content="Gita Explorer" />
+  <meta name="apple-mobile-web-app-title" content="Gita Explorer" />
+
+  <!-- JSON-LD Structured Data for Rich Snippets -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Bhagavad Gita Explorer",
+      "url": "https://vibhors.github.io/gita/",
+      "description": "Interactive platform to explore the Bhagavad Gita, featuring 700 verses, translations, and an AI-assisted Oracle for emotional and spiritual guidance.",
+      "keywords": "Bhagavad Gita, Krishna, Hinduism, Philosophy, Spirituality, Gita, Bhagwat Geeta, Lord Krishna, Arjuna, Hindu philosophy, Gita verses, Gita chapters, spiritual guidance, Dharma, Karma Yoga, Bhakti Yoga, Jnana Yoga",
+      "inLanguage": "en",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://vibhors.github.io/gita/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <script type="module" crossorigin src="/gita/assets/index-BE_Rwe93.js"></script>
+  <link rel="modulepreload" crossorigin href="/gita/assets/rolldown-runtime-COnpUsM8.js">
+  <link rel="modulepreload" crossorigin href="/gita/assets/vendor-CGF-YULb.js">
+  <link rel="modulepreload" crossorigin href="/gita/assets/vendor-echarts-CvOcLSqY.js">
+  <link rel="modulepreload" crossorigin href="/gita/assets/vendor-react-Dg4E41y1.js">
+  <link rel="modulepreload" crossorigin href="/gita/assets/vendor-motion-DjfApVSn.js">
+  <link rel="stylesheet" crossorigin href="/gita/assets/index-Bx1h_Kh-.css">
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
 </html>
