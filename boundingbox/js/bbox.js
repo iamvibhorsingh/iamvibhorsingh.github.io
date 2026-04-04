@@ -741,7 +741,7 @@ function loadBboxFromHash() {
     const hash = location.hash.replace(/^#/, '');
     if (!hash) return false;
 
-    const parts = hash.split('|');
+    const parts = hash.split(/\||%7C/i);
     let loadedBbox = false;
 
     // Parse BBox
