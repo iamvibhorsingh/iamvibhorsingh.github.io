@@ -620,16 +620,112 @@ function updateRecentList() {
     });
 }
 
-function generateShareUrl() {
-    const b = bounds.getBounds();
-    if (!b.isValid()) {
-        showToast('Draw a bounding box first', 'error');
-        return;
+function syncUrlHash() {
+    let hashParts = [];
+
+    // 1. Get Bounding Box
+    if (typeof bounds !== 'undefined' && bounds.getBounds && bounds.getBounds().isValid()) {
+        const sw = bounds.getBounds().getSouthWest();
+        const ne = bounds.getBounds().getNorthEast();
+        // Check if it's the default 0,0 initialized bbox
+        if (!(Math.abs(sw.lat) < 0.000001 && Math.abs(sw.lng) < 0.000001 && Math.abs(ne.lat) < 0.000001 && Math.abs(ne.lng) < 0.000001)) {
+            if (activeScreenshotLayer && activeScreenshotLayer instanceof L.Circle) {
+                const center = activeScreenshotLayer.getLatLng();
+                const radius = activeScreenshotLayer.getRadius();
+                hashParts.push(`C:${center.lat.toFixed(6)},${center.lng.toFixed(6)},${radius.toFixed(2)}`);
+            } else if (activeScreenshotLayer && activeScreenshotLayer instanceof L.Polygon && !(activeScreenshotLayer instanceof L.Rectangle)) {
+                const latlngs = activeScreenshotLayer.getLatLngs()[0];
+                const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
+                hashParts.push(`P:${pts}`);
+            } else {
+                hashParts.push(`${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`);
+            }
+        } else {
+            hashParts.push('');
+        }
+    } else {
+        hashParts.push('');
     }
 
-    const sw = b.getSouthWest();
-    const ne = b.getNorthEast();
-    const hash = `${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`;
+    // 2. Get Markers
+    let markersCount = 0;
+    if (typeof drawnItems !== 'undefined') {
+        drawnItems.eachLayer(function (layer) {
+            const isMarker = layer instanceof L.Marker;
+            const isCircleMarker = layer instanceof L.CircleMarker && !(layer instanceof L.Circle);
+            if ((isMarker || isCircleMarker) && typeof layer.getLatLng === 'function') {
+                if (markersCount < 30) {
+                    const latlng = layer.getLatLng();
+                    let name = "";
+                    if (layer._popup && layer._popup._content) {
+                        if (typeof layer._popup._content === 'string') {
+                            name = layer._popup._content.replace(/<[^>]*>?/gm, ''); // Strip HTML in case it's styled
+                        } else if (layer._popup._content.textContent) {
+                            name = layer._popup._content.textContent;
+                        }
+                    } else if (layer.options && layer.options.title) {
+                        name = layer.options.title;
+                    }
+
+                    if (!name) name = isCircleMarker ? "Circle" : "Marker";
+                    if (name.length > 30) name = name.substring(0, 27) + '...';
+
+                    name = encodeURIComponent(name);
+                    const prefix = isCircleMarker ? 'C:' : '';
+                    hashParts.push(`${prefix}${latlng.lat.toFixed(6)},${latlng.lng.toFixed(6)},${name}`);
+                    markersCount++;
+                }
+            } else if (layer !== activeScreenshotLayer) {
+                if (layer instanceof L.Rectangle) {
+                    const sw = layer.getBounds().getSouthWest();
+                    const ne = layer.getBounds().getNorthEast();
+                    hashParts.push(`RB:${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`);
+                } else if (layer instanceof L.Polygon) {
+                    const latlngs = layer.getLatLngs()[0];
+                    const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
+                    hashParts.push(`PB:${pts}`);
+                } else if (layer instanceof L.Circle) {
+                    const center = layer.getLatLng();
+                    const radius = layer.getRadius();
+                    hashParts.push(`CB:${center.lat.toFixed(6)},${center.lng.toFixed(6)},${radius.toFixed(2)}`);
+                }
+            }
+        });
+    }
+
+    if (hashParts.length === 1 && hashParts[0] === '') {
+        // Nothing to share
+        if (location.hash) {
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState(null, null, window.location.pathname + window.location.search);
+            } else {
+                location.hash = '';
+            }
+        }
+        return '';
+    }
+
+    let finalHash = hashParts.join('|');
+    // If the hash consists only of pipe and empty fields, remove them
+    if (finalHash === '|') finalHash = '';
+
+    // Update the history/hash silently if we wanted, but standard assignment works
+    if (finalHash) {
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, '#' + finalHash);
+        } else {
+            location.hash = finalHash;
+        }
+    }
+    return finalHash;
+}
+
+function generateShareUrl() {
+    const hash = syncUrlHash();
+    if (!hash) {
+        showToast('Draw a bounding box or marker first', 'error');
+        return;
+    }
 
     const url = `${window.location.origin}${window.location.pathname}#${hash}`;
 
@@ -645,33 +741,143 @@ function loadBboxFromHash() {
     const hash = location.hash.replace(/^#/, '');
     if (!hash) return false;
 
-    const parts = hash.split(',').map(parseFloat);
-    if (parts.length !== 4) return false;
+    const parts = hash.split('|');
+    let loadedBbox = false;
 
-    const [lat1, lng1, lat2, lng2] = parts;
+    // Parse BBox
+    if (parts[0] !== '') {
+        if (parts[0].startsWith('C:')) {
+            const bboxParts = parts[0].substring(2).split(',').map(parseFloat);
+            if (bboxParts.length === 3) {
+                const [lat, lng, radius] = bboxParts;
+                if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius) &&
+                    lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && radius > 0) {
 
-    // Validate coordinates
-    if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) return false;
-    if (lat1 < -90 || lat1 > 90 || lat2 < -90 || lat2 > 90) return false;
-    if (lng1 < -180 || lng1 > 180 || lng2 < -180 || lng2 > 180) return false;
+                    const lyr = new L.Circle([lat, lng], { radius: radius });
+                    const evt = { layer: lyr, layerType: 'circle' };
 
-    const sw = L.latLng(lat1, lng1);
-    const ne = L.latLng(lat2, lng2);
-    const loadedBounds = L.latLngBounds(sw, ne);
+                    map.fire('draw:created', evt);
+                    map.fitBounds(lyr.getBounds());
+                    loadedBbox = true;
+                }
+            }
+        } else if (parts[0].startsWith('P:')) {
+            const pts = parts[0].substring(2).split(',').map(parseFloat);
+            const latlngs = [];
+            for(let i = 0; i < pts.length; i+=2) {
+                if (!isNaN(pts[i]) && !isNaN(pts[i+1])) {
+                    latlngs.push([pts[i], pts[i+1]]);
+                }
+            }
+            if (latlngs.length >= 3) {
+                const lyr = new L.Polygon(latlngs);
+                const evt = { layer: lyr, layerType: 'polygon' };
 
-    // Create a rectangle
-    const lyr = new L.Rectangle(loadedBounds);
-    const evt = {
-        layer: lyr,
-        layerType: 'polygon'
-    };
+                map.fire('draw:created', evt);
+                map.fitBounds(lyr.getBounds());
+                loadedBbox = true;
+            }
+        } else {
+            const bboxParts = parts[0].split(',').map(parseFloat);
+            if (bboxParts.length === 4) {
+                const [lat1, lng1, lat2, lng2] = bboxParts;
+                if (!isNaN(lat1) && !isNaN(lng1) && !isNaN(lat2) && !isNaN(lng2) &&
+                    lat1 >= -90 && lat1 <= 90 && lat2 >= -90 && lat2 <= 90 &&
+                    lng1 >= -180 && lng1 <= 180 && lng2 >= -180 && lng2 <= 180) {
 
-    map.fire('draw:created', evt);
-    map.fitBounds(loadedBounds);
+                    const sw = L.latLng(lat1, lng1);
+                    const ne = L.latLng(lat2, lng2);
+                    const loadedBounds = L.latLngBounds(sw, ne);
 
-    $('#draw-hint').addClass('hidden');
-    console.log('Loaded bounding box from URL');
-    return true;
+                    const lyr = new L.Rectangle(loadedBounds);
+                    const evt = {
+                        layer: lyr,
+                        layerType: 'polygon'
+                    };
+
+                    map.fire('draw:created', evt);
+                    map.fitBounds(loadedBounds);
+                    loadedBbox = true;
+                }
+            }
+        }
+    }
+
+    // Parse Markers
+    if (parts.length > 1) {
+        parts.slice(1).forEach(part => {
+            if (!part) return;
+            if (part.startsWith('CB:')) {
+                const bboxParts = part.substring(3).split(',').map(parseFloat);
+                if (bboxParts.length === 3 && !isNaN(bboxParts[0])) {
+                    const lyr = new L.Circle([bboxParts[0], bboxParts[1]], { radius: bboxParts[2] });
+                    if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                }
+                return;
+            }
+            if (part.startsWith('RB:')) {
+                const bboxParts = part.substring(3).split(',').map(parseFloat);
+                if (bboxParts.length === 4 && !isNaN(bboxParts[0])) {
+                    const lyr = new L.Rectangle(L.latLngBounds([bboxParts[0], bboxParts[1]], [bboxParts[2], bboxParts[3]]));
+                    if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                }
+                return;
+            }
+            if (part.startsWith('PB:')) {
+                const pts = part.substring(3).split(',').map(parseFloat);
+                const latlngs = [];
+                for(let i = 0; i < pts.length; i+=2) {
+                    if (!isNaN(pts[i]) && !isNaN(pts[i+1])) {
+                        latlngs.push([pts[i], pts[i+1]]);
+                    }
+                }
+                if (latlngs.length >= 3) {
+                    const lyr = new L.Polygon(latlngs);
+                    if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                }
+                return;
+            }
+            const markerParts = part.split(',');
+            if (markerParts.length >= 2) {
+                let isCircle = false;
+                if (markerParts[0].startsWith('C:')) {
+                    isCircle = true;
+                    markerParts[0] = markerParts[0].substring(2);
+                }
+                const lat = parseFloat(markerParts[0]);
+                const lng = parseFloat(markerParts[1]);
+                if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                    const nameParts = markerParts.slice(2);
+                    let name = nameParts.length > 0 ? decodeURIComponent(nameParts.join(',')) : (isCircle ? "Circle" : "Marker");
+
+                    const marker = isCircle ? L.circleMarker([lat, lng]) : L.marker([lat, lng]);
+                    if (name) {
+                        marker.bindPopup(name);
+                        marker.options.title = name;
+                    }
+
+                    const evt = {
+                        layer: marker,
+                        layerType: isCircle ? 'circlemarker' : 'marker'
+                    };
+                    map.fire('draw:created', evt);
+                }
+            }
+        });
+
+        if (!loadedBbox && typeof drawnItems !== 'undefined' && drawnItems.getLayers().length > 0) {
+            map.fitBounds(drawnItems.getBounds(), { maxZoom: 15 });
+        }
+    }
+
+    if (loadedBbox || parts.length > 1) {
+        $('#draw-hint').addClass('hidden');
+
+        syncUrlHash();
+        console.log('Loaded features from URL');
+        return true;
+    }
+    return false;
 }
 
 function updateProjectionInfo(projCode) {
@@ -809,10 +1015,10 @@ $(function () { // Modern equivalent of $(document).ready
         accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3lxM2R3MTcybzJpcHdhanU1dTB5dCJ9.vBNwuEDJXfsxT-lfLNCbWA'
     });
 
-    // Define OpenStreetMap Layer (Fallback)
-    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // Define CartoDB Voyager Layer (Fallback for localhost)
+    const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
     });
 
     // Add Mapbox first
@@ -825,15 +1031,15 @@ $(function () { // Modern equivalent of $(document).ready
         maxZoom: 19
     });
 
-    // Fallback Logic: If Mapbox fails (e.g. 403 on localhost), switch to OSM
+    // Fallback Logic: If Mapbox fails (e.g. 403 on localhost), switch to CartoDB
     mapboxLayer.on('tileerror', function (e) {
         // Only trigger once to avoid flickering/loops
         if (map.hasLayer(mapboxLayer)) {
-            console.warn('Mapbox tile error (likely token restriction), switching to OpenStreetMap fallback.');
+            console.warn('Mapbox tile error (likely token restriction), switching to CartoDB fallback.');
             map.removeLayer(mapboxLayer);
-            osmLayer.addTo(map);
-            streetLayer = osmLayer; // Update street layer reference
-            showToast('Mapbox blocked on localhost. Switched to OpenStreetMap.', 'info');
+            cartoLayer.addTo(map);
+            streetLayer = cartoLayer; // Update street layer reference
+            showToast('Mapbox blocked on localhost. Switched to fallback map.', 'info');
         }
     });
 
@@ -1001,13 +1207,7 @@ $(function () { // Modern equivalent of $(document).ready
         // move it to the end of the parent
         const parent = e.target._renderer._container.parentElement;
         $(parent).append(e.target._renderer._container);
-        const southwest = this.getBounds().getSouthWest();
-        const northeast = this.getBounds().getNorthEast();
-        const xmin = southwest.lng.toFixed(6);
-        const ymin = southwest.lat.toFixed(6);
-        const xmax = northeast.lng.toFixed(6);
-        const ymax = northeast.lat.toFixed(6);
-        location.hash = ymin + ',' + xmin + ',' + ymax + ',' + xmax;
+        syncUrlHash();
     });
     map.addLayer(bounds);
 
@@ -1023,8 +1223,8 @@ $(function () { // Modern equivalent of $(document).ready
         // Hide the first-time hint permanently once a bbox is drawn
         $('#draw-hint').addClass('hidden');
 
-        // Only Rectangles and Polygons can become the active screenshot layer.
-        if (layer instanceof L.Rectangle || layer instanceof L.Polygon) {
+        // Only Rectangles, Polygons, and Circles can become the active screenshot layer.
+        if (layer instanceof L.Rectangle || layer instanceof L.Polygon || layer instanceof L.Circle) {
             activeScreenshotLayer = layer;
             $('#download-png').show();
 
@@ -1043,7 +1243,61 @@ $(function () { // Modern equivalent of $(document).ready
             } catch (error) {
                 console.error('Error in draw:created handler for box:', error);
             }
+        } else if ((layer instanceof L.Marker || (layer instanceof L.CircleMarker && !(layer instanceof L.Circle))) && !layer.getPopup()) {
+            // Freshly-placed marker — prompt for a name via an inline popup.
+            const popupContent = `<div class="marker-name-popup">
+                    <label>Marker name</label>
+                    <input class="marker-name-input" type="text" placeholder="e.g. Coffee Shop" maxlength="30" autocomplete="off" />
+                    <div class="marker-name-actions">
+                        <button class="marker-name-save marker-btn-primary">Save</button>
+                        <button class="marker-name-skip marker-btn-secondary">Skip</button>
+                    </div>
+                </div>`;
+
+            layer.bindPopup(popupContent, { closeOnClick: false, autoClose: false });
+
+            // Register BEFORE openPopup — openPopup fires popupopen synchronously
+            layer.once('popupopen', function () {
+                const popupEl = layer.getPopup().getElement();
+                if (!popupEl) return;
+                const input = popupEl.querySelector('.marker-name-input');
+                const saveBtn = popupEl.querySelector('.marker-name-save');
+                const skipBtn = popupEl.querySelector('.marker-name-skip');
+                if (input) input.focus();
+
+                function applyName() {
+                    const name = (input ? input.value.trim() : '') || (layer instanceof L.CircleMarker && !(layer instanceof L.Circle) ? 'Circle' : 'Marker');
+                    layer.closePopup();
+                    layer.unbindPopup();
+                    layer.bindPopup(name);
+                    layer.options.title = name;
+                    syncUrlHash();
+                }
+
+                function skipName() {
+                    const name = layer instanceof L.CircleMarker && !(layer instanceof L.Circle) ? 'Circle' : 'Marker';
+                    layer.closePopup();
+                    layer.unbindPopup();
+                    layer.bindPopup(name);
+                    layer.options.title = name;
+                    syncUrlHash();
+                }
+
+                if (saveBtn) saveBtn.addEventListener('click', applyName);
+                if (skipBtn) skipBtn.addEventListener('click', skipName);
+                if (input) {
+                    input.addEventListener('keydown', function (ev) {
+                        if (ev.key === 'Enter') applyName();
+                        if (ev.key === 'Escape') skipName();
+                    });
+                }
+            });
+
+            layer.openPopup();
+
+            return; // Don't call syncUrlHash() - defer until applyName/skipName
         }
+        syncUrlHash();
     });
 
     map.on('draw:deleted', function (e) {
@@ -1083,6 +1337,7 @@ $(function () { // Modern equivalent of $(document).ready
             $('#boxboundsmerc').text('No bounding box drawn');
             bounds.setBounds(new L.LatLngBounds([0.0, 0.0], [0.0, 0.0]));
         }
+        syncUrlHash();
     });
 
     map.on('draw:edited', function (e) {
@@ -1108,23 +1363,29 @@ $(function () { // Modern equivalent of $(document).ready
             updateBboxInfo(screenshotBounds);
             saveRecentBbox(screenshotBounds);
         }
+        syncUrlHash();
     });
 
     function display() {
+        const centerToDisplay = (activeScreenshotLayer) ? getGeometricCenter(activeScreenshotLayer) : map.getCenter();
+
         $('.zoomlevel').text(map.getZoom().toString());
-        $('.tilelevel').text(formatTile(map.getCenter(), map.getZoom()));
+        $('.tilelevel').text(formatTile(centerToDisplay, map.getZoom()));
         $('#mapbounds').text(formatBounds(map.getBounds(), '4326'));
         $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
-        $('#center').text(formatPoint(map.getCenter(), '4326'));
-        $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
+        $('#center').text(formatPoint(centerToDisplay, '4326'));
+        $('#centermerc').text(formatPoint(centerToDisplay, currentproj));
 
         if (drawnItems.getLayers().length === 0) {
             $('#boxbounds').text('No bounding box drawn');
             $('#boxboundsmerc').text('No bounding box drawn');
         }
 
-        $('#mousepos').text(formatPoint(map.getCenter(), '4326')); // Start with center
-        $('#mouseposmerc').text(formatPoint(map.getCenter(), currentproj));
+        if (!activeScreenshotLayer) {
+            $('#mousepos').text(formatPoint(centerToDisplay, '4326'));
+            // Start with center
+            $('#mouseposmerc').text(formatPoint(centerToDisplay, currentproj));
+        }
     }
 
     setTimeout(function () {
@@ -1804,6 +2065,8 @@ $(function () { // Modern equivalent of $(document).ready
             hideLoading();
             console.error("Projection definitions load failed:", err);
             showToast('Failed to load projection definitions', 'error');
+            // Still try to load features from URL hash even if projections failed
+            setTimeout(() => { loadBboxFromHash(); }, 500);
         });
 
     // Re-render display on any format change to update all coordinates
@@ -1913,9 +2176,51 @@ $(function () { // Modern equivalent of $(document).ready
     let centerMarker = null;
     let isDraggingMarker = false;
 
+    function getGeometricCenter(layer) {
+        if (!layer) return null;
+        if (layer instanceof L.Circle || layer instanceof L.Marker || layer instanceof L.CircleMarker) {
+            return layer.getLatLng();
+        }
+        if (layer instanceof L.Polygon && !(layer instanceof L.Rectangle)) {
+            // Calculate centroid for non-rectangular polygons
+            const latlngs = layer.getLatLngs()[0];
+            
+            // If using a projection, calculate centroid in projected space for better accuracy
+            if (typeof currentproj !== 'undefined' && currentproj !== '4326' && typeof proj4 !== 'undefined') {
+                try {
+                    let totalX = 0, totalY = 0;
+                    for (let i = 0; i < latlngs.length; i++) {
+                        // Project WGS84 [lng, lat] to current EPSG [x, y]
+                        const projected = proj4('EPSG:4326', 'EPSG:' + currentproj, [latlngs[i].lng, latlngs[i].lat]);
+                        totalX += projected[0];
+                        totalY += projected[1];
+                    }
+                    const avgX = totalX / latlngs.length;
+                    const avgY = totalY / latlngs.length;
+                    
+                    // Un-project [x, y] back to [lng, lat]
+                    const unprojected = proj4('EPSG:' + currentproj, 'EPSG:4326', [avgX, avgY]);
+                    return L.latLng(unprojected[1], unprojected[0]);
+                } catch (e) {
+                    console.warn('Projected centroid calculation failed, falling back to WGS84 average:', e);
+                }
+            }
+
+            // Fallback: WGS84 average (simple centroid)
+            let lat = 0, lng = 0;
+            for (let i = 0; i < latlngs.length; i++) {
+                lat += latlngs[i].lat;
+                lng += latlngs[i].lng;
+            }
+            return L.latLng(lat / latlngs.length, lng / latlngs.length);
+        }
+        // Default to bounding box center for Rectangles or other types
+        return layer.getBounds().getCenter();
+    }
+
     function updateCenterMarker() {
         if (activeScreenshotLayer && bounds && bounds.getBounds().isValid()) {
-            const center = bounds.getBounds().getCenter();
+            const center = getGeometricCenter(activeScreenshotLayer);
 
             if (centerMarker) {
                 if (!isDraggingMarker) {
@@ -1940,25 +2245,43 @@ $(function () { // Modern equivalent of $(document).ready
                     isDraggingMarker = true;
                 });
 
+                function clampLat(lat) {
+                    return Math.max(-90, Math.min(90, lat));
+                }
+
+                function wrapLng(lng) {
+                    // Wrap longitude to [-180, 180] if it exceeds.
+                    // This allows "infinite" horizontal scrolling if the map supports it,
+                    // but for a bbox tool, capping at [-180, 180] is usually safer.
+                    return Math.max(-180, Math.min(180, lng));
+                }
+
                 // Update bbox in real-time while dragging
                 centerMarker.on('drag', function (e) {
                     if (!activeScreenshotLayer) return;
 
                     const newCenter = e.target.getLatLng();
+                    const currentCenter = getGeometricCenter(activeScreenshotLayer);
                     const currentBounds = activeScreenshotLayer.getBounds();
-                    const currentCenter = currentBounds.getCenter();
 
-                    // Calculate offset in lat/lng
-                    const latOffset = newCenter.lat - currentCenter.lat;
-                    const lngOffset = newCenter.lng - currentCenter.lng;
+                    // Calculate proposed offset in lat/lng
+                    let latOffset = newCenter.lat - currentCenter.lat;
+                    let lngOffset = newCenter.lng - currentCenter.lng;
 
-                    // Create new bounds with offset
+                    // DEFENSIVE: Clamp the move so it doesn't push the bbox out of the world
+                    // For rectangles/bounds, we check the corners
                     const sw = currentBounds.getSouthWest();
                     const ne = currentBounds.getNorthEast();
-                    const newBounds = L.latLngBounds(
-                        [sw.lat + latOffset, sw.lng + lngOffset],
-                        [ne.lat + latOffset, ne.lng + lngOffset]
-                    );
+
+                    if (sw.lat + latOffset < -90) latOffset = -90 - sw.lat;
+                    if (ne.lat + latOffset > 90) latOffset = 90 - ne.lat;
+                    if (sw.lng + lngOffset < -180) lngOffset = -180 - sw.lng;
+                    if (ne.lng + lngOffset > 180) lngOffset = 180 - ne.lng;
+
+                    // Create new bounds with offset
+                    const sw_clamped = [sw.lat + latOffset, sw.lng + lngOffset];
+                    const ne_clamped = [ne.lat + latOffset, ne.lng + lngOffset];
+                    const newBounds = L.latLngBounds(sw_clamped, ne_clamped);
 
                     // Update the actual drawn layer
                     if (activeScreenshotLayer instanceof L.Rectangle) {
@@ -1969,11 +2292,22 @@ $(function () { // Modern equivalent of $(document).ready
                             L.latLng(latlng.lat + latOffset, latlng.lng + lngOffset)
                         );
                         activeScreenshotLayer.setLatLngs([newLatLngs]);
+                    } else if (activeScreenshotLayer instanceof L.Circle) {
+                        const currentLatLng = activeScreenshotLayer.getLatLng();
+                        activeScreenshotLayer.setLatLng([currentLatLng.lat + latOffset, currentLatLng.lng + lngOffset]);
                     }
 
                     // Update bounds outline without triggering bounds-set event
                     bounds.setLatLngs(bounds._boundsToLatLngs(newBounds));
                     activeBounds = newBounds;
+
+                    // Update coordinate displays to match the NEW smarter center
+                    const smarterCenter = getGeometricCenter(activeScreenshotLayer);
+                    $('#center').text(formatPoint(smarterCenter, '4326'));
+                    $('#centermerc').text(formatPoint(smarterCenter, currentproj));
+
+                    // Snap marker to the actual resulting center (in case move was clamped)
+                    e.target.setLatLng(smarterCenter);
                 });
 
                 // Finalize when drag ends
@@ -1991,12 +2325,15 @@ $(function () { // Modern equivalent of $(document).ready
                     // Update coordinate displays
                     $('#boxbounds').text(formatBounds(newBounds, '4326'));
                     $('#boxboundsmerc').text(formatBounds(newBounds, currentproj));
+                    
+                    const smarterCenter = getGeometricCenter(activeScreenshotLayer);
+                    $('#center').text(formatPoint(smarterCenter, '4326'));
+                    $('#centermerc').text(formatPoint(smarterCenter, currentproj));
+
                     updateBboxInfo(newBounds);
 
                     // Update URL hash
-                    const sw = newBounds.getSouthWest();
-                    const ne = newBounds.getNorthEast();
-                    location.hash = `${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`;
+                    syncUrlHash();
 
                     // Save to recent
                     saveRecentBbox(newBounds);
@@ -2361,4 +2698,15 @@ function checkMcpDiscovery() {
 // Initialize MCP banner check on page load
 $(function () {
     checkMcpDiscovery();
+    checkMarkerDiscovery();
 });
+
+function checkMarkerDiscovery() {
+    const toastSeen = localStorage.getItem('marker_name_toast_shown');
+    if (!toastSeen) {
+        setTimeout(() => {
+            showToast("New: You can now name and share your map markers!", 'info', 5000);
+            localStorage.setItem('marker_name_toast_shown', 'true');
+        }, 4000);
+    }
+}

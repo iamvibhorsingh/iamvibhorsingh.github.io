@@ -1121,3 +1121,72 @@ body.dark-mode #mcp-banner {
         max-width: none;
     }
 }
+
+/* --- Marker Naming Popup --- */
+.marker-name-popup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 180px;
+    padding: 2px 0;
+}
+
+.marker-name-popup label {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--label-color, #555);
+}
+
+.marker-name-popup input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.marker-name-popup input[type="text"]:focus {
+    border-color: #0078A8;
+    box-shadow: 0 0 0 2px rgba(0, 120, 168, 0.15);
+}
+
+.marker-name-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.marker-btn-primary {
+    flex: 1;
+    padding: 5px 10px;
+    background: #0078A8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: background 0.2s;
+}
+
+.marker-btn-primary:hover {
+    background: #005f87;
+}
+
+.marker-btn-secondary {
+    flex: 1;
+    padding: 5px 10px;
+    background: var(--secondary-bg, #f0f0f0);
+    color: var(--text-color, #333);
+    border: 1px solid var(--border-color, #ccc);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.marker-btn-secondary:hover {
+    background: var(--border-color, #ccc);
+}
