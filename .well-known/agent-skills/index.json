@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+  "skills": [
+    {
+      "name": "bbox-mcp-server",
+      "type": "skill-md",
+      "description": "The geospatial toolkit for AI agents — query, convert, and verify spatial data with zero config. 6 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap queries, and shareable map verification links.",
+      "url": "https://vibhorsingh.com/.well-known/agent-skills/bbox-mcp/SKILL.md",
+      "digest": "sha256:f152c946a7d227178c7f01e81d71dbcf104d391e96d0aad55716e60d29b518f9"
+    }
+  ]
+}
