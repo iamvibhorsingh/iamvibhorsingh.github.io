@@ -1,0 +1,82 @@
+# bbox-mcp-server
+
+> The geospatial toolkit for AI agents — query, convert, and verify spatial data with zero config.
+
+**Version:** 1.3.0
+**Protocol:** Model Context Protocol (MCP)
+**Transport:** stdio
+**Install:** `npx -y bbox-mcp-server`
+**Homepage:** https://vibhorsingh.com/boundingbox/
+**Repository:** https://github.com/iamvibhorsingh/bbox-mcp-server
+**npm:** https://www.npmjs.com/package/bbox-mcp-server
+**License:** MIT
+**Agent Card:** https://vibhorsingh.com/.well-known/mcp-server-card.json
+
+## What This Server Does
+
+Gives any LLM or AI agent the ability to work with real geographic data using OpenStreetMap. No API keys required to start. Every response includes a shareable map link for visual verification.
+
+## Tools
+
+### get_bounds
+Convert and project a bounding box across 6 input formats, 9 output formats, and 3,900+ EPSG coordinate systems.
+- Inputs: `bbox` (coordinates/WKT/GeoJSON/ogrinfo) or `location` (natural language, requires Mapbox token)
+- Optional: `epsg`, `format`, `coord_order`, `zoom`, `precision`
+- Example: "Get the bounding box for Central Park in WKT projected to EPSG:3857"
+
+### get_h3_indices
+Generate Uber H3 hexagonal cell indices covering a bounding box.
+- Inputs: `bbox` or `location`, `resolution` (0–15)
+- Optional: `compact`, `return_geometry`
+- Example: "Give me H3 cells at resolution 7 for downtown Chicago"
+
+### generate_share_url
+Generate a shareable link to visualize a bounding box on an interactive map.
+- Inputs: `bbox`
+- Example: "Generate a share link for bbox 40.7128,-74.0060,40.7580,-73.9855"
+
+### search_overpass
+Query OpenStreetMap via Overpass QL within a bounding box or radius. Returns names, coordinates, tags, and a map link pinning each result.
+- Inputs: `bbox` or `location`, `query` (Overpass QL)
+- Optional: `radius_meters` (for circle search), `limit`, `return_geometry`
+- Example: "Find all parking within 2km of JFK airport"
+- Example: "Find hospitals in Manhattan"
+
+### list_osm_tags
+Look up correct OpenStreetMap tags for a category before writing an Overpass query.
+- Inputs: `category` (e.g. "food", "health", "transport", "leisure", "retail")
+- Example: "What are the correct OSM tags for supermarkets?"
+
+### aggregate_overpass_h3
+Run an Overpass query and bin results into H3 hexagons for spatial density analysis.
+- Inputs: `bbox` or `location`, `query` (Overpass QL), `resolution` (H3 level)
+- Example: "Aggregate all hospitals in Seattle into H3 bins at resolution 7"
+
+## Configuration
+
+Optional environment variables:
+- `MAPBOX_ACCESS_TOKEN` — Enables natural language location search. Get a free token at mapbox.com.
+- `OVERPASS_API_URL` — Custom Overpass endpoint. Defaults to rotating between overpass-api.de and kumi.systems.
+- `MAX_H3_CELLS` — Safety cap for H3 grid generation. Default: 50000.
+
+## Supported Input Formats
+
+All tools accept any of these automatically:
+- Raw coordinates: `40.7128,-74.0060,40.7580,-73.9855`
+- WKT: `POLYGON((-74.006 40.712, ...))`
+- GeoJSON (Feature, FeatureCollection, Geometry, or `{"bbox": [...]}`)
+- ogrinfo extent: `Extent: (-74.006, 40.712) - (-73.985, 40.758)`
+
+## Data Sources
+
+- **OpenStreetMap** (ODbL) — https://openstreetmap.org
+- **Overpass API** (free, public) — https://overpass-api.de
+- **Mapbox Geocoding** (optional, requires token) — https://mapbox.com
+
+## Notes for AI Agents
+
+- `search_overpass` accepts Overpass QL *without* spatial filters — the server wraps them automatically.
+- Use `list_osm_tags` before writing Overpass queries to avoid hallucinated tags.
+- Use `radius_meters` only when the user specifies an explicit distance. Omit it for vague terms like "near".
+- All errors return `isError: true` with a descriptive message. The server never crashes on bad input.
+- Logs go to stderr; stdout is reserved for the MCP protocol.

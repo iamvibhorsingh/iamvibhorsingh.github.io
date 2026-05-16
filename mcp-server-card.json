@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0",
+  "name": "bbox-mcp-server",
+  "display_name": "Bounding Box MCP Server",
+  "version": "1.3.0",
+  "description": "The geospatial toolkit for AI agents — query, convert, and verify spatial data with zero config. 6 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap queries, and shareable map verification links.",
+  "homepage": "https://vibhorsingh.com/boundingbox/",
+  "repository": "https://github.com/iamvibhorsingh/bbox-mcp-server",
+  "npm": "https://www.npmjs.com/package/bbox-mcp-server",
+  "author": {
+    "name": "Vibhor Singh",
+    "url": "https://vibhorsingh.com"
+  },
+  "license": "MIT",
+  "protocol": "mcp",
+  "protocol_version": "2024-11-05",
+  "transport": ["stdio"],
+  "installation": {
+    "npx": "npx -y bbox-mcp-server",
+    "npm_global": "npm install -g bbox-mcp-server"
+  },
+  "configuration": {
+    "env": {
+      "MAPBOX_ACCESS_TOKEN": {
+        "description": "Enables natural language location search (e.g. 'San Francisco'). Optional — if omitted, provide explicit coordinates via bbox.",
+        "required": false,
+        "sensitive": true
+      },
+      "OVERPASS_API_URL": {
+        "description": "Custom Overpass API endpoint. Defaults to rotating between overpass-api.de and kumi.systems.",
+        "required": false,
+        "sensitive": false
+      },
+      "MAX_H3_CELLS": {
+        "description": "Safety cap for H3 grid generation. Defaults to 50000.",
+        "required": false,
+        "sensitive": false
+      }
+    }
+  },
+  "capabilities": {
+    "tools": [
+      {
+        "name": "get_bounds",
+        "description": "Convert and project a bounding box across 6 input formats, 9 output formats, and 3,900+ coordinate systems (EPSG codes). Returns center point, tile indices, area, and a shareable map verification link.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "location": { "type": "string", "description": "Natural language location (e.g. 'New York City'). Requires MAPBOX_ACCESS_TOKEN." },
+            "bbox": { "type": "string", "description": "Geometry to parse: raw lat1,lng1,lat2,lng2 string, WKT, GeoJSON, or ogrinfo extent." },
+            "epsg": { "type": "string", "description": "Target EPSG projection code (e.g. '3857'). Defaults to '4326'." },
+            "format": { "type": "string", "enum": ["wkt", "geojson-bbox", "leaflet", "overpass", "ogc-bbox", "kml", "geojson-polygon", "csv", "stac-bbox"], "description": "Output format. Default: csv." },
+            "coord_order": { "type": "string", "enum": ["lng,lat", "lat,lng"], "description": "Coordinate ordering. Default: lng,lat." },
+            "zoom": { "type": "number", "description": "Zoom level for tile coordinate calculation (0–22). Default: 15." },
+            "precision": { "type": "number", "description": "Decimal places in output. Default: 6." }
+          },
+          "oneOf": [{ "required": ["location"] }, { "required": ["bbox"] }]
+        }
+      },
+      {
+        "name": "get_h3_indices",
+        "description": "Generate Uber H3 hexagonal cell indices covering a bounding box at a specified resolution. Optionally returns GeoJSON hex boundary polygons.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "location": { "type": "string", "description": "Natural language location. Requires MAPBOX_ACCESS_TOKEN." },
+            "bbox": { "type": "string", "description": "Geometry to parse: raw coordinates, WKT, GeoJSON, or ogrinfo extent." },
+            "resolution": { "type": "number", "description": "H3 resolution level (0–15)." },
+            "compact": { "type": "boolean", "description": "Return compacted cells (mixed resolutions) to minimize response size. Default: false." },
+            "return_geometry": { "type": "boolean", "description": "Include GeoJSON hex boundary polygons. Default: false." }
+          },
+          "required": ["resolution"],
+          "oneOf": [{ "required": ["location"] }, { "required": ["bbox"] }]
+        }
+      },
+      {
+        "name": "generate_share_url",
+        "description": "Generate a shareable map link to visualize a bounding box on vibhorsingh.com/boundingbox. Useful for verifying results visually.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "bbox": { "type": "string", "description": "Geometry to parse: raw coordinates, WKT, GeoJSON, or ogrinfo extent." }
+          },
+          "required": ["bbox"]
+        }
+      },
+      {
+        "name": "search_overpass",
+        "description": "Execute an Overpass QL query to find POIs, roads, or other OSM features within a bounding box or radius. Returns structured JSON with names, coordinates, tags, and a shareable map link pinning each result.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "location": { "type": "string", "description": "Natural language location (e.g. 'JFK Airport'). Requires MAPBOX_ACCESS_TOKEN." },
+            "bbox": { "type": "string", "description": "Geometry to parse: raw coordinates, WKT, GeoJSON, or ogrinfo extent." },
+            "query": { "type": "string", "description": "Overpass QL core query (e.g. nwr[\"amenity\"=\"cafe\"]). Do not include spatial filters — the server adds them automatically." },
+            "radius_meters": { "type": "number", "description": "Search radius in metres for circle mode. Use only when the user specifies an explicit distance." },
+            "limit": { "type": "number", "description": "Max elements to return. Default: 100." },
+            "return_geometry": { "type": "boolean", "description": "Return full polygon/polyline geometry for ways and relations. Default: false." }
+          },
+          "required": ["query"],
+          "oneOf": [{ "required": ["location"] }, { "required": ["bbox"] }]
+        }
+      },
+      {
+        "name": "list_osm_tags",
+        "description": "Look up the correct OpenStreetMap tags for a given category before writing an Overpass query. Prevents hallucinated or incorrect tag usage.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "category": { "type": "string", "description": "Broad category (e.g. 'food', 'health', 'transport', 'leisure', 'retail')." }
+          },
+          "required": ["category"]
+        }
+      },
+      {
+        "name": "aggregate_overpass_h3",
+        "description": "Run an Overpass query and bin results into H3 hexagons for spatial density analysis. Returns counts per cell and GeoJSON hex boundaries.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "location": { "type": "string", "description": "Natural language location. Requires MAPBOX_ACCESS_TOKEN." },
+            "bbox": { "type": "string", "description": "Bounding box geometry to parse." },
+            "query": { "type": "string", "description": "Overpass QL core query (e.g. nwr[\"amenity\"=\"cafe\"])." },
+            "resolution": { "type": "number", "description": "H3 resolution level (0–15) for binning. Default: 8." }
+          },
+          "required": ["query", "resolution"],
+          "oneOf": [{ "required": ["location"] }, { "required": ["bbox"] }]
+        }
+      }
+    ]
+  },
+  "data_sources": [
+    {
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org",
+      "license": "ODbL",
+      "description": "Global crowd-sourced geographic data. Free and open."
+    },
+    {
+      "name": "Overpass API",
+      "url": "https://overpass-api.de",
+      "description": "Read-only API for OpenStreetMap data. Public, free, rate-limited."
+    },
+    {
+      "name": "Mapbox Geocoding API",
+      "url": "https://docs.mapbox.com/api/search/geocoding/",
+      "description": "Used only when MAPBOX_ACCESS_TOKEN is set. Optional dependency for natural language location search."
+    }
+  ],
+  "keywords": ["mcp", "geospatial", "bounding-box", "openstreetmap", "overpass", "h3", "geocoding", "gis", "coordinates", "epsg", "wkt", "geojson", "ai-agents"],
+  "verification_url": "https://vibhorsingh.com/boundingbox/"
+}
