@@ -1,0 +1,39 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://vibhorsingh.com/boundingbox/",
+      "service-desc": [
+        {
+          "href": "https://vibhorsingh.com/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://vibhorsingh.com/llms.txt",
+          "type": "text/plain"
+        }
+      ],
+      "mcp-server-card": [
+        {
+          "href": "https://vibhorsingh.com/.well-known/mcp/server-card.json"
+        }
+      ]
+    },
+    {
+      "anchor": "https://vibhorsingh.com/",
+      "describedby": [
+        {
+          "href": "https://vibhorsingh.com/.well-known/mcp/server-card.json",
+          "type": "application/json"
+        }
+      ],
+      "service-doc": [
+        {
+          "href": "https://vibhorsingh.com/llms.txt",
+          "type": "text/plain"
+        }
+      ]
+    }
+  ]
+}

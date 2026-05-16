@@ -119,6 +119,12 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="index.css">
+
+    <!-- Agent Discovery Link Relations (RFC 8288 §4.2 HTML equivalent of Link headers) -->
+    <link rel="api-catalog" href="/.well-known/api-catalog" type="application/linkset+json">
+    <link rel="describedby" href="/.well-known/mcp/server-card.json" type="application/json">
+    <link rel="service-doc" href="/llms.txt" type="text/plain">
+    <link rel="https://modelcontextprotocol.io/mcp-server-card" href="/.well-known/mcp/server-card.json" type="application/json">
 </head>
 
 <body>

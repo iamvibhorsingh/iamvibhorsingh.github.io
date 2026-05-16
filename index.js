@@ -367,3 +367,85 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ===== WebMCP — Expose site tools to AI agents via the browser =====
+// https://webmachinelearning.github.io/webmcp/
+if (typeof navigator !== 'undefined' && navigator.modelContext) {
+    const controller = new AbortController();
+
+    navigator.modelContext.registerTool({
+        name: 'navigate_to_section',
+        description: 'Scroll to a named section of the portfolio page. Sections: about, work (projects), blog (write-ups), gallery, contact.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                section: {
+                    type: 'string',
+                    enum: ['about', 'work', 'blog', 'gallery', 'contact'],
+                    description: 'The section to navigate to.'
+                }
+            },
+            required: ['section']
+        },
+        execute({ section }) {
+            const sectionMap = {
+                about:   '#about_container',
+                work:    '#work_container',
+                blog:    '#blog_container',
+                gallery: '#gallery_container',
+                contact: '#contact_container'
+            };
+            const el = document.querySelector(sectionMap[section]);
+            if (!el) return { error: `Section "${section}" not found.` };
+            const offset = 80;
+            const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
+            window.scrollTo({ top, behavior: 'smooth' });
+            return { navigated: section };
+        },
+        signal: controller.signal
+    });
+
+    navigator.modelContext.registerTool({
+        name: 'open_tool',
+        description: 'Open one of the developer tools built by Vibhor Singh: BoundingBox (GIS coordinate tool), Supercharged Overpass (OSM query tool for GeoGuessr), or LookStuffUp (Chrome extension).',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                tool: {
+                    type: 'string',
+                    enum: ['boundingbox', 'supercharged-overpass', 'lookstuffup'],
+                    description: 'The tool to open.'
+                }
+            },
+            required: ['tool']
+        },
+        execute({ tool }) {
+            const urls = {
+                'boundingbox':          '/boundingbox/',
+                'supercharged-overpass': '/supercharged-overpass/',
+                'lookstuffup':          'https://chromewebstore.google.com/detail/lookstuffup/boagbbfpkdeklbfneiegcdgmfofckhfc'
+            };
+            const url = urls[tool];
+            if (!url) return { error: `Unknown tool "${tool}".` };
+            window.open(url, '_blank', 'noopener,noreferrer');
+            return { opened: tool, url };
+        },
+        signal: controller.signal
+    });
+
+    navigator.modelContext.registerTool({
+        name: 'get_contact_info',
+        description: 'Return contact and social profile links for Vibhor Singh.',
+        inputSchema: { type: 'object', properties: {} },
+        execute() {
+            return {
+                email:    'contact@vibhorsingh.com',
+                linkedin: 'https://www.linkedin.com/in/iamvibhorsingh/',
+                github:   'https://github.com/iamvibhorsingh',
+                website:  'https://vibhorsingh.com'
+            };
+        },
+        signal: controller.signal
+    });
+}
+
