@@ -1,0 +1,98 @@
+{
+  "code": "KWT",
+  "iso2": "KW",
+  "name": "Kuwait",
+  "births": 49342.0,
+  "urban_pct": 100.0,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 84.580487804878,
+    "life_exp_female": 85.4,
+    "life_exp_male": 83.8,
+    "under5_mortality": 8.1,
+    "maternal_mortality": 8.0,
+    "electricity_total": 100.0,
+    "electricity_rural": 100.0,
+    "electricity_urban": 100.0,
+    "water_basic": 100.0,
+    "sanitation_basic": 100.0,
+    "schooling": 14.69398,
+    "democracy_index": 2.78,
+    "conflict_deaths": 13.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 52443.5969223626
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": []
+}

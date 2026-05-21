@@ -1,0 +1,92 @@
+{
+  "code": "ATG",
+  "iso2": "AG",
+  "name": "Antigua and Barbuda",
+  "births": 1106.0,
+  "urban_pct": 24.3906919254799,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 77.766,
+    "life_exp_female": 80.446,
+    "life_exp_male": 74.742,
+    "under5_mortality": 9.1,
+    "maternal_mortality": 35.0,
+    "electricity_total": 100.0,
+    "electricity_rural": 100.0,
+    "electricity_urban": 100.0,
+    "water_basic": 98.9227269324043,
+    "sanitation_basic": 99.6057190215246,
+    "schooling": 12.0,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 33386.1917127894
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

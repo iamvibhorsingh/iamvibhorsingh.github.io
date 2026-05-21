@@ -1,0 +1,92 @@
+{
+  "code": "PRK",
+  "iso2": "KP",
+  "name": "North Korea",
+  "births": 342038.0,
+  "urban_pct": 63.8589748211522,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 73.743,
+    "life_exp_female": 75.88,
+    "life_exp_male": 71.553,
+    "under5_mortality": 16.7,
+    "maternal_mortality": 67.0,
+    "electricity_total": 57.5,
+    "electricity_rural": 57.5,
+    "electricity_urban": 57.5,
+    "water_basic": 93.9109177513255,
+    "sanitation_basic": 84.8184516885649,
+    "schooling": 10.78317,
+    "democracy_index": 1.08,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 0.1,
+    "gdp_pc_ppp": 600.0
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2017
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": [
+    "gdp_pc_ppp"
+  ]
+}

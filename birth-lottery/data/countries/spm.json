@@ -1,0 +1,45 @@
+{
+  "code": "SPM",
+  "iso2": "SP",
+  "name": "Saint Pierre and Miquelon",
+  "births": 30.0,
+  "urban_pct": 50.0,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 72.0,
+    "life_exp_female": 74.5,
+    "life_exp_male": 69.5,
+    "under5_mortality": 25.0,
+    "maternal_mortality": 150.0,
+    "electricity_total": 85.0,
+    "electricity_rural": 80.0,
+    "electricity_urban": 95.0,
+    "water_basic": 88.0,
+    "sanitation_basic": 78.0,
+    "schooling": 12.0,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 46200.0
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {},
+  "data_gaps": [
+    "life_exp",
+    "under5_mortality",
+    "schooling",
+    "gdp_pc_ppp",
+    "electricity_total",
+    "water_basic",
+    "sanitation_basic"
+  ]
+}

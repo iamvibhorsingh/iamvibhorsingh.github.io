@@ -1,0 +1,92 @@
+{
+  "code": "LBY",
+  "iso2": "LY",
+  "name": "Libya",
+  "births": 124371.0,
+  "urban_pct": 87.8854066107749,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 71.121,
+    "life_exp_female": 72.679,
+    "life_exp_male": 69.625,
+    "under5_mortality": 9.8,
+    "maternal_mortality": 59.0,
+    "electricity_total": 73.2,
+    "electricity_rural": 73.2,
+    "electricity_urban": 100.0,
+    "water_basic": 96.3545440861619,
+    "sanitation_basic": 88.4991460432787,
+    "schooling": 12.0,
+    "democracy_index": 2.31,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 14303.8087736988
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

@@ -1,0 +1,1654 @@
+[
+  {
+    "code": "IND",
+    "iso2": "IN",
+    "name": "India",
+    "births": 23219488.0,
+    "weight": 0.17581405253497273
+  },
+  {
+    "code": "CHN",
+    "iso2": "CN",
+    "name": "China",
+    "births": 8899881.0,
+    "weight": 0.06738840002367863
+  },
+  {
+    "code": "NGA",
+    "iso2": "NG",
+    "name": "Nigeria",
+    "births": 7509758.0,
+    "weight": 0.056862622790689085
+  },
+  {
+    "code": "PAK",
+    "iso2": "PK",
+    "name": "Pakistan",
+    "births": 6882058.0,
+    "weight": 0.05210978410724342
+  },
+  {
+    "code": "IDN",
+    "iso2": "ID",
+    "name": "Indonesia",
+    "births": 4482359.0,
+    "weight": 0.033939667433950646
+  },
+  {
+    "code": "COD",
+    "iso2": "CD",
+    "name": "Democratic Republic of Congo",
+    "births": 4369683.0,
+    "weight": 0.03308650373872057
+  },
+  {
+    "code": "ETH",
+    "iso2": "ET",
+    "name": "Ethiopia",
+    "births": 4105685.0,
+    "weight": 0.031087555344977872
+  },
+  {
+    "code": "USA",
+    "iso2": "US",
+    "name": "United States",
+    "births": 3657476.0,
+    "weight": 0.02769379228385234
+  },
+  {
+    "code": "BGD",
+    "iso2": "BD",
+    "name": "Bangladesh",
+    "births": 3489953.0,
+    "weight": 0.026425336341894607
+  },
+  {
+    "code": "BRA",
+    "iso2": "BR",
+    "name": "Brazil",
+    "births": 2601670.0,
+    "weight": 0.019699407069555648
+  },
+  {
+    "code": "EGY",
+    "iso2": "EG",
+    "name": "Egypt",
+    "births": 2405717.0,
+    "weight": 0.018215683955747734
+  },
+  {
+    "code": "TZA",
+    "iso2": "TZ",
+    "name": "Tanzania",
+    "births": 2346391.0,
+    "weight": 0.017766477475368414
+  },
+  {
+    "code": "MEX",
+    "iso2": "MX",
+    "name": "Mexico",
+    "births": 2037689.0,
+    "weight": 0.015429037922624999
+  },
+  {
+    "code": "PHL",
+    "iso2": "PH",
+    "name": "Philippines",
+    "births": 1840477.0,
+    "weight": 0.0139357818728565
+  },
+  {
+    "code": "UGA",
+    "iso2": "UG",
+    "name": "Uganda",
+    "births": 1712750.0,
+    "weight": 0.012968654540499539
+  },
+  {
+    "code": "SDN",
+    "iso2": "SD",
+    "name": "Sudan",
+    "births": 1682049.0,
+    "weight": 0.012736191739128716
+  },
+  {
+    "code": "KEN",
+    "iso2": "KE",
+    "name": "Kenya",
+    "births": 1499998.0,
+    "weight": 0.011357732227961014
+  },
+  {
+    "code": "AFG",
+    "iso2": "AF",
+    "name": "Afghanistan",
+    "births": 1469029.0,
+    "weight": 0.011123240175726462
+  },
+  {
+    "code": "VNM",
+    "iso2": "VN",
+    "name": "Vietnam",
+    "births": 1387961.0,
+    "weight": 0.010509406933111242
+  },
+  {
+    "code": "YEM",
+    "iso2": "YE",
+    "name": "Yemen",
+    "births": 1386914.0,
+    "weight": 0.010501479225445849
+  },
+  {
+    "code": "AGO",
+    "iso2": "AO",
+    "name": "Angola",
+    "births": 1381370.0,
+    "weight": 0.010459500991160326
+  },
+  {
+    "code": "RUS",
+    "iso2": "RU",
+    "name": "Russia",
+    "births": 1297207.0,
+    "weight": 0.009822232929801656
+  },
+  {
+    "code": "MOZ",
+    "iso2": "MZ",
+    "name": "Mozambique",
+    "births": 1260855.0,
+    "weight": 0.009546981708166135
+  },
+  {
+    "code": "ZAF",
+    "iso2": "ZA",
+    "name": "South Africa",
+    "births": 1186793.0,
+    "weight": 0.00898619671760798
+  },
+  {
+    "code": "IRN",
+    "iso2": "IR",
+    "name": "Iran",
+    "births": 1173463.0,
+    "weight": 0.008885264202632148
+  },
+  {
+    "code": "IRQ",
+    "iso2": "IQ",
+    "name": "Iraq",
+    "births": 1159682.0,
+    "weight": 0.008780916791613245
+  },
+  {
+    "code": "NER",
+    "iso2": "NE",
+    "name": "Niger",
+    "births": 1095892.0,
+    "weight": 0.008297909655055974
+  },
+  {
+    "code": "TUR",
+    "iso2": "TR",
+    "name": "Turkey",
+    "births": 1072014.0,
+    "weight": 0.00811710946056288
+  },
+  {
+    "code": "MDG",
+    "iso2": "MG",
+    "name": "Madagascar",
+    "births": 1001244.0,
+    "weight": 0.0075812509395696516
+  },
+  {
+    "code": "CIV",
+    "iso2": "CI",
+    "name": "Cote d'Ivoire",
+    "births": 997001.0,
+    "weight": 0.007549123658171117
+  },
+  {
+    "code": "CMR",
+    "iso2": "CM",
+    "name": "Cameroon",
+    "births": 957392.0,
+    "weight": 0.007249210981076009
+  },
+  {
+    "code": "MLI",
+    "iso2": "ML",
+    "name": "Mali",
+    "births": 951445.0,
+    "weight": 0.00720418129866331
+  },
+  {
+    "code": "UZB",
+    "iso2": "UZ",
+    "name": "Uzbekistan",
+    "births": 943547.0,
+    "weight": 0.0071443789728359176
+  },
+  {
+    "code": "DZA",
+    "iso2": "DZ",
+    "name": "Algeria",
+    "births": 905981.0,
+    "weight": 0.006859935547660962
+  },
+  {
+    "code": "MMR",
+    "iso2": "MM",
+    "name": "Myanmar",
+    "births": 903822.0,
+    "weight": 0.006843587963277404
+  },
+  {
+    "code": "GHA",
+    "iso2": "GH",
+    "name": "Ghana",
+    "births": 888947.0,
+    "weight": 0.006730956968508798
+  },
+  {
+    "code": "TCD",
+    "iso2": "TD",
+    "name": "Chad",
+    "births": 819054.0,
+    "weight": 0.006201738943812179
+  },
+  {
+    "code": "SOM",
+    "iso2": "SO",
+    "name": "Somalia",
+    "births": 788763.0,
+    "weight": 0.0059723805933896
+  },
+  {
+    "code": "JPN",
+    "iso2": "JP",
+    "name": "Japan",
+    "births": 749884.0,
+    "weight": 0.005677995353348683
+  },
+  {
+    "code": "BFA",
+    "iso2": "BF",
+    "name": "Burkina Faso",
+    "births": 728612.0,
+    "weight": 0.005516927351955889
+  },
+  {
+    "code": "DEU",
+    "iso2": "DE",
+    "name": "Germany",
+    "births": 719249.0,
+    "weight": 0.005446032292862212
+  },
+  {
+    "code": "COL",
+    "iso2": "CO",
+    "name": "Colombia",
+    "births": 705009.0,
+    "weight": 0.0053382094111475925
+  },
+  {
+    "code": "GBR",
+    "iso2": "GB",
+    "name": "United Kingdom",
+    "births": 688388.0,
+    "weight": 0.005212357998438416
+  },
+  {
+    "code": "ZMB",
+    "iso2": "ZM",
+    "name": "Zambia",
+    "births": 685565.0,
+    "weight": 0.005190982717885019
+  },
+  {
+    "code": "MWI",
+    "iso2": "MW",
+    "name": "Malawi",
+    "births": 662289.0,
+    "weight": 0.005014740766003736
+  },
+  {
+    "code": "FRA",
+    "iso2": "FR",
+    "name": "France",
+    "births": 638891.0,
+    "weight": 0.004837575050669561
+  },
+  {
+    "code": "MAR",
+    "iso2": "MA",
+    "name": "Morocco",
+    "births": 629832.0,
+    "weight": 0.0047689818283765326
+  },
+  {
+    "code": "THA",
+    "iso2": "TH",
+    "name": "Thailand",
+    "births": 591200.0,
+    "weight": 0.004476466830736142
+  },
+  {
+    "code": "NPL",
+    "iso2": "NP",
+    "name": "Nepal",
+    "births": 574297.0,
+    "weight": 0.0043484801615210995
+  },
+  {
+    "code": "SAU",
+    "iso2": "SA",
+    "name": "Saudi Arabia",
+    "births": 546038.0,
+    "weight": 0.004134507772871282
+  },
+  {
+    "code": "PER",
+    "iso2": "PE",
+    "name": "Peru",
+    "births": 539623.0,
+    "weight": 0.004085934473278635
+  },
+  {
+    "code": "SEN",
+    "iso2": "SN",
+    "name": "Senegal",
+    "births": 531890.0,
+    "weight": 0.0040273814996621225
+  },
+  {
+    "code": "SYR",
+    "iso2": "SY",
+    "name": "Syria",
+    "births": 521601.0,
+    "weight": 0.003949474924524361
+  },
+  {
+    "code": "ARG",
+    "iso2": "AR",
+    "name": "Argentina",
+    "births": 503823.0,
+    "weight": 0.0038148629026758716
+  },
+  {
+    "code": "ZWE",
+    "iso2": "ZW",
+    "name": "Zimbabwe",
+    "births": 496917.0,
+    "weight": 0.003762571833776914
+  },
+  {
+    "code": "GIN",
+    "iso2": "GN",
+    "name": "Guinea",
+    "births": 487595.0,
+    "weight": 0.00369198721977806
+  },
+  {
+    "code": "BEN",
+    "iso2": "BJ",
+    "name": "Benin",
+    "births": 478062.0,
+    "weight": 0.0036198049493155983
+  },
+  {
+    "code": "BDI",
+    "iso2": "BI",
+    "name": "Burundi",
+    "births": 460882.0,
+    "weight": 0.003489720882752596
+  },
+  {
+    "code": "MYS",
+    "iso2": "MY",
+    "name": "Malaysia",
+    "births": 435989.0,
+    "weight": 0.003301235279204702
+  },
+  {
+    "code": "VEN",
+    "iso2": "VE",
+    "name": "Venezuela",
+    "births": 426984.0,
+    "weight": 0.003233050935817052
+  },
+  {
+    "code": "KAZ",
+    "iso2": "KZ",
+    "name": "Kazakhstan",
+    "births": 409417.0,
+    "weight": 0.0031000365704321703
+  },
+  {
+    "code": "RWA",
+    "iso2": "RW",
+    "name": "Rwanda",
+    "births": 395578.0,
+    "weight": 0.002995249993181566
+  },
+  {
+    "code": "ITA",
+    "iso2": "IT",
+    "name": "Italy",
+    "births": 384627.0,
+    "weight": 0.002912330865537128
+  },
+  {
+    "code": "GTM",
+    "iso2": "GT",
+    "name": "Guatemala",
+    "births": 377167.0,
+    "weight": 0.0028558450019422507
+  },
+  {
+    "code": "KHM",
+    "iso2": "KH",
+    "name": "Cambodia",
+    "births": 361586.0,
+    "weight": 0.0027378682940773997
+  },
+  {
+    "code": "CAN",
+    "iso2": "CA",
+    "name": "Canada",
+    "births": 356745.0,
+    "weight": 0.002701213057393378
+  },
+  {
+    "code": "PRK",
+    "iso2": "KP",
+    "name": "North Korea",
+    "births": 342038.0,
+    "weight": 0.0025898541303303936
+  },
+  {
+    "code": "ESP",
+    "iso2": "ES",
+    "name": "Spain",
+    "births": 336821.0,
+    "weight": 0.0025503518849718846
+  },
+  {
+    "code": "SSD",
+    "iso2": "SS",
+    "name": "South Sudan",
+    "births": 328308.0,
+    "weight": 0.0024858928827221267
+  },
+  {
+    "code": "LKA",
+    "iso2": "LK",
+    "name": "Sri Lanka",
+    "births": 324102.0,
+    "weight": 0.0024540457590920928
+  },
+  {
+    "code": "POL",
+    "iso2": "PL",
+    "name": "Poland",
+    "births": 317916.0,
+    "weight": 0.0024072064089315144
+  },
+  {
+    "code": "AUS",
+    "iso2": "AU",
+    "name": "Australia",
+    "births": 304340.0,
+    "weight": 0.0023044112233867346
+  },
+  {
+    "code": "TJK",
+    "iso2": "TJ",
+    "name": "Tajikistan",
+    "births": 271420.0,
+    "weight": 0.0020551465277374894
+  },
+  {
+    "code": "ECU",
+    "iso2": "EC",
+    "name": "Ecuador",
+    "births": 270300.0,
+    "weight": 0.002046666076366677
+  },
+  {
+    "code": "TGO",
+    "iso2": "TG",
+    "name": "Togo",
+    "births": 268455.0,
+    "weight": 0.002032696047099579
+  },
+  {
+    "code": "BOL",
+    "iso2": "BO",
+    "name": "Bolivia",
+    "births": 260151.0,
+    "weight": 0.0019698195576502674
+  },
+  {
+    "code": "SLE",
+    "iso2": "SL",
+    "name": "Sierra Leone",
+    "births": 258903.0,
+    "weight": 0.001960369911837076
+  },
+  {
+    "code": "HTI",
+    "iso2": "HT",
+    "name": "Haiti",
+    "births": 258348.0,
+    "weight": 0.0019561675453095752
+  },
+  {
+    "code": "PNG",
+    "iso2": "PG",
+    "name": "Papua New Guinea",
+    "births": 255331.0,
+    "weight": 0.0019333233294294484
+  },
+  {
+    "code": "CAF",
+    "iso2": "CF",
+    "name": "Central African Republic",
+    "births": 238858.0,
+    "weight": 0.0018085925477942717
+  },
+  {
+    "code": "KOR",
+    "iso2": "KR",
+    "name": "South Korea",
+    "births": 236394.0,
+    "weight": 0.0017899355547784837
+  },
+  {
+    "code": "JOR",
+    "iso2": "JO",
+    "name": "Jordan",
+    "births": 235776.0,
+    "weight": 0.0017852561628613746
+  },
+  {
+    "code": "HND",
+    "iso2": "HN",
+    "name": "Honduras",
+    "births": 233793.0,
+    "weight": 0.0017702412208360874
+  },
+  {
+    "code": "UKR",
+    "iso2": "UA",
+    "name": "Ukraine",
+    "births": 212231.0,
+    "weight": 0.0016069773882847803
+  },
+  {
+    "code": "DOM",
+    "iso2": "DO",
+    "name": "Dominican Republic",
+    "births": 203183.0,
+    "weight": 0.0015384674561391433
+  },
+  {
+    "code": "COG",
+    "iso2": "CG",
+    "name": "Congo",
+    "births": 189365.0,
+    "weight": 0.0014338398873517415
+  },
+  {
+    "code": "ROU",
+    "iso2": "RO",
+    "name": "Romania",
+    "births": 183623.0,
+    "weight": 0.0013903624304131641
+  },
+  {
+    "code": "CHL",
+    "iso2": "CL",
+    "name": "Chile",
+    "births": 176196.0,
+    "weight": 0.0013341264372604624
+  },
+  {
+    "code": "MRT",
+    "iso2": "MR",
+    "name": "Mauritania",
+    "births": 172885.0,
+    "weight": 0.001309056102895497
+  },
+  {
+    "code": "ISR",
+    "iso2": "IL",
+    "name": "Israel",
+    "births": 172312.0,
+    "weight": 0.0013047174433995366
+  },
+  {
+    "code": "LBR",
+    "iso2": "LR",
+    "name": "Liberia",
+    "births": 170065.0,
+    "weight": 0.0012877035378368437
+  },
+  {
+    "code": "NLD",
+    "iso2": "NL",
+    "name": "Netherlands",
+    "births": 167842.0,
+    "weight": 0.0012708713562320968
+  },
+  {
+    "code": "TUN",
+    "iso2": "TN",
+    "name": "Tunisia",
+    "births": 167729.0,
+    "weight": 0.0012700157392634343
+  },
+  {
+    "code": "LAO",
+    "iso2": "LA",
+    "name": "Laos",
+    "births": 163043.0,
+    "weight": 0.0012345341364744804
+  },
+  {
+    "code": "TKM",
+    "iso2": "TM",
+    "name": "Turkmenistan",
+    "births": 160100.0,
+    "weight": 0.0012122502361313538
+  },
+  {
+    "code": "KGZ",
+    "iso2": "KG",
+    "name": "Kyrgyzstan",
+    "births": 150759.0,
+    "weight": 0.0011415217573324595
+  },
+  {
+    "code": "PSE",
+    "iso2": "PS",
+    "name": "Palestine",
+    "births": 146384.0,
+    "weight": 0.0011083949941652223
+  },
+  {
+    "code": "PRY",
+    "iso2": "PY",
+    "name": "Paraguay",
+    "births": 136778.0,
+    "weight": 0.001035659979997341
+  },
+  {
+    "code": "TWN",
+    "iso2": "TW",
+    "name": "Taiwan",
+    "births": 132404.0,
+    "weight": 0.001002540788661685
+  },
+  {
+    "code": "NIC",
+    "iso2": "NI",
+    "name": "Nicaragua",
+    "births": 132214.0,
+    "weight": 0.0010011021406612793
+  },
+  {
+    "code": "AZE",
+    "iso2": "AZ",
+    "name": "Azerbaijan",
+    "births": 125136.0,
+    "weight": 0.0009475087167303753
+  },
+  {
+    "code": "LBY",
+    "iso2": "LY",
+    "name": "Libya",
+    "births": 124371.0,
+    "weight": 0.000941716265570847
+  },
+  {
+    "code": "ARE",
+    "iso2": "AE",
+    "name": "United Arab Emirates",
+    "births": 104015.0,
+    "weight": 0.0007875840619063258
+  },
+  {
+    "code": "BEL",
+    "iso2": "BE",
+    "name": "Belgium",
+    "births": 101686.0,
+    "weight": 0.000769949266153984
+  },
+  {
+    "code": "SLV",
+    "iso2": "SV",
+    "name": "El Salvador",
+    "births": 99428.0,
+    "weight": 0.0007528520704438991
+  },
+  {
+    "code": "ERI",
+    "iso2": "ER",
+    "name": "Eritrea",
+    "births": 99058.0,
+    "weight": 0.0007500504927588984
+  },
+  {
+    "code": "SWE",
+    "iso2": "SE",
+    "name": "Sweden",
+    "births": 97915.0,
+    "weight": 0.0007413958892617208
+  },
+  {
+    "code": "CUB",
+    "iso2": "CU",
+    "name": "Cuba",
+    "births": 95938.0,
+    "weight": 0.0007264263782259202
+  },
+  {
+    "code": "LBN",
+    "iso2": "LB",
+    "name": "Lebanon",
+    "births": 93205.0,
+    "weight": 0.0007057325625148209
+  },
+  {
+    "code": "CZE",
+    "iso2": "CZ",
+    "name": "Czechia",
+    "births": 91845.0,
+    "weight": 0.0006954348715645484
+  },
+  {
+    "code": "PRT",
+    "iso2": "PT",
+    "name": "Portugal",
+    "births": 86646.0,
+    "weight": 0.0006560689191744989
+  },
+  {
+    "code": "HUN",
+    "iso2": "HU",
+    "name": "Hungary",
+    "births": 85373.0,
+    "weight": 0.0006464299775717806
+  },
+  {
+    "code": "OMN",
+    "iso2": "OM",
+    "name": "Oman",
+    "births": 85065.0,
+    "weight": 0.0006440978534448071
+  },
+  {
+    "code": "CHE",
+    "iso2": "CH",
+    "name": "Switzerland",
+    "births": 83702.0,
+    "weight": 0.0006337774469997912
+  },
+  {
+    "code": "GMB",
+    "iso2": "GM",
+    "name": "Gambia",
+    "births": 82092.0,
+    "weight": 0.0006215867981542479
+  },
+  {
+    "code": "AUT",
+    "iso2": "AT",
+    "name": "Austria",
+    "births": 77054.0,
+    "weight": 0.0005834399106487529
+  },
+  {
+    "code": "NAM",
+    "iso2": "NA",
+    "name": "Namibia",
+    "births": 76715.0,
+    "weight": 0.0005808730597427658
+  },
+  {
+    "code": "GRC",
+    "iso2": "GR",
+    "name": "Greece",
+    "births": 73661.0,
+    "weight": 0.000557748686094139
+  },
+  {
+    "code": "PAN",
+    "iso2": "PA",
+    "name": "Panama",
+    "births": 71469.0,
+    "weight": 0.0005411512312684055
+  },
+  {
+    "code": "GAB",
+    "iso2": "GA",
+    "name": "Gabon",
+    "births": 68745.0,
+    "weight": 0.000520525562041536
+  },
+  {
+    "code": "BLR",
+    "iso2": "BY",
+    "name": "Belarus",
+    "births": 65050.0,
+    "weight": 0.0004925476443494351
+  },
+  {
+    "code": "MNG",
+    "iso2": "MN",
+    "name": "Mongolia",
+    "births": 65019.0,
+    "weight": 0.0004923129175704215
+  },
+  {
+    "code": "GNB",
+    "iso2": "GW",
+    "name": "Guinea-Bissau",
+    "births": 64679.0,
+    "weight": 0.0004897384948328534
+  },
+  {
+    "code": "BGR",
+    "iso2": "BG",
+    "name": "Bulgaria",
+    "births": 62645.0,
+    "weight": 0.000474337389396931
+  },
+  {
+    "code": "BWA",
+    "iso2": "BW",
+    "name": "Botswana",
+    "births": 61294.0,
+    "weight": 0.0004641078449308882
+  },
+  {
+    "code": "SRB",
+    "iso2": "RS",
+    "name": "Serbia",
+    "births": 59840.0,
+    "weight": 0.0004530984018119938
+  },
+  {
+    "code": "NZL",
+    "iso2": "NZ",
+    "name": "New Zealand",
+    "births": 59236.0,
+    "weight": 0.0004485250155370198
+  },
+  {
+    "code": "DNK",
+    "iso2": "DK",
+    "name": "Denmark",
+    "births": 57810.0,
+    "weight": 0.0004377275837023958
+  },
+  {
+    "code": "LSO",
+    "iso2": "LS",
+    "name": "Lesotho",
+    "births": 55728.0,
+    "weight": 0.0004219630303505814
+  },
+  {
+    "code": "GNQ",
+    "iso2": "GQ",
+    "name": "Equatorial Guinea",
+    "births": 54694.0,
+    "weight": 0.0004141337564957418
+  },
+  {
+    "code": "IRL",
+    "iso2": "IE",
+    "name": "Ireland",
+    "births": 53268.0,
+    "weight": 0.0004033363246611178
+  },
+  {
+    "code": "SVK",
+    "iso2": "SK",
+    "name": "Slovakia",
+    "births": 52271.0,
+    "weight": 0.0003957872085747782
+  },
+  {
+    "code": "CRI",
+    "iso2": "CR",
+    "name": "Costa Rica",
+    "births": 51969.0,
+    "weight": 0.00039350051543729123
+  },
+  {
+    "code": "NOR",
+    "iso2": "NO",
+    "name": "Norway",
+    "births": 51545.0,
+    "weight": 0.0003902900588469121
+  },
+  {
+    "code": "KWT",
+    "iso2": "KW",
+    "name": "Kuwait",
+    "births": 49342.0,
+    "weight": 0.0003736093138737867
+  },
+  {
+    "code": "SGP",
+    "iso2": "SG",
+    "name": "Singapore",
+    "births": 47472.0,
+    "weight": 0.00035944998881716196
+  },
+  {
+    "code": "GEO",
+    "iso2": "GE",
+    "name": "Georgia",
+    "births": 43765.0,
+    "weight": 0.00033138120914608804
+  },
+  {
+    "code": "FIN",
+    "iso2": "FI",
+    "name": "Finland",
+    "births": 43556.0,
+    "weight": 0.00032979869634564175
+  },
+  {
+    "code": "HKG",
+    "iso2": "HK",
+    "name": "Hong Kong",
+    "births": 41294.0,
+    "weight": 0.0003126712133092325
+  },
+  {
+    "code": "ARM",
+    "iso2": "AM",
+    "name": "Armenia",
+    "births": 34668.0,
+    "weight": 0.00026250025725297796
+  },
+  {
+    "code": "URY",
+    "iso2": "UY",
+    "name": "Uruguay",
+    "births": 33443.0,
+    "weight": 0.0002532247635661516
+  },
+  {
+    "code": "JAM",
+    "iso2": "JM",
+    "name": "Jamaica",
+    "births": 33007.0,
+    "weight": 0.0002499234449967995
+  },
+  {
+    "code": "MDA",
+    "iso2": "MD",
+    "name": "Moldova",
+    "births": 32986.0,
+    "weight": 0.00024976443653359674
+  },
+  {
+    "code": "HRV",
+    "iso2": "HR",
+    "name": "Croatia",
+    "births": 31446.0,
+    "weight": 0.00023810381589872923
+  },
+  {
+    "code": "TLS",
+    "iso2": "TL",
+    "name": "East Timor",
+    "births": 30561.0,
+    "weight": 0.00023140274494947097
+  },
+  {
+    "code": "SWZ",
+    "iso2": "SZ",
+    "name": "Eswatini",
+    "births": 29622.0,
+    "weight": 0.00022429279509483425
+  },
+  {
+    "code": "QAT",
+    "iso2": "QA",
+    "name": "Qatar",
+    "births": 29516.0,
+    "weight": 0.00022349018094723947
+  },
+  {
+    "code": "ALB",
+    "iso2": "AL",
+    "name": "Albania",
+    "births": 28803.0,
+    "weight": 0.00021809146502992744
+  },
+  {
+    "code": "BIH",
+    "iso2": "BA",
+    "name": "Bosnia and Herzegovina",
+    "births": 24569.0,
+    "weight": 0.00018603233011562292
+  },
+  {
+    "code": "COM",
+    "iso2": "KM",
+    "name": "Comoros",
+    "births": 24366.0,
+    "weight": 0.00018449524830466311
+  },
+  {
+    "code": "DJI",
+    "iso2": "DJ",
+    "name": "Djibouti",
+    "births": 23946.0,
+    "weight": 0.00018131507904060835
+  },
+  {
+    "code": "SLB",
+    "iso2": "SB",
+    "name": "Solomon Islands",
+    "births": 21548.0,
+    "weight": 0.00016315782690917184
+  },
+  {
+    "code": "LTU",
+    "iso2": "LT",
+    "name": "Lithuania",
+    "births": 21434.0,
+    "weight": 0.0001622946381089284
+  },
+  {
+    "code": "BHR",
+    "iso2": "BH",
+    "name": "Bahrain",
+    "births": 19558.0,
+    "weight": 0.00014808988206281709
+  },
+  {
+    "code": "PRI",
+    "iso2": "PR",
+    "name": "Puerto Rico",
+    "births": 18851.0,
+    "weight": 0.00014273659713499157
+  },
+  {
+    "code": "SVN",
+    "iso2": "SI",
+    "name": "Slovenia",
+    "births": 17902.0,
+    "weight": 0.000135550928964544
+  },
+  {
+    "code": "MKD",
+    "iso2": "MK",
+    "name": "North Macedonia",
+    "births": 16878.0,
+    "weight": 0.00012779737342551522
+  },
+  {
+    "code": "GUY",
+    "iso2": "GY",
+    "name": "Guyana",
+    "births": 16764.0,
+    "weight": 0.0001269341846252718
+  },
+  {
+    "code": "FJI",
+    "iso2": "FJ",
+    "name": "Fiji",
+    "births": 16631.0,
+    "weight": 0.00012592713102498778
+  },
+  {
+    "code": "TTO",
+    "iso2": "TT",
+    "name": "Trinidad and Tobago",
+    "births": 16094.0,
+    "weight": 0.00012186105746594633
+  },
+  {
+    "code": "CYP",
+    "iso2": "CY",
+    "name": "Cyprus",
+    "births": 14524.0,
+    "weight": 0.00010997328188364636
+  },
+  {
+    "code": "LVA",
+    "iso2": "LV",
+    "name": "Latvia",
+    "births": 14250.0,
+    "weight": 0.00010789860003042968
+  },
+  {
+    "code": "REU",
+    "iso2": "RE",
+    "name": "Reunion",
+    "births": 12003.0,
+    "weight": 9.088469446773666e-05
+  },
+  {
+    "code": "MUS",
+    "iso2": "MU",
+    "name": "Mauritius",
+    "births": 11804.0,
+    "weight": 8.937789998310118e-05
+  },
+  {
+    "code": "MYT",
+    "iso2": "MY",
+    "name": "Mayotte",
+    "births": 11186.0,
+    "weight": 8.469850806599202e-05
+  },
+  {
+    "code": "EST",
+    "iso2": "EE",
+    "name": "Estonia",
+    "births": 11036.0,
+    "weight": 8.356273332882961e-05
+  },
+  {
+    "code": "SUR",
+    "iso2": "SR",
+    "name": "Suriname",
+    "births": 10879.0,
+    "weight": 8.23739557705996e-05
+  },
+  {
+    "code": "BTN",
+    "iso2": "BT",
+    "name": "Bhutan",
+    "births": 9958.0,
+    "weight": 7.540029888442237e-05
+  },
+  {
+    "code": "VUT",
+    "iso2": "VU",
+    "name": "Vanuatu",
+    "births": 8988.0,
+    "weight": 6.805562225077207e-05
+  },
+  {
+    "code": "ESH",
+    "iso2": "ES",
+    "name": "Western Sahara",
+    "births": 8987.0,
+    "weight": 6.804805041919098e-05
+  },
+  {
+    "code": "GUF",
+    "iso2": "GU",
+    "name": "French Guiana",
+    "births": 7707.0,
+    "weight": 5.835610599540502e-05
+  },
+  {
+    "code": "BLZ",
+    "iso2": "BZ",
+    "name": "Belize",
+    "births": 7410.0,
+    "weight": 5.610727201582343e-05
+  },
+  {
+    "code": "MNE",
+    "iso2": "ME",
+    "name": "Montenegro",
+    "births": 6981.0,
+    "weight": 5.285895626753892e-05
+  },
+  {
+    "code": "LUX",
+    "iso2": "LU",
+    "name": "Luxembourg",
+    "births": 6946.0,
+    "weight": 5.259394216220102e-05
+  },
+  {
+    "code": "STP",
+    "iso2": "ST",
+    "name": "Sao Tome and Principe",
+    "births": 6507.0,
+    "weight": 4.9269908098105676e-05
+  },
+  {
+    "code": "CPV",
+    "iso2": "CV",
+    "name": "Cape Verde",
+    "births": 6440.0,
+    "weight": 4.8762595382173134e-05
+  },
+  {
+    "code": "BRN",
+    "iso2": "BN",
+    "name": "Brunei",
+    "births": 6237.0,
+    "weight": 4.722551357121332e-05
+  },
+  {
+    "code": "MDV",
+    "iso2": "MV",
+    "name": "Maldives",
+    "births": 5795.0,
+    "weight": 4.387876401237474e-05
+  },
+  {
+    "code": "WSM",
+    "iso2": "WS",
+    "name": "Samoa",
+    "births": 5503.0,
+    "weight": 4.166778919069856e-05
+  },
+  {
+    "code": "MAC",
+    "iso2": "MO",
+    "name": "Macao",
+    "births": 4515.0,
+    "weight": 3.418681958858877e-05
+  },
+  {
+    "code": "ISL",
+    "iso2": "IS",
+    "name": "Iceland",
+    "births": 4347.0,
+    "weight": 3.291475188296686e-05
+  },
+  {
+    "code": "BHS",
+    "iso2": "BS",
+    "name": "Bahamas",
+    "births": 4335.0,
+    "weight": 3.282388990399387e-05
+  },
+  {
+    "code": "GLP",
+    "iso2": "GL",
+    "name": "Guadeloupe",
+    "births": 4233.0,
+    "weight": 3.205156308272343e-05
+  },
+  {
+    "code": "MLT",
+    "iso2": "MT",
+    "name": "Malta",
+    "births": 4213.0,
+    "weight": 3.190012645110177e-05
+  },
+  {
+    "code": "NCL",
+    "iso2": "NC",
+    "name": "New Caledonia",
+    "births": 4134.0,
+    "weight": 3.130195175619623e-05
+  },
+  {
+    "code": "MTQ",
+    "iso2": "MT",
+    "name": "Martinique",
+    "births": 3728.0,
+    "weight": 2.822778813427662e-05
+  },
+  {
+    "code": "KIR",
+    "iso2": "KI",
+    "name": "Kiribati",
+    "births": 3421.0,
+    "weight": 2.5903235838884204e-05
+  },
+  {
+    "code": "BRB",
+    "iso2": "BB",
+    "name": "Barbados",
+    "births": 3155.0,
+    "weight": 2.3889128638316183e-05
+  },
+  {
+    "code": "PYF",
+    "iso2": "PF",
+    "name": "French Polynesia",
+    "births": 3066.0,
+    "weight": 2.3215235627599816e-05
+  },
+  {
+    "code": "GUM",
+    "iso2": "GU",
+    "name": "Guam",
+    "births": 2941.0,
+    "weight": 2.226875667996447e-05
+  },
+  {
+    "code": "FSM",
+    "iso2": "FM",
+    "name": "Micronesia (country)",
+    "births": 2512.0,
+    "weight": 1.9020440931679953e-05
+  },
+  {
+    "code": "TON",
+    "iso2": "TO",
+    "name": "Tonga",
+    "births": 2418.0,
+    "weight": 1.8308688763058172e-05
+  },
+  {
+    "code": "LCA",
+    "iso2": "LC",
+    "name": "Saint Lucia",
+    "births": 2019.0,
+    "weight": 1.528752796220614e-05
+  },
+  {
+    "code": "SYC",
+    "iso2": "SC",
+    "name": "Seychelles",
+    "births": 1744.0,
+    "weight": 1.3205274277408375e-05
+  },
+  {
+    "code": "CUW",
+    "iso2": "CW",
+    "name": "Curacao",
+    "births": 1394.0,
+    "weight": 1.0555133224029402e-05
+  },
+  {
+    "code": "GRD",
+    "iso2": "GD",
+    "name": "Grenada",
+    "births": 1371.0,
+    "weight": 1.0380981097664497e-05
+  },
+  {
+    "code": "VCT",
+    "iso2": "VC",
+    "name": "Saint Vincent and the Grenadines",
+    "births": 1232.0,
+    "weight": 9.32849650789399e-06
+  },
+  {
+    "code": "ATG",
+    "iso2": "AG",
+    "name": "Antigua and Barbuda",
+    "births": 1106.0,
+    "weight": 8.374445728677559e-06
+  },
+  {
+    "code": "ABW",
+    "iso2": "AW",
+    "name": "Aruba",
+    "births": 1020.0,
+    "weight": 7.72326821270444e-06
+  },
+  {
+    "code": "VIR",
+    "iso2": "VI",
+    "name": "United States Virgin Islands",
+    "births": 959.0,
+    "weight": 7.26138648625839e-06
+  },
+  {
+    "code": "CYM",
+    "iso2": "KY",
+    "name": "Cayman Islands",
+    "births": 865.0,
+    "weight": 6.549634317636609e-06
+  },
+  {
+    "code": "JEY",
+    "iso2": "JE",
+    "name": "Jersey",
+    "births": 853.0,
+    "weight": 6.458772338663615e-06
+  },
+  {
+    "code": "MHL",
+    "iso2": "MH",
+    "name": "Marshall Islands",
+    "births": 821.0,
+    "weight": 6.2164737280689655e-06
+  },
+  {
+    "code": "GRL",
+    "iso2": "GL",
+    "name": "Greenland",
+    "births": 789.0,
+    "weight": 5.974175117474317e-06
+  },
+  {
+    "code": "DMA",
+    "iso2": "DM",
+    "name": "Dominica",
+    "births": 738.0,
+    "weight": 5.588011706839095e-06
+  },
+  {
+    "code": "ASM",
+    "iso2": "AS",
+    "name": "American Samoa",
+    "births": 731.0,
+    "weight": 5.535008885771515e-06
+  },
+  {
+    "code": "IMN",
+    "iso2": "IM",
+    "name": "Isle of Man",
+    "births": 702.0,
+    "weight": 5.315425769920115e-06
+  },
+  {
+    "code": "FRO",
+    "iso2": "FO",
+    "name": "Faroe Islands",
+    "births": 690.0,
+    "weight": 5.224563790947121e-06
+  },
+  {
+    "code": "MNP",
+    "iso2": "MP",
+    "name": "Northern Mariana Islands",
+    "births": 583.0,
+    "weight": 4.414377811771263e-06
+  },
+  {
+    "code": "AND",
+    "iso2": "AD",
+    "name": "Andorra",
+    "births": 555.0,
+    "weight": 4.2023665275009455e-06
+  },
+  {
+    "code": "KNA",
+    "iso2": "KN",
+    "name": "Saint Kitts and Nevis",
+    "births": 549.0,
+    "weight": 4.156935538014449e-06
+  },
+  {
+    "code": "BMU",
+    "iso2": "BM",
+    "name": "Bermuda",
+    "births": 521.0,
+    "weight": 3.944924253744131e-06
+  },
+  {
+    "code": "GGY",
+    "iso2": "GG",
+    "name": "Guernsey",
+    "births": 521.0,
+    "weight": 3.944924253744131e-06
+  },
+  {
+    "code": "TCA",
+    "iso2": "TC",
+    "name": "Turks and Caicos Islands",
+    "births": 496.0,
+    "weight": 3.755628464217061e-06
+  },
+  {
+    "code": "MAF",
+    "iso2": "MF",
+    "name": "Saint Martin (French part)",
+    "births": 470.0,
+    "weight": 3.5587608431089086e-06
+  },
+  {
+    "code": "GIB",
+    "iso2": "GI",
+    "name": "Gibraltar",
+    "births": 464.0,
+    "weight": 3.5133298536224117e-06
+  },
+  {
+    "code": "SXM",
+    "iso2": "SX",
+    "name": "Sint Maarten (Dutch part)",
+    "births": 390.0,
+    "weight": 2.953014316622286e-06
+  },
+  {
+    "code": "LIE",
+    "iso2": "LI",
+    "name": "Liechtenstein",
+    "births": 371.0,
+    "weight": 2.809149516581713e-06
+  },
+  {
+    "code": "MCO",
+    "iso2": "MC",
+    "name": "Monaco",
+    "births": 368.0,
+    "weight": 2.7864340218384645e-06
+  },
+  {
+    "code": "VGB",
+    "iso2": "VG",
+    "name": "British Virgin Islands",
+    "births": 325.0,
+    "weight": 2.460845263851905e-06
+  },
+  {
+    "code": "NRU",
+    "iso2": "NR",
+    "name": "Nauru",
+    "births": 303.0,
+    "weight": 2.2942649690680837e-06
+  },
+  {
+    "code": "BES",
+    "iso2": "BE",
+    "name": "Bonaire Sint Eustatius and Saba",
+    "births": 280.0,
+    "weight": 2.1201128427031797e-06
+  },
+  {
+    "code": "TUV",
+    "iso2": "TV",
+    "name": "Tuvalu",
+    "births": 226.0,
+    "weight": 1.7112339373247092e-06
+  },
+  {
+    "code": "SMR",
+    "iso2": "SM",
+    "name": "San Marino",
+    "births": 200.0,
+    "weight": 1.514366316216557e-06
+  },
+  {
+    "code": "PLW",
+    "iso2": "PW",
+    "name": "Palau",
+    "births": 193.0,
+    "weight": 1.4613634951489773e-06
+  },
+  {
+    "code": "COK",
+    "iso2": "CO",
+    "name": "Cook Islands",
+    "births": 178.0,
+    "weight": 1.3477860214327356e-06
+  },
+  {
+    "code": "AIA",
+    "iso2": "AI",
+    "name": "Anguilla",
+    "births": 130.0,
+    "weight": 9.84338105540762e-07
+  },
+  {
+    "code": "WLF",
+    "iso2": "WL",
+    "name": "Wallis and Futuna",
+    "births": 98.0,
+    "weight": 7.420394949461129e-07
+  },
+  {
+    "code": "BLM",
+    "iso2": "BL",
+    "name": "Saint Barthelemy",
+    "births": 53.0,
+    "weight": 4.0130707379738756e-07
+  },
+  {
+    "code": "TKL",
+    "iso2": "TK",
+    "name": "Tokelau",
+    "births": 47.0,
+    "weight": 3.5587608431089086e-07
+  },
+  {
+    "code": "FLK",
+    "iso2": "FL",
+    "name": "Falkland Islands",
+    "births": 39.0,
+    "weight": 2.953014316622286e-07
+  },
+  {
+    "code": "MSR",
+    "iso2": "MS",
+    "name": "Montserrat",
+    "births": 39.0,
+    "weight": 2.953014316622286e-07
+  },
+  {
+    "code": "SHN",
+    "iso2": "SH",
+    "name": "Saint Helena",
+    "births": 39.0,
+    "weight": 2.953014316622286e-07
+  },
+  {
+    "code": "SPM",
+    "iso2": "SP",
+    "name": "Saint Pierre and Miquelon",
+    "births": 30.0,
+    "weight": 2.2715494743248353e-07
+  },
+  {
+    "code": "NIU",
+    "iso2": "NI",
+    "name": "Niue",
+    "births": 25.0,
+    "weight": 1.8929578952706962e-07
+  },
+  {
+    "code": "VAT",
+    "iso2": "VA",
+    "name": "Vatican",
+    "births": 2.0,
+    "weight": 1.5143663162165568e-08
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "code": "VIR",
+  "iso2": "VI",
+  "name": "United States Virgin Islands",
+  "births": 959.0,
+  "urban_pct": 95.3312197036061,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 80.7707317073171,
+    "life_exp_female": 84.1,
+    "life_exp_male": 77.6,
+    "under5_mortality": 25.0,
+    "maternal_mortality": 150.0,
+    "electricity_total": 100.0,
+    "electricity_rural": 100.0,
+    "electricity_urban": 100.0,
+    "water_basic": 99.4656802967685,
+    "sanitation_basic": 99.2588820364163,
+    "schooling": 12.0,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 49793.0324395716
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2022
+    }
+  },
+  "data_gaps": [
+    "under5_mortality",
+    "schooling"
+  ]
+}

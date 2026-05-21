@@ -1,0 +1,67 @@
+{
+  "code": "ASM",
+  "iso2": "AS",
+  "name": "American Samoa",
+  "births": 731.0,
+  "urban_pct": 80.9446986961818,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 72.992,
+    "life_exp_female": 75.994,
+    "life_exp_male": 70.323,
+    "under5_mortality": 25.0,
+    "maternal_mortality": 150.0,
+    "electricity_total": 85.0,
+    "electricity_rural": 80.0,
+    "electricity_urban": 95.0,
+    "water_basic": 100.0,
+    "sanitation_basic": 62.119697982607,
+    "schooling": 12.0,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 11200.0
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": [
+    "under5_mortality",
+    "schooling",
+    "gdp_pc_ppp",
+    "electricity_total"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "code": "STP",
+  "iso2": "ST",
+  "name": "Sao Tome and Principe",
+  "births": 6507.0,
+  "urban_pct": 68.8710170184884,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 69.905,
+    "life_exp_female": 73.909,
+    "life_exp_male": 66.409,
+    "under5_mortality": 13.6,
+    "maternal_mortality": 75.0,
+    "electricity_total": 81.3,
+    "electricity_rural": 69.6,
+    "electricity_urban": 81.9,
+    "water_basic": 77.957445837032,
+    "sanitation_basic": 48.6785052753612,
+    "schooling": 12.38349,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 28.0,
+    "gdp_pc_ppp": 6241.85614464638
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.064,
+      0.10400000000000001,
+      0.146,
+      0.207,
+      0.479
+    ]
+  },
+  "source_metadata": {
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2019
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    }
+  },
+  "data_gaps": []
+}

@@ -1,0 +1,120 @@
+{
+  "code": "LBN",
+  "iso2": "LB",
+  "name": "Lebanon",
+  "births": 93205.0,
+  "urban_pct": 90.703695784554,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 77.945,
+    "life_exp_female": 79.857,
+    "life_exp_male": 75.876,
+    "under5_mortality": 17.6,
+    "maternal_mortality": 15.0,
+    "electricity_total": 100.0,
+    "electricity_rural": 100.0,
+    "electricity_urban": 100.0,
+    "water_basic": 92.6,
+    "sanitation_basic": 99.2,
+    "schooling": 12.0,
+    "democracy_index": 3.56,
+    "conflict_deaths": 1389.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 6.0,
+    "gdp_pc_ppp": 12574.8329116403
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.068,
+      0.11199999999999999,
+      0.162,
+      0.235,
+      0.423
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2016
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2022
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2022
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2022
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2022
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2022
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

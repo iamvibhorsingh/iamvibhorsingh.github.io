@@ -1,0 +1,100 @@
+{
+  "code": "TTO",
+  "iso2": "TT",
+  "name": "Trinidad and Tobago",
+  "births": 16094.0,
+  "urban_pct": 53.961056681951,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 73.617,
+    "life_exp_female": 76.825,
+    "life_exp_male": 70.508,
+    "under5_mortality": 18.8,
+    "maternal_mortality": 54.0,
+    "electricity_total": 98.7,
+    "electricity_rural": 98.0,
+    "electricity_urban": 99.3,
+    "water_basic": 99.2503077495039,
+    "sanitation_basic": 94.1780681697959,
+    "schooling": 12.0,
+    "democracy_index": 7.09,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 4.2,
+    "gdp_pc_ppp": 36328.5130065685
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2022
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

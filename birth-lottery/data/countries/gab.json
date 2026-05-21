@@ -1,0 +1,120 @@
+{
+  "code": "GAB",
+  "iso2": "GA",
+  "name": "Gabon",
+  "births": 68745.0,
+  "urban_pct": 91.8632094677575,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 68.511,
+    "life_exp_female": 71.243,
+    "life_exp_male": 66.064,
+    "under5_mortality": 32.6,
+    "maternal_mortality": 233.0,
+    "electricity_total": 94.1,
+    "electricity_rural": 29.0,
+    "electricity_urban": 99.2,
+    "water_basic": 88.5995009085574,
+    "sanitation_basic": 57.4015026293834,
+    "schooling": 12.0,
+    "democracy_index": 2.18,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 13.3,
+    "gdp_pc_ppp": 21510.1725307344
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06006006006006006,
+      0.10810810810810811,
+      0.15715715715715717,
+      0.23023023023023023,
+      0.4444444444444445
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2021
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2017
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

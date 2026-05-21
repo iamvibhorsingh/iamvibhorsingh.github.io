@@ -1,0 +1,102 @@
+{
+  "code": "AFG",
+  "iso2": "AF",
+  "name": "Afghanistan",
+  "births": 1469029.0,
+  "urban_pct": 25.7007352636188,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 66.289,
+    "life_exp_female": 67.812,
+    "life_exp_male": 64.704,
+    "under5_mortality": 53.0,
+    "maternal_mortality": 521.0,
+    "electricity_total": 85.3,
+    "electricity_rural": 81.4,
+    "electricity_urban": 96.0,
+    "water_basic": 80.8324374493852,
+    "sanitation_basic": 54.4957993646086,
+    "schooling": 10.19755,
+    "democracy_index": 0.25,
+    "conflict_deaths": 454.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 28.7,
+    "gdp_pc_ppp": 2201.72290691677
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2023
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2023
+    }
+  },
+  "data_gaps": []
+}

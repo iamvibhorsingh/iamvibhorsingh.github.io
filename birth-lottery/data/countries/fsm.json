@@ -1,0 +1,88 @@
+{
+  "code": "FSM",
+  "iso2": "FM",
+  "name": "Micronesia (country)",
+  "births": 2512.0,
+  "urban_pct": 22.4562830235421,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 67.357,
+    "life_exp_female": 71.277,
+    "life_exp_male": 63.631,
+    "under5_mortality": 22.4,
+    "maternal_mortality": 129.0,
+    "electricity_total": 86.9,
+    "electricity_rural": 83.7,
+    "electricity_urban": 97.3,
+    "water_basic": 89.8819541513315,
+    "sanitation_basic": 90.4539007167041,
+    "schooling": 12.0,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 4346.84249671875
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.06,
+      0.1,
+      0.15,
+      0.22,
+      0.47
+    ]
+  },
+  "source_metadata": {
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Birth Lottery</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Hidden canvas for rendering shareable card -->
+  <canvas id="share-canvas" style="display: none;"></canvas>
+
+  <div class="container">
+    
+    <!-- Top Header Bar -->
+    <header class="panel">
+      <div class="logo-area">
+        <h1 id="logo-title">The Birth <em>Lottery.</em></h1>
+        <p id="logo-subtitle">Experience the demographic lottery of being born today</p>
+      </div>
+      
+      <div class="settings-bar">
+        <!-- Language Select -->
+        <select id="lang-select">
+          <option value="en">English</option>
+          <option value="zh">中文 (Chinese)</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="es">Español (Spanish)</option>
+          <option value="ar">العربية (Arabic)</option>
+          <option value="fr">Français (French)</option>
+          <option value="pt">Português (Portuguese)</option>
+          <option value="bn">বাংলা (Bengali)</option>
+        </select>
+        
+        <!-- User Actual Country for Contrast -->
+        <div class="settings-bar-group">
+          <label id="user-country-label" for="user-country-select" style="font-size: 0.85rem; color: var(--text-secondary); margin-right: 0.5rem;"></label>
+          <select id="user-country-select">
+            <!-- Populated dynamically by JS -->
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sidebar Section: Controls & Spin Wheel -->
+    <div class="sidebar">
+      <!-- Spin Panel -->
+      <div class="panel spinner-panel">
+        <div class="spinner-wheel-container" id="spinner-wheel-container">
+          <div class="spinner-needle"></div>
+          <div id="wheel" class="spinner-wheel"></div>
+          <div class="spinner-center"></div>
+        </div>
+        <button id="wheel-expand-btn" class="wheel-expand-btn" title="Expand wheel">&#8964;</button>
+        <button id="spin-btn" class="spin-btn">Spin the Lottery</button>
+        <div class="eyebrow" style="margin-top:4px;">Weighted by UN WPP 2024 births</div>
+        
+        <div class="secondary-actions" style="margin-top: 0.75rem;">
+          <button id="compare-mode-btn" class="btn-secondary">Comparison Mode</button>
+          <button id="hold-btn" class="btn-secondary">Hold Active</button>
+        </div>
+      </div>
+
+      <!-- Filters Panel -->
+      <div class="panel filters-panel">
+        <div class="eyebrow" id="filter-title">Conditional Filters</div>
+        <div class="filter-group">
+          <select id="filter-select">
+            <option value="none">No filters (Full global draw)</option>
+            <option value="lic">Low-income countries only</option>
+            <option value="female">Female draws only</option>
+            <option value="rural">Rural residence only</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Disability Toggle -->
+      <div id="disability-toggle-container" class="panel" style="display: flex; gap: 0.5rem; align-items: center;">
+        <input type="checkbox" id="disability-toggle" style="width: 18px; height: 18px; cursor: pointer;">
+        <label id="disability-toggle-label" for="disability-toggle" style="font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;"></label>
+      </div>
+      
+      <!-- Spin 1,000 Times Trigger (Quiet Secondary style) -->
+      <button id="spin-1000-btn" class="spin-btn-secondary">Spin 1,000 Times</button>
+    </div>
+
+    <!-- Main Content Area: Results Display -->
+    <main>
+      
+      <!-- Active Draw Details Panel (The Hero Section) -->
+      <section id="draw-results-section" class="panel draw-card hidden">
+
+        <!-- Result header: eyebrow + country + persona + legend + luck score -->
+        <div class="draw-result-header">
+          <div class="draw-result-header-left">
+            <div class="eyebrow">Step 02 · Your Draw</div>
+            <div class="flag-title-row">
+              <span id="country-flag" class="country-flag"></span>
+              <h2 id="country-name" class="country-name"></h2>
+            </div>
+            <div id="demographic-draw-label" class="demographic-draw-label">
+              <span>Random Demographic Draw</span>
+              <span class="info-icon-hint" data-tooltip="Each spin simulates a new random birth, randomizing sex, wealth quintile, and residence. Click again to draw a different life.">ℹ️</span>
+            </div>
+            <p id="stitched-persona" class="stitched-persona-text">An average urban man in the richest 20% of the DRC.</p>
+
+            <!-- Devastating headline stat -->
+            <div id="devastating-stat-container" class="devastating-stat-box hidden">
+              <span class="headline-tag">Headline Stat</span>
+              <div id="devastating-stat-headline" class="devastating-stat-headline">7× more likely to die before age 5.</div>
+            </div>
+
+            <div class="characteristics-tags" style="margin-top:10px;">
+              <span id="active-sex-badge" class="badge"></span>
+              <span id="active-wealth-badge" class="badge"></span>
+              <span id="active-residence-badge" class="badge"></span>
+              <span id="active-disability-badge" class="badge hidden"></span>
+            </div>
+          </div>
+
+          <div class="draw-result-header-right">
+            <!-- Luck Score (top right) -->
+            <div class="luck-score-container hero-luck-score">
+              <div id="luck-score-label" class="luck-score-label">Luck Score</div>
+              <div id="luck-score-number" class="luck-score-number">--</div>
+              <div id="luck-score-desc" class="luck-score-desc">Better than X% of possible lives</div>
+            </div>
+
+            <!-- Share actions -->
+            <div id="share-affordance-panel" class="share-actions-row" style="margin-top:16px;">
+              <button id="share-card-btn" class="btn-share"><span class="btn-icon">🔗</span> Share Your Draw</button>
+              <button id="download-card-btn" class="btn-share-alt"><span class="btn-icon">💾</span> Download Card</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legend row -->
+        <div class="cb-legend">
+          <div class="cb-legend-item">
+            <span class="cb-legend-swatch swatch-draw"></span>
+            <span id="cb-legend-draw-label">Drawn life</span>
+          </div>
+          <div class="cb-legend-item">
+            <span class="cb-legend-swatch swatch-baseline"></span>
+            <span id="cb-legend-base-label">Your country baseline</span>
+          </div>
+          <div class="cb-legend-item">
+            <span class="cb-legend-swatch swatch-deficit"></span>
+            <span>Deficit</span>
+          </div>
+        </div>
+
+        <!-- Globe (compact, tucked) -->
+        <div class="globe-container" style="display:none;">
+          <div class="globe-wrapper">
+            <div class="globe-microcopy">🌍 Tap any country to explore</div>
+            <svg id="globe-svg" viewBox="0 0 250 250"></svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- Comparison Layout (Side-by-Side) -->
+      <section id="comparison-area" class="comparison-container hidden">
+        <!-- Pinned Column 1 -->
+        <div class="panel comparison-col">
+          <div class="comparison-header-row">
+            <span id="compare-flag-1" class="country-flag"></span>
+            <h3 id="compare-name-1">Pinned Country</h3>
+          </div>
+          <div id="compare-tags-1" class="comparison-tag-row"></div>
+        </div>
+        
+        <!-- Active Column 2 -->
+        <div class="panel comparison-col" style="border-color: hsl(var(--primary));">
+          <div class="comparison-header-row">
+            <span id="compare-flag-2" class="country-flag"></span>
+            <h3 id="compare-name-2">Active Country</h3>
+          </div>
+          <div id="compare-tags-2" class="comparison-tag-row"></div>
+        </div>
+      </section>
+
+      <!-- Dashboard Tab Navigation -->
+      <div class="dashboard-tabs">
+        <button id="tab-single" class="tab-btn active">Individual Results</button>
+        <button id="tab-aggregate" class="tab-btn">1,000 Spins Analytics</button>
+      </div>
+
+      <div id="single-view">
+        <div id="metrics-dashboard-grid">
+          <!-- Survival & Health Accordion -->
+          <div class="dashboard-section accordion-section">
+            <div class="accordion-header">
+              <button class="accordion-trigger" aria-expanded="true">
+                <h3 id="survival-title" class="metrics-section-title">Survival &amp; Health</h3>
+                <span class="accordion-icon">▲</span>
+              </button>
+              <button class="section-expand-btn" data-section="survival-health" title="Expand fullscreen" onclick="openSectionFullscreen('survival-health')">⤢</button>
+            </div>
+            
+            <div class="metrics-grid accordion-content">
+              <!-- Life Expectancy Card -->
+              <div class="panel metric-card" id="life-exp-card">
+                <div class="metric-header">
+                  <span class="metric-title">Life Expectancy</span>
+                  <span class="metric-source" data-tooltip="UN World Population Prospects (2024 projections)">WPP</span>
+                </div>
+                <div class="metric-value-display">
+                  <span id="life-exp-val" class="metric-value num">--</span>
+                  <span class="metric-unit">years</span>
+                </div>
+                
+                <!-- Dual Stacked Progress Bars -->
+                <div class="metric-dual-bars">
+                  <div class="dual-bar-row active-bar-row">
+                    <span class="dual-bar-flag" id="life-exp-flag-active"></span>
+                    <div class="dual-bar-track">
+                      <div id="life-exp-fill" class="metric-bar-fill"></div>
+                    </div>
+                    <span class="dual-bar-val" id="life-exp-val-active">--</span>
+                  </div>
+                  <div class="dual-bar-row compare-bar-row">
+                    <span class="dual-bar-flag" id="life-exp-flag-compare"></span>
+                    <div class="dual-bar-track">
+                      <div id="life-exp-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                    </div>
+                    <span class="dual-bar-val" id="life-exp-val-compare">--</span>
+                  </div>
+                  <div class="deficit-hatch" id="life-exp-deficit-hatch"></div>
+                </div>
+                <div class="cb-values" id="life-exp-cb-values">
+                  <div class="cb-vals-left">
+                    <span class="cb-draw-val"><span class="num" id="life-exp-cb-draw">--</span><span class="cb-unit">yrs</span></span>
+                    <span class="cb-sep">vs</span>
+                    <span class="cb-base-val"><span id="life-exp-cb-base">--</span><span class="cb-unit">yrs</span></span>
+                  </div>
+                  <span class="cb-deficit-label" id="life-exp-cb-deficit"></span>
+                </div>
+
+                <div class="card-details-tray hidden">
+                  <p class="card-details-text">Source: UN World Population Prospects (2024 projections). Disaggregated by sex and scaled by quintile/residence.</p>
+                </div>
+              </div>
+              
+              <!-- Under-5 Mortality Card -->
+              <div class="panel metric-card" id="under5-mort-card">
+                <div class="metric-header">
+                  <span class="metric-title">Under-5 Mortality</span>
+                  <span class="metric-source" data-tooltip="UN Inter-agency Group for Child Mortality Estimation">IGME</span>
+                </div>
+                <div class="metric-value-display">
+                  <span id="under5-mort-val" class="metric-value num">--</span>
+                  <span class="metric-unit">per 1000 births</span>
+                </div>
+                
+                <!-- Dual Stacked Progress Bars -->
+                <div class="metric-dual-bars">
+                  <div class="dual-bar-row active-bar-row">
+                    <span class="dual-bar-flag" id="under5-mort-flag-active"></span>
+                    <div class="dual-bar-track">
+                      <div id="under5-mort-fill" class="metric-bar-fill"></div>
+                    </div>
+                    <span class="dual-bar-val" id="under5-mort-val-active">--</span>
+                  </div>
+                  <div class="dual-bar-row compare-bar-row">
+                    <span class="dual-bar-flag" id="under5-mort-flag-compare"></span>
+                    <div class="dual-bar-track">
+                      <div id="under5-mort-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                    </div>
+                    <span class="dual-bar-val" id="under5-mort-val-compare">--</span>
+                  </div>
+                  <div class="deficit-hatch" id="under5-mort-deficit-hatch"></div>
+                </div>
+                <div class="cb-values" id="under5-mort-cb-values">
+                  <div class="cb-vals-left">
+                    <span class="cb-draw-val"><span class="num" id="under5-mort-cb-draw">--</span><span class="cb-unit">/1k</span></span>
+                    <span class="cb-sep">vs</span>
+                    <span class="cb-base-val"><span id="under5-mort-cb-base">--</span><span class="cb-unit">/1k</span></span>
+                  </div>
+                  <span class="cb-deficit-label" id="under5-mort-cb-deficit"></span>
+                </div>
+
+                <div class="card-details-tray hidden">
+                  <p class="card-details-text">Source: UN Inter-agency Group for Child Mortality Estimation. Probability of a child dying before age five per 1,000 live births.</p>
+                </div>
+              </div>
+
+              <!-- Maternal Mortality Card (Female only) -->
+              <div id="maternal-card" class="panel metric-card hidden">
+                <div class="metric-header">
+                  <span class="metric-title">Maternal Mortality Risk</span>
+                  <span class="metric-source" data-tooltip="WHO Maternal Mortality Estimation Group">WHO</span>
+                </div>
+                <div class="metric-value-display">
+                  <span id="maternal-risk-val" class="metric-value num">--</span>
+                  <span class="metric-unit">% lifetime risk</span>
+                </div>
+                
+                <!-- Dual Stacked Progress Bars -->
+                <div class="metric-dual-bars">
+                  <div class="dual-bar-row active-bar-row">
+                    <span class="dual-bar-flag" id="maternal-risk-flag-active"></span>
+                    <div class="dual-bar-track">
+                      <div id="maternal-risk-fill" class="metric-bar-fill"></div>
+                    </div>
+                    <span class="dual-bar-val" id="maternal-risk-val-active">--</span>
+                  </div>
+                  <div class="dual-bar-row compare-bar-row">
+                    <span class="dual-bar-flag" id="maternal-risk-flag-compare"></span>
+                    <div class="dual-bar-track">
+                      <div id="maternal-risk-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                    </div>
+                    <span class="dual-bar-val" id="maternal-risk-val-compare">--</span>
+                  </div>
+                  <div class="deficit-hatch" id="maternal-risk-deficit-hatch"></div>
+                </div>
+                <div class="cb-values" id="maternal-risk-cb-values">
+                  <div class="cb-vals-left">
+                    <span class="cb-draw-val"><span class="num" id="maternal-risk-cb-draw">--</span><span class="cb-unit">%</span></span>
+                    <span class="cb-sep">vs</span>
+                    <span class="cb-base-val"><span id="maternal-risk-cb-base">--</span><span class="cb-unit">%</span></span>
+                  </div>
+                  <span class="cb-deficit-label" id="maternal-risk-cb-deficit"></span>
+                </div>
+
+                <div class="card-details-tray hidden">
+                  <p class="card-details-text">Source: WHO Maternal Mortality Estimation Group. Lifetime risk of maternal death for the female cohort, incorporating fertility rates.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Material Conditions Accordion -->
+          <div class="dashboard-section accordion-section">
+            <div class="accordion-header">
+              <button class="accordion-trigger" aria-expanded="true">
+                <h3 id="material-title" class="metrics-section-title">Material Conditions</h3>
+                <span class="accordion-icon">▲</span>
+              </button>
+              <button class="section-expand-btn" data-section="material-conditions" title="Expand fullscreen" onclick="openSectionFullscreen('material-conditions')">⤢</button>
+            </div>
+            
+            <div class="metrics-grid accordion-content">
+              <!-- PPP Income Card -->
+                <div class="panel metric-card" id="income-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Household PPP Income</span>
+                    <span class="metric-source" data-tooltip="World Bank Poverty and Inequality Database">World Bank</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span class="metric-unit" style="font-size: 1.5rem; font-weight:700; margin-right: 0.15rem;">$</span>
+                    <span id="income-val" class="metric-value num">--</span>
+                    <span class="metric-unit">/yr (PPP)</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="income-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="income-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="income-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="income-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="income-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="income-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="income-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="income-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="income-cb-draw">--</span><span class="cb-unit">PPP</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="income-cb-base">--</span><span class="cb-unit">PPP</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="income-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: World Bank Poverty and Inequality Database. Equivalent annual household income in Purchasing Power Parity (PPP) adjusted USD.</p>
+                  </div>
+                </div>
+
+                <!-- Electricity Access Card -->
+                <div class="panel metric-card" id="electricity-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Electricity Access</span>
+                    <span class="metric-source" data-tooltip="IEA, IRENA, World Bank, WHO global databases">WDI</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="electricity-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% access rate</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="electricity-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="electricity-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="electricity-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="electricity-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="electricity-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="electricity-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="electricity-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="electricity-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="electricity-cb-draw">--</span><span class="cb-unit">%</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="electricity-cb-base">--</span><span class="cb-unit">%</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="electricity-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: World Bank WDI. Percentage of population with access to electricity, scaled by residence.</p>
+                  </div>
+                </div>
+
+                <!-- Basic Water Access Card -->
+                <div class="panel metric-card" id="water-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Basic Water Access</span>
+                    <span class="metric-source" data-tooltip="WHO/UNICEF Joint Monitoring Programme (JMP)">WHO/UNICEF</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="water-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% access rate</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="water-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="water-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="water-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="water-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="water-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="water-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="water-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="water-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="water-cb-draw">--</span><span class="cb-unit">%</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="water-cb-base">--</span><span class="cb-unit">%</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="water-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: WHO/UNICEF Joint Monitoring Programme. Percentage of population using at least a basic water service.</p>
+                  </div>
+                </div>
+
+                <!-- Basic Sanitation Access Card -->
+                <div class="panel metric-card" id="sanitation-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Basic Sanitation Access</span>
+                    <span class="metric-source" data-tooltip="WHO/UNICEF Joint Monitoring Programme (JMP)">WHO/UNICEF</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="sanitation-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% access rate</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="sanitation-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="sanitation-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="sanitation-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="sanitation-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="sanitation-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="sanitation-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="sanitation-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="sanitation-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="sanitation-cb-draw">--</span><span class="cb-unit">%</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="sanitation-cb-base">--</span><span class="cb-unit">%</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="sanitation-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: WHO/UNICEF Joint Monitoring Programme. Percentage of population using at least a basic sanitation service.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Education Accordion -->
+          <div class="dashboard-section accordion-section">
+            <div class="accordion-header">
+              <button class="accordion-trigger" aria-expanded="true">
+                <h3 id="education-title" class="metrics-section-title">Education</h3>
+                <span class="accordion-icon">▲</span>
+              </button>
+              <button class="section-expand-btn" data-section="education" title="Expand fullscreen" onclick="openSectionFullscreen('education')">⤢</button>
+            </div>
+            
+            <div class="metrics-grid accordion-content">
+              <!-- Expected Schooling Card -->
+                <div class="panel metric-card" id="schooling-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Expected Years of Schooling</span>
+                    <span class="metric-source" data-tooltip="UNESCO Institute for Statistics / UNDP Human Development Report">UNESCO</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="schooling-val" class="metric-value num">--</span>
+                    <span class="metric-unit">years</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="schooling-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="schooling-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="schooling-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="schooling-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="schooling-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="schooling-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="schooling-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="schooling-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="schooling-cb-draw">--</span><span class="cb-unit">yrs</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="schooling-cb-base">--</span><span class="cb-unit">yrs</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="schooling-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: UNESCO Institute for Statistics / UNDP HDR. Expected years of schooling for a child entering school today.</p>
+                  </div>
+                </div>
+
+                <!-- Primary Completion Card (Single Fill) -->
+                <div class="panel metric-card" id="school-prim-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Primary Completion Prob.</span>
+                    <span class="metric-source" data-tooltip="Statistical model estimates, not direct census observations.">Model</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="school-prim-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% chance</span>
+                  </div>
+                  <div class="metric-bar-container">
+                    <div id="school-prim-fill" class="metric-bar-fill"></div>
+                  </div>
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: Modeled probability of completing primary school based on expectation curves.</p>
+                  </div>
+                </div>
+
+                <!-- Secondary Completion Card (Single Fill) -->
+                <div class="panel metric-card" id="school-sec-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Secondary Completion Prob.</span>
+                    <span class="metric-source" data-tooltip="Statistical model estimates, not direct census observations.">Model</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="school-sec-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% chance</span>
+                  </div>
+                  <div class="metric-bar-container">
+                    <div id="school-sec-fill" class="metric-bar-fill"></div>
+                  </div>
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: Modeled probability of completing secondary school based on expectation curves.</p>
+                  </div>
+                </div>
+
+                <!-- Tertiary Completion Card (Single Fill) -->
+                <div class="panel metric-card" id="school-tert-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Tertiary Completion Prob.</span>
+                    <span class="metric-source" data-tooltip="Statistical model estimates, not direct census observations.">Model</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="school-tert-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% chance</span>
+                  </div>
+                  <div class="metric-bar-container">
+                    <div id="school-tert-fill" class="metric-bar-fill"></div>
+                  </div>
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: Modeled probability of completing tertiary education based on expectation curves.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Freedoms & Risk Accordion -->
+            <div class="dashboard-section accordion-section">
+              <div class="accordion-header">
+                <button class="accordion-trigger" aria-expanded="true">
+                  <h3 id="freedoms-title" class="metrics-section-title">Freedoms &amp; Risk</h3>
+                  <span class="accordion-icon">▲</span>
+                </button>
+                <button class="section-expand-btn" data-section="freedoms-risk" title="Expand fullscreen" onclick="openSectionFullscreen('freedoms-risk')">⤢</button>
+              </div>
+              
+              <div class="metrics-grid accordion-content">
+                <!-- Democracy Index Card -->
+                <div class="panel metric-card" id="democracy-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Democracy Index</span>
+                    <span class="metric-source" data-tooltip="Economist Intelligence Unit Democracy Index (Composite)">EIU</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="democracy-val" class="metric-value num">--</span>
+                    <span class="metric-unit">/10</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="democracy-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="democracy-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="democracy-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="democracy-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="democracy-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="democracy-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="democracy-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="democracy-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="democracy-cb-draw">--</span><span class="cb-unit">/10</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="democracy-cb-base">--</span><span class="cb-unit">/10</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="democracy-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: Economist Intelligence Unit (EIU). Composite democracy score spanning electoral processes, civil liberties, and functioning of government.</p>
+                  </div>
+                </div>
+
+                <!-- Conflict Deaths Card -->
+                <div class="panel metric-card" id="conflict-card">
+                  <div class="metric-header">
+                    <span class="metric-title">Conflict Deaths</span>
+                    <span class="metric-source" data-tooltip="Reported armed conflict fatalities per year">UCDP</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="conflict-val" class="metric-value num">--</span>
+                    <span class="metric-unit">deaths/yr</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="conflict-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="conflict-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="conflict-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="conflict-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="conflict-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="conflict-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="conflict-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="conflict-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="conflict-cb-draw">--</span><span class="cb-unit">/yr</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="conflict-cb-base">--</span><span class="cb-unit">/yr</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="conflict-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: UCDP (Uppsala Conflict Data Program). Annual conflict-related fatalities occurring within the country.</p>
+                  </div>
+                </div>
+
+                <!-- Child Marriage Card (Female only) -->
+                <div id="child-marriage-card" class="panel metric-card hidden">
+                  <div class="metric-header">
+                    <span class="metric-title">Child Marriage Risk</span>
+                    <span class="metric-source" data-tooltip="UNICEF Global Databases">UNICEF</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="child-marriage-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% risk</span>
+                  </div>
+                  
+                  <!-- Dual Stacked Progress Bars -->
+                  <div class="metric-dual-bars">
+                    <div class="dual-bar-row active-bar-row">
+                      <span class="dual-bar-flag" id="child-marriage-flag-active"></span>
+                      <div class="dual-bar-track">
+                        <div id="child-marriage-fill" class="metric-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="child-marriage-val-active">--</span>
+                    </div>
+                    <div class="dual-bar-row compare-bar-row">
+                      <span class="dual-bar-flag" id="child-marriage-flag-compare"></span>
+                      <div class="dual-bar-track">
+                        <div id="child-marriage-fill-compare" class="metric-bar-fill compare-bar-fill"></div>
+                      </div>
+                      <span class="dual-bar-val" id="child-marriage-val-compare">--</span>
+                    </div>
+                    <div class="deficit-hatch" id="child-marriage-deficit-hatch"></div>
+                  </div>
+                  <div class="cb-values" id="child-marriage-cb-values">
+                    <div class="cb-vals-left">
+                      <span class="cb-draw-val"><span class="num" id="child-marriage-cb-draw">--</span><span class="cb-unit">%</span></span>
+                      <span class="cb-sep">vs</span>
+                      <span class="cb-base-val"><span id="child-marriage-cb-base">--</span><span class="cb-unit">%</span></span>
+                    </div>
+                    <span class="cb-deficit-label" id="child-marriage-cb-deficit"></span>
+                  </div>
+
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: UNICEF. Percentage of women married or in union before their eighteenth birthday.</p>
+                  </div>
+                </div>
+
+                <!-- FGM Prevalence Card (Female only) -->
+                <div id="fgm-card" class="panel metric-card hidden">
+                  <div class="metric-header">
+                    <span class="metric-title">FGM Prevalence</span>
+                    <span class="metric-source" data-tooltip="UNICEF Global Databases">UNICEF</span>
+                  </div>
+                  <div class="metric-value-display">
+                    <span id="fgm-risk-val" class="metric-value num">--</span>
+                    <span class="metric-unit">% prevalence</span>
+                  </div>
+                  <div class="metric-bar-container">
+                    <div id="fgm-risk-fill" class="metric-bar-fill"></div>
+                  </div>
+                  <div class="card-details-tray hidden">
+                    <p class="card-details-text">Source: UNICEF. Percentage of girls and women aged 15-49 who have undergone Female Genital Mutilation.</p>
+                  </div>
+                </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- /#single-view -->
+
+      <!-- 1,000 Spins Aggregate Dashboard — inside main, toggled by tab JS -->
+      <section id="aggregate-dashboard" class="panel aggregate-dashboard hidden">
+        <div class="aggregate-header-nav">
+          <div class="eyebrow" style="margin-bottom:4px;">Step 03 · One Thousand Lives</div>
+          <h2 class="aggregate-title">Watch Them Age Out.</h2>
+          <p class="aggregate-subtitle">Each dot is one life. Spin 1,000 times and fast-forward through 100 years of outcomes.</p>
+          <div class="stepper-controls">
+            <button id="step-back-btn" class="stepper-nav-btn">← Back</button>
+            <div class="stepper-pills">
+              <button id="step-pill-1" class="step-pill active">1. Survival</button>
+              <button id="step-pill-2" class="step-pill">2. Opportunity</button>
+              <button id="step-pill-3" class="step-pill">3. Income</button>
+              <button id="step-pill-4" class="step-pill">4. Life Expectancy</button>
+            </div>
+            <button id="step-next-btn" class="stepper-nav-btn">Next →</button>
+          </div>
+        </div>
+        <div class="narrative-banner-container">
+          <div id="aggregate-takeaway" class="narrative-takeaway-text">Click "Spin 1,000 Times" to generate the cohort and see the story of humanity unfold...</div>
+          <div class="narrative-action-buttons">
+            <button id="share-step-btn" class="btn-share-step"><span class="icon">🔗</span> Share Step Card</button>
+          </div>
+        </div>
+        <div class="aggregate-workspace">
+          <div id="opportunity-subtoggles" class="opportunity-subtoggles hidden">
+            <button id="opt-toggle-water" class="opt-toggle-btn active">Basic Clean Water</button>
+            <button id="opt-toggle-electricity" class="opt-toggle-btn">Electricity Access</button>
+            <button id="opt-toggle-schooling" class="opt-toggle-btn">University Completion</button>
+          </div>
+          <div id="chart-story-container" class="chart-container story-chart-container">
+            <div class="chart-placeholder-message">
+              <h3>No simulated data loaded.</h3>
+              <p>Please click the "Spin 1,000 Times" button in the sidebar to generate a simulated cohort and begin the narrative visualization.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer Area -->
+    <footer>
+      <p id="last-updated-text">Data source updates and methodology versioned. Data last updated: 2026-05-19</p>
+      <div class="footer-links">
+        <a id="data-vintage-link" href="#">Methodology</a>
+        <a id="data-gaps-link" href="#">Data Gaps</a>
+        <a href="https://github.com/vibho/birth_lottery" target="_blank">Open Source</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Wheel Expand Overlay -->
+  <div id="wheel-overlay" class="wheel-overlay hidden">
+    <div class="wheel-overlay-backdrop" id="wheel-overlay-backdrop"></div>
+    <div class="wheel-overlay-panel">
+      <div class="wheel-overlay-header">
+        <span class="eyebrow">Spin Wheel · Population Distribution</span>
+        <button class="wheel-overlay-close" id="wheel-overlay-close">✕</button>
+      </div>
+      <div class="wheel-overlay-container">
+        <div class="spinner-needle"></div>
+        <div id="wheel-overlay-inner" class="spinner-wheel"></div>
+        <div class="spinner-center"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Fullscreen Overlay -->
+  <div id="section-fullscreen-overlay" class="section-fullscreen-overlay hidden">
+    <div class="section-fullscreen-backdrop" onclick="closeSectionFullscreen()"></div>
+    <div class="section-fullscreen-panel">
+      <div class="section-fullscreen-header">
+        <div id="section-fullscreen-title" class="eyebrow"></div>
+        <button class="section-fullscreen-close" onclick="closeSectionFullscreen()">✕</button>
+      </div>
+      <div id="section-fullscreen-body" class="section-fullscreen-body"></div>
+    </div>
+  </div>
+
+  <!-- Methodology Overlay Modal -->
+  <div id="methodology-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Methodology & Sourcing</h2>
+        <button id="methodology-close" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Two-Stage Draw Mechanics</strong></p>
+        <p>Stage 1 draws a country using birth weights sourced from the UN World Population Prospects (2024). Each country's probability is proportional to its annual birth count.</p>
+        <p>Stage 2 draws individual characteristics (sex, wealth quintile, and urban/rural residence) using country-specific probability estimates. Sex splits reflect birth sex ratios. Urban/rural splits draw from World Bank urbanization data.</p>
+        <p><strong>Primary Data Sources</strong></p>
+        <ul>
+          <li><strong>UN World Population Prospects (2024):</strong> Annual birth counts and gender-disaggregated life expectancies.</li>
+          <li><strong>World Bank World Development Indicators (2023):</strong> GDP per capita (PPP) for World Bank member states, plus access rates for electricity, water, sanitation, and urbanization ratios.</li>
+          <li><strong>World Bank Poverty and Inequality Platform (PIP):</strong> Income quintile distribution shares.</li>
+          <li><strong>IMF World Economic Outlook (2026):</strong> GDP per capita (PPP) for countries not covered by the World Bank, including Taiwan, Venezuela, Yemen, and Liechtenstein.</li>
+          <li><strong>CIA World Factbook (2023/24):</strong> GDP per capita (PPP) for territories and non-member states absent from IMF and World Bank data, including crown dependencies, overseas territories, and sanctioned states.</li>
+          <li><strong>Economist Intelligence Unit:</strong> Country composite democracy indexes.</li>
+          <li><strong>UCDP / PRIO Conflict Database:</strong> Fatalities reported in state-based and non-state conflicts.</li>
+          <li><strong>UNICEF:</strong> Child marriage and FGM prevalence databases.</li>
+        </ul>
+        <p><strong>GDP Coverage Notes</strong></p>
+        <p>For the small number of French overseas territories (Guadeloupe, Martinique, Mayotte, and others) with no standalone figure in any of the above sources, income estimates are derived from regional economic data and parent-country income levels. These are labeled as estimates in the data gaps report.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Gaps Overlay Modal -->
+  <div id="gaps-overlay" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Data Gaps Report</h2>
+        <button id="gaps-close" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>This report lists indicators that were entirely absent from the primary World Bank data for this country. Where a metric is missing, supplementary sources (IMF, CIA World Factbook, regional estimates) are used before falling back to a conservative global default. No regional or income-group averages are imputed for non-GDP metrics.</p>
+        <div id="gaps-list" style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load App -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

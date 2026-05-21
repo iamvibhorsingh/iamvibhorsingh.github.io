@@ -1,0 +1,116 @@
+{
+  "code": "JPN",
+  "iso2": "JP",
+  "name": "Japan",
+  "births": 749884.0,
+  "urban_pct": 92.1901718034531,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 84.0363414634146,
+    "life_exp_female": 87.13,
+    "life_exp_male": 81.09,
+    "under5_mortality": 2.4,
+    "maternal_mortality": 3.0,
+    "electricity_total": 100.0,
+    "electricity_rural": 100.0,
+    "electricity_urban": 100.0,
+    "water_basic": 99.1831679675454,
+    "sanitation_basic": 99.9433104207437,
+    "schooling": 12.0,
+    "democracy_index": 8.48,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 52039.1716551611
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.068,
+      0.13,
+      0.17600000000000002,
+      0.23199999999999998,
+      0.39399999999999996
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    }
+  },
+  "data_gaps": [
+    "schooling"
+  ]
+}

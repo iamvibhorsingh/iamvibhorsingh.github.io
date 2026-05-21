@@ -1,0 +1,122 @@
+{
+  "code": "BDI",
+  "iso2": "BI",
+  "name": "Burundi",
+  "births": 460882.0,
+  "urban_pct": 24.8302838651025,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 63.818,
+    "life_exp_female": 65.881,
+    "life_exp_male": 61.752,
+    "under5_mortality": 47.1,
+    "maternal_mortality": 392.0,
+    "electricity_total": 11.6,
+    "electricity_rural": 2.3,
+    "electricity_urban": 65.0,
+    "water_basic": 65.9191041847553,
+    "sanitation_basic": 44.6339890793582,
+    "schooling": 10.77537,
+    "democracy_index": 2.13,
+    "conflict_deaths": 1.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 19.0,
+    "gdp_pc_ppp": 1194.94681370387
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.071,
+      0.11199999999999999,
+      0.153,
+      0.214,
+      0.45
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2017
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2020
+    }
+  },
+  "data_gaps": []
+}

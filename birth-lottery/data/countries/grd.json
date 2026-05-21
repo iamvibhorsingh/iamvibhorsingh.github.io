@@ -1,0 +1,106 @@
+{
+  "code": "GRD",
+  "iso2": "GD",
+  "name": "Grenada",
+  "births": 1371.0,
+  "urban_pct": 36.5628000454229,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 75.367,
+    "life_exp_female": 78.504,
+    "life_exp_male": 72.52,
+    "under5_mortality": 18.0,
+    "maternal_mortality": 48.0,
+    "electricity_total": 94.4,
+    "electricity_rural": 94.4,
+    "electricity_urban": 94.4,
+    "water_basic": 95.6286504435547,
+    "sanitation_basic": 92.6192396904393,
+    "schooling": 18.62984,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 15.0,
+    "gdp_pc_ppp": 20177.8094927386
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.055,
+      0.09699999999999999,
+      0.135,
+      0.209,
+      0.504
+    ]
+  },
+  "source_metadata": {
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2017
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2018
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2018
+    }
+  },
+  "data_gaps": []
+}

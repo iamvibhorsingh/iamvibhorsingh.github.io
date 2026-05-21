@@ -1,0 +1,126 @@
+{
+  "code": "GHA",
+  "iso2": "GH",
+  "name": "Ghana",
+  "births": 888947.0,
+  "urban_pct": 58.3654868038581,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 65.695,
+    "life_exp_female": 68.159,
+    "life_exp_male": 63.314,
+    "under5_mortality": 35.9,
+    "maternal_mortality": 234.0,
+    "electricity_total": 89.5,
+    "electricity_rural": 77.8,
+    "electricity_urban": 97.5,
+    "water_basic": 89.9220116872755,
+    "sanitation_basic": 31.5789404731982,
+    "schooling": 11.86731,
+    "democracy_index": 6.24,
+    "conflict_deaths": 20.0,
+    "fgm_prevalence": 2.4,
+    "child_marriage": 16.1,
+    "gdp_pc_ppp": 8019.99702389611
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.047,
+      0.096,
+      0.14800000000000002,
+      0.223,
+      0.486
+    ]
+  },
+  "source_metadata": {
+    "democracy": {
+      "source": "Our World In Data",
+      "year": 2024
+    },
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "fgm": {
+      "source": "Our World In Data",
+      "year": 2018
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2022
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2019
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2016
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2016
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2016
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2016
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2016
+    }
+  },
+  "data_gaps": []
+}

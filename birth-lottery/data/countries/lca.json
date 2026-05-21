@@ -1,0 +1,118 @@
+{
+  "code": "LCA",
+  "iso2": "LC",
+  "name": "Saint Lucia",
+  "births": 2019.0,
+  "urban_pct": 29.0973354237452,
+  "sex_ratio": 1.05,
+  "metrics": {
+    "life_exp": 72.846,
+    "life_exp_female": 76.45,
+    "life_exp_male": 69.452,
+    "under5_mortality": 17.2,
+    "maternal_mortality": 44.0,
+    "electricity_total": 100.0,
+    "electricity_rural": 100.0,
+    "electricity_urban": 100.0,
+    "water_basic": 98.0956816576068,
+    "sanitation_basic": 83.3579905079804,
+    "schooling": 12.93919,
+    "democracy_index": 5.5,
+    "conflict_deaths": 0.0,
+    "fgm_prevalence": 0.0,
+    "child_marriage": 24.0,
+    "gdp_pc_ppp": 27567.3280779839
+  },
+  "distributions": {
+    "quintile_shares": [
+      0.055055055055055056,
+      0.0960960960960961,
+      0.13813813813813816,
+      0.2072072072072072,
+      0.5035035035035035
+    ]
+  },
+  "source_metadata": {
+    "conflict": {
+      "source": "Our World In Data",
+      "year": 2026
+    },
+    "child_marriage": {
+      "source": "Our World In Data",
+      "year": 2012
+    },
+    "life_exp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_female": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "life_exp_male": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "under5_mortality": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "maternal_mortality": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_total": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_rural": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "electricity_urban": {
+      "source": "World Bank WDI",
+      "year": 2023
+    },
+    "water_basic": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "sanitation_basic": {
+      "source": "World Bank WDI",
+      "year": 2022
+    },
+    "schooling": {
+      "source": "World Bank WDI",
+      "year": 2019
+    },
+    "urban_pop_pct": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "gdp_pc_ppp": {
+      "source": "World Bank WDI",
+      "year": 2024
+    },
+    "q1_share": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "q2_share": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "q3_share": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "q4_share": {
+      "source": "World Bank WDI",
+      "year": 2015
+    },
+    "q5_share": {
+      "source": "World Bank WDI",
+      "year": 2015
+    }
+  },
+  "data_gaps": []
+}
