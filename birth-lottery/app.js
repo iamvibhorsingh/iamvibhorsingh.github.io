@@ -32,7 +32,8 @@ const state = {
   iso3ToNumericMap: {},
   globeFeatures: null,
   activeGlobeCountry: null,
-  ignoreHashChange: false
+  ignoreHashChange: false,
+  activeTab: 'single'
 };
 
 // DOM Elements cache
@@ -57,7 +58,7 @@ const cacheElements = () => {
     'step-back-btn', 'step-next-btn', 'step-pill-1', 'step-pill-2', 'step-pill-3', 'step-pill-4',
     'aggregate-takeaway', 'share-step-text',
     'opt-toggle-water', 'opt-toggle-electricity', 'opt-toggle-schooling',
-    'chart-placeholder-title', 'chart-placeholder-hint'
+    'chart-placeholder-title', 'chart-placeholder-hint', 'spin-1000-placeholder-btn'
   ];
   ids.forEach(id => {
     el[id] = document.getElementById(id);
@@ -117,6 +118,11 @@ const init = async () => {
 
 // Dashboard Tab Switcher
 const switchToTab = (tab) => {
+  state.activeTab = tab;
+  const l = locales[state.lang] || locales.en;
+  if (el['spin-btn']) {
+    el['spin-btn'].textContent = tab === 'aggregate' ? l.spin_1000_btn : l.spin_btn;
+  }
   if (tab === 'single') {
     if (el['tab-single']) el['tab-single'].classList.add('active');
     if (el['tab-aggregate']) el['tab-aggregate'].classList.remove('active');
@@ -211,8 +217,19 @@ const setupEventListeners = () => {
     });
   }
 
-  if (el['spin-btn']) el['spin-btn'].addEventListener('click', handleSpin);
+  if (el['spin-btn']) {
+    el['spin-btn'].addEventListener('click', () => {
+      if (state.activeTab === 'aggregate') {
+        handleSpin1000();
+      } else {
+        handleSpin();
+      }
+    });
+  }
   if (el['spin-1000-btn']) el['spin-1000-btn'].addEventListener('click', handleSpin1000);
+  if (el['spin-1000-placeholder-btn']) {
+    el['spin-1000-placeholder-btn'].addEventListener('click', handleSpin1000);
+  }
 
   // Wheel expand overlay
   const wheelExpandBtn = document.getElementById('wheel-expand-btn');
@@ -2150,6 +2167,7 @@ const renderAggregateStory = (step, isResize = false) => {
 
   // Step 1 uses the CSS dot-grid animation — bypass D3 entirely
   if (step === 1) {
+    container.style.height = '';
     renderSurvivalStep(isResize);
     return;
   }
@@ -2170,7 +2188,26 @@ const renderAggregateStory = (step, isResize = false) => {
 
   // Dynamically read container dimensions so we NEVER hardcode height or width!
   const width = container.clientWidth || 800;
-  const height = Math.max(container.clientHeight || 0, 640);
+  const isMobile = width < 768;
+  let height;
+
+  if (isMobile) {
+    if (step === 2) {
+      const cols = 25;
+      const rows = 40;
+      const gridW = width * 0.90;
+      const colSpacing = gridW / (cols - 1);
+      const spacing = Math.min(colSpacing, 14);
+      const idealGridH = (rows - 1) * spacing;
+      height = Math.max(500, Math.round(2 * idealGridH + 340));
+    } else {
+      height = 500;
+    }
+    container.style.height = height + 'px';
+  } else {
+    container.style.height = '';
+    height = Math.max(container.clientHeight || 0, 640);
+  }
 
   let svg = d3.select(container).select('svg');
   if (svg.empty()) {
@@ -2192,9 +2229,6 @@ const renderAggregateStory = (step, isResize = false) => {
   svg.select('.chart-bg-rect')
     .attr('width', width)
     .attr('height', height);
-
-  // Dynamic Layout Mathematics
-  const isMobile = width < 768;
 
   let layout = {};
   if (!isMobile) {
@@ -2834,11 +2868,14 @@ const renderAggregateStory = (step, isResize = false) => {
         labelText += ' ' + t('chart_income_higher', { mult: multiplier });
       }
 
+      const anchor = lineX < width * 0.45 ? 'start' : 'end';
+      const textX = anchor === 'start' ? lineX + 8 : lineX - 8;
+
       svg.append('text')
         .attr('class', 'chart-ref-label')
-        .attr('x', lineX - 8)
+        .attr('x', textX)
         .attr('y', height * 0.20)
-        .attr('text-anchor', 'end')
+        .attr('text-anchor', anchor)
         .attr('fill', '#6F8CA1')
         .attr('font-size', layout.isMobile ? '9px' : '11px')
         .attr('font-weight', '700')
@@ -2921,11 +2958,14 @@ const renderAggregateStory = (step, isResize = false) => {
       const difference = Math.max(0, compLife - medianLife);
 
       const displayCompCountryShort = truncateText(compCountry, layout.isMobile ? 12 : 25);
+      const anchor = lineX < width * 0.45 ? 'start' : 'end';
+      const textX = anchor === 'start' ? lineX + 8 : lineX - 8;
+
       svg.append('text')
         .attr('class', 'chart-ref-label')
-        .attr('x', lineX - 8)
+        .attr('x', textX)
         .attr('y', height * 0.20)
-        .attr('text-anchor', 'end')
+        .attr('text-anchor', anchor)
         .attr('fill', '#6F8CA1')
         .attr('font-size', layout.isMobile ? '9px' : '11px')
         .attr('font-weight', '700')
@@ -3354,6 +3394,26 @@ const handleSpin1000 = async () => {
   if (state.isSpinning) return;
   state.isSpinning = true;
 
+  const spinBtn = el['spin-btn'];
+  const spin1000Btn = el['spin-1000-btn'];
+  const placeholderBtn = el['spin-1000-placeholder-btn'];
+
+  if (spinBtn) {
+    spinBtn.disabled = true;
+    spinBtn.classList.add('spinning');
+    spinBtn.innerHTML = 'Spinning...';
+  }
+  if (spin1000Btn) {
+    spin1000Btn.disabled = true;
+    spin1000Btn.classList.add('spinning');
+    spin1000Btn.innerHTML = 'Spinning...';
+  }
+  if (placeholderBtn) {
+    placeholderBtn.disabled = true;
+    placeholderBtn.classList.add('spinning');
+    placeholderBtn.innerHTML = 'Spinning...';
+  }
+
   switchToTab('aggregate');
   showAggregateLoaders();
 
@@ -3467,6 +3527,23 @@ const handleSpin1000 = async () => {
   setAggregateStep(1);
 
   state.isSpinning = false;
+
+  const l = locales[state.lang] || locales.en;
+  if (spinBtn) {
+    spinBtn.disabled = false;
+    spinBtn.classList.remove('spinning');
+    spinBtn.innerHTML = state.activeTab === 'aggregate' ? l.spin_1000_btn : l.spin_btn;
+  }
+  if (spin1000Btn) {
+    spin1000Btn.disabled = false;
+    spin1000Btn.classList.remove('spinning');
+    spin1000Btn.innerHTML = l.spin_1000_btn;
+  }
+  if (placeholderBtn) {
+    placeholderBtn.disabled = false;
+    placeholderBtn.classList.remove('spinning');
+    placeholderBtn.innerHTML = l.spin_1000_btn;
+  }
 };
 
 // Seed load method
@@ -3510,8 +3587,9 @@ const updateTranslations = () => {
   if (el['user-country-label']) el['user-country-label'].textContent = l.actual_country_label;
 
   // Controls
-  if (el['spin-btn']) el['spin-btn'].textContent = l.spin_btn;
+  if (el['spin-btn']) el['spin-btn'].textContent = state.activeTab === 'aggregate' ? l.spin_1000_btn : l.spin_btn;
   if (el['spin-1000-btn']) el['spin-1000-btn'].textContent = l.spin_1000_btn;
+  if (el['spin-1000-placeholder-btn']) el['spin-1000-placeholder-btn'].textContent = l.spin_1000_btn;
   if (el['compare-mode-btn']) el['compare-mode-btn'].textContent = l.compare_mode;
   if (el['hold-btn']) el['hold-btn'].textContent = l.hold_active;
 
