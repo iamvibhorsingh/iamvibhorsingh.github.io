@@ -2755,14 +2755,110 @@ footer {
     padding: 1rem;
   }
 
+  .draw-result-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .draw-result-header-left {
+    max-width: 100%;
+  }
+
+  .draw-result-header-right {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .country-name {
+    font-size: 2.2rem;
+  }
+
+  .country-flag {
+    font-size: 2.2rem;
+  }
+
   .luck-score-container.hero-luck-score {
-    margin-top: 0.5rem;
-    padding: 1rem;
+    align-items: center;
+    text-align: center;
+    margin-top: 0;
+    padding: 1rem 0 0;
     border-top: 1px solid var(--border);
   }
 
   .luck-score-number {
     font-size: 2.75rem;
+  }
+
+  .share-actions-row {
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px;
+    margin-top: 0.5rem;
+  }
+
+  .btn-share, .btn-share-alt {
+    flex: 1 1 140px;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+    row-gap: 1.25rem;
+  }
+
+  .section-fullscreen-body .metrics-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .dot-grid-headline {
+    font-size: 1.8rem;
+  }
+
+  .dot-grid-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .dot-grid-header-left {
+    max-width: 100%;
+  }
+
+  .dot-grid-counters {
+    justify-content: flex-start;
+    gap: 1.5rem;
+  }
+
+  .dot-grid {
+    grid-template-columns: repeat(25, 1fr);
+  }
+
+  .dot-grid-milestone-strip {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .survival-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .survival-copy {
+    max-width: 100%;
+  }
+
+  .survival-counters {
+    justify-content: flex-start;
+    gap: 1.5rem;
+  }
+
+  .survival-dot-grid {
+    grid-template-columns: repeat(25, 1fr);
   }
 
   .sidebar {
