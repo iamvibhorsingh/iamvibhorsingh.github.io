@@ -6,9 +6,9 @@
   "urban_pct": 87.8854066107749,
   "sex_ratio": 1.05,
   "metrics": {
-    "life_exp": 71.121,
-    "life_exp_female": 72.679,
-    "life_exp_male": 69.625,
+    "life_exp": 75.18,
+    "life_exp_female": 77.83,
+    "life_exp_male": 72.71,
     "under5_mortality": 9.8,
     "maternal_mortality": 59.0,
     "electricity_total": 73.2,
@@ -42,16 +42,16 @@
       "year": 2026
     },
     "life_exp": {
-      "source": "World Bank WDI",
-      "year": 2024
+      "source": "Worldometer (UN WPP)",
+      "year": 2025
     },
     "life_exp_female": {
-      "source": "World Bank WDI",
-      "year": 2024
+      "source": "Worldometer (UN WPP)",
+      "year": 2025
     },
     "life_exp_male": {
-      "source": "World Bank WDI",
-      "year": 2024
+      "source": "Worldometer (UN WPP)",
+      "year": 2025
     },
     "under5_mortality": {
       "source": "World Bank WDI",

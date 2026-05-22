@@ -147,7 +147,7 @@
           </div>
           <div class="cb-legend-item">
             <span class="cb-legend-swatch swatch-deficit"></span>
-            <span>Deficit</span>
+            <span id="cb-legend-deficit-label">Deficit</span>
           </div>
         </div>
 
@@ -794,9 +794,9 @@
       <!-- 1,000 Spins Aggregate Dashboard — inside main, toggled by tab JS -->
       <section id="aggregate-dashboard" class="panel aggregate-dashboard hidden">
         <div class="aggregate-header-nav">
-          <div class="eyebrow" style="margin-bottom:4px;">Step 03 · One Thousand Lives</div>
-          <h2 class="aggregate-title">Watch Them Age Out.</h2>
-          <p class="aggregate-subtitle">Each dot is one life. Spin 1,000 times and fast-forward through 100 years of outcomes.</p>
+          <div id="agg-eyebrow" class="eyebrow" style="margin-bottom:4px;">Step 03 · One Thousand Lives</div>
+          <h2 id="agg-title" class="aggregate-title">Watch Them Age Out.</h2>
+          <p id="agg-subtitle" class="aggregate-subtitle">Each dot is one life. Spin 1,000 times and fast-forward through 100 years of outcomes.</p>
           <div class="stepper-controls">
             <button id="step-back-btn" class="stepper-nav-btn">← Back</button>
             <div class="stepper-pills">
@@ -811,7 +811,7 @@
         <div class="narrative-banner-container">
           <div id="aggregate-takeaway" class="narrative-takeaway-text">Click "Spin 1,000 Times" to generate the cohort and see the story of humanity unfold...</div>
           <div class="narrative-action-buttons">
-            <button id="share-step-btn" class="btn-share-step"><span class="icon">🔗</span> Share Step Card</button>
+            <button id="share-step-btn" class="btn-share-step"><span class="icon">🔗</span><span id="share-step-text"> Share Step Card</span></button>
           </div>
         </div>
         <div class="aggregate-workspace">
@@ -822,8 +822,8 @@
           </div>
           <div id="chart-story-container" class="chart-container story-chart-container">
             <div class="chart-placeholder-message">
-              <h3>No simulated data loaded.</h3>
-              <p>Please click the "Spin 1,000 Times" button in the sidebar to generate a simulated cohort and begin the narrative visualization.</p>
+              <h3 id="chart-placeholder-title">No simulated data loaded.</h3>
+              <p id="chart-placeholder-hint">Please click the "Spin 1,000 Times" button in the sidebar to generate a simulated cohort and begin the narrative visualization.</p>
             </div>
           </div>
         </div>
@@ -837,7 +837,7 @@
       <div class="footer-links">
         <a id="data-vintage-link" href="#">Methodology</a>
         <a id="data-gaps-link" href="#">Data Gaps</a>
-        <a href="https://github.com/vibho/birth_lottery" target="_blank">Open Source</a>
+        <a href="https://github.com/iamvibhorsingh/iamvibhorsingh.github.io/tree/master/birth-lottery" target="_blank">Open Source</a>
       </div>
     </footer>
 

@@ -2038,19 +2038,16 @@ main {
 }
 
 .survival-milestones {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
   gap: 14px;
-  flex-shrink: 0;
-}
-
-@media (max-width: 640px) {
-  .survival-milestones {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
 .survival-milestone {
+  flex: 1 1 auto;
+  min-width: 130px;
   border-left: 2px solid var(--border);
   padding-left: 10px;
   opacity: 0.4;
@@ -2069,6 +2066,7 @@ main {
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .survival-milestone-age {

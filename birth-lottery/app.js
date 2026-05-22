@@ -1,5 +1,15 @@
 import { locales } from './locales.js';
 
+// Template string helper: t('key', { var: value }) replaces {var} in locale string
+const t = (key, vars = {}) => {
+  const l = locales[state.lang] || locales.en;
+  let str = (l[key] !== undefined ? l[key] : locales.en[key]) ?? key;
+  Object.entries(vars).forEach(([k, v]) => {
+    str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+  });
+  return str;
+};
+
 // Application State
 const state = {
   lang: 'en',
@@ -40,7 +50,14 @@ const cacheElements = () => {
     'compare-flag-1', 'compare-name-1', 'compare-flag-2', 'compare-name-2', 'compare-tags-1', 'compare-tags-2',
     'aggregate-dashboard', 'aggregate-grid', 'chart-region-container', 'chart-income-container',
     'chart-wealth-container', 'chart-life-container', 'wheel', 'probabilistic-note',
-    'tab-single', 'tab-aggregate', 'single-view', 'globe-svg'
+    'tab-single', 'tab-aggregate', 'single-view', 'globe-svg',
+    'cb-legend-draw-label', 'cb-legend-base-label', 'cb-legend-deficit-label',
+    'share-card-btn', 'download-card-btn',
+    'agg-eyebrow', 'agg-title', 'agg-subtitle',
+    'step-back-btn', 'step-next-btn', 'step-pill-1', 'step-pill-2', 'step-pill-3', 'step-pill-4',
+    'aggregate-takeaway', 'share-step-text',
+    'opt-toggle-water', 'opt-toggle-electricity', 'opt-toggle-schooling',
+    'chart-placeholder-title', 'chart-placeholder-hint'
   ];
   ids.forEach(id => {
     el[id] = document.getElementById(id);
@@ -185,8 +202,12 @@ const setupEventListeners = () => {
     el['lang-select'].addEventListener('change', (e) => {
       state.lang = e.target.value;
       updateTranslations();
+      drawWheelSVG();
       if (state.activeDraw) renderDraw(state.activeDraw, 'active');
       if (state.heldDraw) renderDraw(state.heldDraw, 'held');
+      if (state.cohortDraws && state.cohortDraws.length > 0) {
+        renderAggregateStory(state.aggregateStep, true);
+      }
     });
   }
 
@@ -970,7 +991,7 @@ const completeSpin = (draw, skipped = false) => {
   if (drawLabelEl) {
     const labelSpan = drawLabelEl.querySelector('span');
     if (labelSpan) {
-      labelSpan.textContent = `🎲 Random Birth Draw (Lottery Spin)`;
+      labelSpan.textContent = t('draw_label_spin');
     }
   }
 
@@ -1003,7 +1024,7 @@ const completeSpin = (draw, skipped = false) => {
   if (el['active-disability-badge']) {
     if (draw.hasDisability) {
       el['active-disability-badge'].classList.remove('hidden');
-      el['active-disability-badge'].innerHTML = `<span class="icon">♿</span> Disabled`;
+      el['active-disability-badge'].textContent = `♿ ${locales[state.lang].disabled}`;
     } else {
       el['active-disability-badge'].classList.add('hidden');
     }
@@ -1242,7 +1263,7 @@ const handleCountryClick = async (feature) => {
   if (drawLabelEl) {
     const labelSpan = drawLabelEl.querySelector('span');
     if (labelSpan) {
-      labelSpan.textContent = `🎲 Random Birth Draw (Clicked Country - Click again to re-draw)`;
+      labelSpan.textContent = t('draw_label_click');
     }
   }
 
@@ -1394,7 +1415,7 @@ const renderDraw = async (draw, target = 'active') => {
     if (el['active-disability-badge']) {
       if (draw.hasDisability) {
         el['active-disability-badge'].classList.remove('hidden');
-        el['active-disability-badge'].innerHTML = `<span class="icon">♿</span> Disabled`;
+        el['active-disability-badge'].textContent = `♿ ${l.disabled}`;
       } else {
         el['active-disability-badge'].classList.add('hidden');
       }
@@ -1448,7 +1469,7 @@ const renderDraw = async (draw, target = 'active') => {
         <span class="badge">${draw.sex === 'Female' ? l.gender_female : l.gender_male}</span>
         <span class="badge">${l[qKey]}</span>
         <span class="badge">${l[rKey]}</span>
-        <span class="badge primary">${draw.luckScore}% Luck</span>
+        <span class="badge primary">${draw.luckScore}% ${l.luck_pct}</span>
       `;
     }
   }
@@ -1464,7 +1485,7 @@ const renderDraw = async (draw, target = 'active') => {
         <span class="badge">${draw.sex === 'Female' ? l.gender_female : l.gender_male}</span>
         <span class="badge">${l[qKey]}</span>
         <span class="badge">${l[rKey]}</span>
-        <span class="badge primary">${draw.luckScore}% Luck</span>
+        <span class="badge primary">${draw.luckScore}% ${l.luck_pct}</span>
       `;
     }
   }
@@ -1531,7 +1552,7 @@ const updateMetricCards = async (draw, instant = false) => {
       return `${num.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: decimals })}%`;
     }
     if (unitType === 'yrs') {
-      return `${(Math.round(num * 10) / 10)} yrs`;
+      return `${(Math.round(num * 10) / 10)} ${t('unit_yrs')}`;
     }
     if (unitType === '\u2030') {
       return `${(Math.round(num * 10) / 10)} \u2030`;
@@ -1540,7 +1561,7 @@ const updateMetricCards = async (draw, instant = false) => {
       return `${(Math.round(num * 10) / 10)}/10`;
     }
     if (unitType === 'deaths') {
-      return `${Math.round(num).toLocaleString()} deaths`;
+      return `${Math.round(num).toLocaleString()} ${t('unit_deaths')}`;
     }
     return `${Math.round(num).toLocaleString()}`;
   };
@@ -1717,17 +1738,17 @@ const updateMetricCards = async (draw, instant = false) => {
           hatchEl.style.width = `${gapPct}%`;
           hatchEl.style.display = 'block';
           if (cbDeficitEl) {
-            cbDeficitEl.textContent = `−${fmtCB(Math.abs(deficit))} ${polarity === 'more' ? 'short' : 'excess'}`;
+            cbDeficitEl.textContent = `−${fmtCB(Math.abs(deficit))} ${polarity === 'more' ? l.deficit_short : l.deficit_excess}`;
             cbDeficitEl.className = 'cb-deficit-label';
           }
         } else {
           hatchEl.style.display = 'none';
           if (cbDeficitEl) {
             if (!isDeficit && gapPct > 0.5) {
-              cbDeficitEl.textContent = `+${fmtCB(Math.abs(deficit))} ahead`;
+              cbDeficitEl.textContent = `+${fmtCB(Math.abs(deficit))} ${l.deficit_ahead}`;
               cbDeficitEl.className = 'cb-surplus-label';
             } else {
-              cbDeficitEl.textContent = 'at parity';
+              cbDeficitEl.textContent = l.deficit_parity;
               cbDeficitEl.className = 'cb-parity-label';
             }
           }
@@ -1832,7 +1853,7 @@ const renderDataGaps = () => {
     item.className = 'gap-item';
     const lbl = document.createElement('span');
     lbl.className = 'gap-label';
-    lbl.textContent = 'No significant data gaps for this country draw!';
+    lbl.textContent = t('gaps_no_gaps');
     item.appendChild(lbl);
     el['gaps-list'].appendChild(item);
     return;
@@ -1846,7 +1867,7 @@ const renderDataGaps = () => {
     lbl.textContent = GAP_LABELS[g] || g;
     const status = document.createElement('span');
     status.className = 'gap-status';
-    status.textContent = 'Missing, supplementary source or default applied';
+    status.textContent = t('gaps_status');
     item.append(lbl, status);
     el['gaps-list'].appendChild(item);
   });
@@ -1914,8 +1935,8 @@ const renderSurvivalStep = (isResize) => {
   const shuffledComp = deterministicShuffle(compAges, state.compareCohortDraws[0]?.code || 'yyy');
 
   // Draw cohort spans many countries — use a generic label, not the first draw's country
-  const drawCountry = 'Lottery Draw';
-  const compCountry = state.compareCohortDraws[0]?.name || 'Your Country';
+  const drawCountry = t('chart_draw_header_mobile');
+  const compCountry = state.compareCohortDraws[0]?.name || '';
   const drawIso2 = ''; // no single flag for a multi-country cohort
   const compIso2 = (state.compareCohortDraws[0]?.iso2 || '').toLowerCase();
   const truncStr = (s, n) => s.length > n ? s.substring(0, n - 1) + '…' : s;
@@ -1931,10 +1952,10 @@ const renderSurvivalStep = (isResize) => {
     : 70;
 
   const milestones = [
-    { age: 5, label: 'Past age 5', text: `${drawDeaths} died before this point across lottery draws.` },
-    { age: 18, label: 'Adulthood', text: 'Most have left school in your home country.' },
-    { age: drawLifeExpAvg, label: 'Draw median', text: `Median life expectancy across lottery draws.` },
-    { age: compLifeExpAvg, label: 'Your median', text: `Median life expectancy in ${truncStr(compCountry, 14)}.` },
+    { age: 5, label: t('surv_milestone_age5'), text: t('chart_died_before_5', { n: drawDeaths }) },
+    { age: 18, label: t('surv_milestone_adult'), text: t('surv_ms_adult_text') },
+    { age: drawLifeExpAvg, label: t('surv_milestone_draw'), text: t('surv_ms_draw_text') },
+    { age: compLifeExpAvg, label: t('surv_milestone_your'), text: compCountry },
   ];
 
   // Build DOM with safe methods — no innerHTML + dynamic HTML
@@ -1946,10 +1967,10 @@ const renderSurvivalStep = (isResize) => {
   const top = mk('div', 'survival-top');
 
   const copy = mk('div', 'survival-copy');
-  const eyebrow = mk('div', 'eyebrow'); eyebrow.textContent = 'Step 01 · Survival';
-  const ttl = mk('h2', 'survival-title'); ttl.textContent = 'Watch them age out.';
+  const eyebrow = mk('div', 'eyebrow'); eyebrow.textContent = t('surv_eyebrow');
+  const ttl = mk('h2', 'survival-title'); ttl.textContent = t('surv_chart_title');
   const desc = mk('p', 'survival-desc');
-  desc.textContent = `1,000 random births drawn from across the world. Each dot is one life, fast-forwarding 100 years. When a dot goes dark, that life has ended.`;
+  desc.textContent = t('surv_desc');
   copy.append(eyebrow, ttl, desc);
 
   const makeFlagImg = (iso2, name) => {
@@ -1965,7 +1986,7 @@ const renderSurvivalStep = (isResize) => {
     const lbl = mk('span', 'survival-counter-label');
     const fi = makeFlagImg(iso2, name);
     if (fi) lbl.appendChild(fi);
-    lbl.appendChild(document.createTextNode(' Alive · ' + truncStr(name, 14)));
+    lbl.appendChild(document.createTextNode(' ' + t('surv_alive_label') + ' · ' + name));
     const valRow = mk('div'); valRow.style.cssText = 'display:flex;align-items:baseline;gap:4px';
     const val = mk('span', 'survival-counter-value num'); val.id = aliveId; val.style.color = color; val.textContent = '1000';
     const tot = mk('span', 'num'); tot.style.cssText = 'font-size:13px;color:var(--text-dim)'; tot.textContent = '/1000';
@@ -1984,7 +2005,7 @@ const renderSurvivalStep = (isResize) => {
   // ── Scrubber ──────────────────────────────────────────────────────
   const scrubber = mk('div', 'survival-scrubber');
   const ageDsp = mk('div', 'survival-age-display');
-  const ageEy = mk('span', 'eyebrow'); ageEy.textContent = 'Age';
+  const ageEy = mk('span', 'eyebrow'); ageEy.textContent = t('surv_age_label');
   const ageNum = mk('span', 'num'); ageNum.id = 'surv-age-num';
   ageNum.style.cssText = 'font-size:22px;font-weight:700;min-width:38px;display:inline-block';
   ageNum.textContent = '0';
@@ -2000,7 +2021,7 @@ const renderSurvivalStep = (isResize) => {
   });
 
   const replayBtn = mk('button', 'survival-replay-btn'); replayBtn.id = 'surv-replay-btn';
-  replayBtn.textContent = '↻ Replay';
+  replayBtn.textContent = t('surv_replay_btn');
   scrubber.append(ageDsp, track, replayBtn);
 
   // ── Dot grid (1000 spans) ─────────────────────────────────────────
@@ -2079,14 +2100,8 @@ const renderSurvivalStep = (isResize) => {
   // Takeaway
   const takeawayEl = document.getElementById('aggregate-takeaway');
   if (takeawayEl) {
-    takeawayEl.textContent = '';
-    takeawayEl.appendChild(document.createTextNode('Survival Attrition: '));
-    const s1 = document.createElement('strong'); s1.textContent = drawDeaths + ' of 1,000'; takeawayEl.appendChild(s1);
-    takeawayEl.appendChild(document.createTextNode(' simulated children die before their 5th birthday. In '));
-    const s2 = document.createElement('strong'); s2.textContent = truncStr(compCountry, 20); takeawayEl.appendChild(s2);
-    takeawayEl.appendChild(document.createTextNode(', only '));
-    const s3 = document.createElement('strong'); s3.textContent = String(compDeaths); takeawayEl.appendChild(s3);
-    takeawayEl.appendChild(document.createTextNode(' would die.'));
+    takeawayEl.textContent = t('take_survival', { draw: drawDeaths, country: compCountry, comp: compDeaths });
+    takeawayEl.dataset.state = 'loaded';
   }
 };
 
@@ -2103,10 +2118,12 @@ const showAggregateLoaders = () => {
     if (container.querySelector('.chart-loader')) return;
     const loader = document.createElement('div');
     loader.className = 'chart-loader';
-    loader.innerHTML = `
-      <div class="loader-spinner"></div>
-      <div class="loader-text">Simulating 1,000 lives and compiling their paths...</div>
-    `;
+    const spinner = document.createElement('div');
+    spinner.className = 'loader-spinner';
+    const loaderText = document.createElement('div');
+    loaderText.className = 'loader-text';
+    loaderText.textContent = t('surv_loader_text');
+    loader.append(spinner, loaderText);
     container.appendChild(loader);
   }
 };
@@ -2471,7 +2488,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', 'hsl(var(--text-secondary))')
       .attr('font-size', '12px')
       .attr('font-weight', '600')
-      .text((isResize || prefersReduced) ? `☠️ ${drawDeceased.length} died before age 5` : `☠️ 0 died before age 5`);
+      .text((isResize || prefersReduced) ? `☠️ ${t('chart_died_before_5', { n: drawDeceased.length })}` : `☠️ ${t('chart_died_before_5', { n: 0 })}`);
 
     const compDeathsText = svg.append('text')
       .attr('class', 'chart-title')
@@ -2481,7 +2498,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', 'hsl(var(--text-secondary))')
       .attr('font-size', '12px')
       .attr('font-weight', '600')
-      .text((isResize || prefersReduced) ? `☠️ ${compDeceased.length} died before age 5` : `☠️ 0 died before age 5`);
+      .text((isResize || prefersReduced) ? `☠️ ${t('chart_died_before_5', { n: compDeceased.length })}` : `☠️ ${t('chart_died_before_5', { n: 0 })}`);
 
     let currentDrawCount = 0;
     let currentCompCount = 0;
@@ -2550,25 +2567,25 @@ const renderAggregateStory = (step, isResize = false) => {
         if (isResize || prefersReduced) return;
         if (d.type === 'draw') {
           currentDrawCount++;
-          drawDeathsText.text(`☠️ ${currentDrawCount} died before age 5`);
+          drawDeathsText.text(`☠️ ${t('chart_died_before_5', { n: currentDrawCount })}`);
         } else {
           currentCompCount++;
-          compDeathsText.text(`☠️ ${currentCompCount} died before age 5`);
+          compDeathsText.text(`☠️ ${t('chart_died_before_5', { n: currentCompCount })}`);
         }
       });
 
     // Safety fallback to guarantee final exact totals are displayed
     if (isResize || prefersReduced) {
       const textDraw = document.getElementById('draw-deaths-counter-text');
-      if (textDraw) textDraw.textContent = `☠️ ${drawDeceased.length} died before age 5`;
+      if (textDraw) textDraw.textContent = `☠️ ${t('chart_died_before_5', { n: drawDeceased.length })}`;
       const textComp = document.getElementById('comp-deaths-counter-text');
-      if (textComp) textComp.textContent = `☠️ ${compDeceased.length} died before age 5`;
+      if (textComp) textComp.textContent = `☠️ ${t('chart_died_before_5', { n: compDeceased.length })}`;
     } else {
       setTimeout(() => {
         const textDraw = document.getElementById('draw-deaths-counter-text');
-        if (textDraw) textDraw.textContent = `☠️ ${drawDeceased.length} died before age 5`;
+        if (textDraw) textDraw.textContent = `☠️ ${t('chart_died_before_5', { n: drawDeceased.length })}`;
         const textComp = document.getElementById('comp-deaths-counter-text');
-        if (textComp) textComp.textContent = `☠️ ${compDeceased.length} died before age 5`;
+        if (textComp) textComp.textContent = `☠️ ${t('chart_died_before_5', { n: compDeceased.length })}`;
       }, 5000);
     }
 
@@ -2581,7 +2598,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#ffffff')
       .attr('font-size', '14px')
       .attr('font-weight', '700')
-      .text(layout.isMobile ? 'Draw Cohort (Lottery)' : 'Draw Cohort (Born in Lottery)');
+      .text(layout.isMobile ? t('chart_draw_header_mobile') : t('chart_draw_header'));
 
     svg.append('text').attr('class', 'chart-title')
       .attr('x', layout.isMobile ? layout.headerX : layout.compHeaderX)
@@ -2589,20 +2606,20 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#ffffff')
       .attr('font-size', '14px')
       .attr('font-weight', '700')
-      .text(layout.isMobile ? `Comp Cohort (${displayCompCountry})` : `Comparison Cohort (Born in ${compCountry})`);
+      .text(layout.isMobile ? t('chart_comp_header_mobile', { country: displayCompCountry }) : t('chart_comp_header', { country: compCountry }));
 
     const drawDeaths = drawDeceased.length;
     const compareDeaths = compDeceased.length;
 
-    // Takeaway Text update
     if (takeawayEl) {
-      takeawayEl.innerHTML = `Survival Attrition: <strong>${drawDeaths} of 1,000</strong> simulated children die before their 5th birthday. In <strong>${compCountry}</strong>, only <strong>${compareDeaths}</strong> would die.`;
+      takeawayEl.textContent = t('take_survival', { draw: drawDeaths, country: compCountry, comp: compareDeaths });
+      takeawayEl.dataset.state = 'loaded';
     }
 
   } else if (step === 2) {
     // Step 2: Opportunity & Access
     const activeMetric = state.opportunityMetric;
-    const metricLabel = activeMetric === 'water' ? 'clean drinking water' : (activeMetric === 'electricity' ? 'electricity access' : 'university completion');
+    const metricLabel = activeMetric === 'water' ? t('chart_metric_water') : (activeMetric === 'electricity' ? t('chart_metric_electricity') : t('chart_metric_university'));
 
     const drawDeceased = state.cohortDraws.filter(d => d.diedUnder5);
     drawDeceased.sort((a, b) => parseInt(a.id.split('-')[1]) - parseInt(b.id.split('-')[1]));
@@ -2612,54 +2629,83 @@ const renderAggregateStory = (step, isResize = false) => {
     compDeceased.sort((a, b) => parseInt(a.id.split('-')[1]) - parseInt(b.id.split('-')[1]));
     const compDeceasedMap = new Map(compDeceased.map((d, i) => [d.id, i]));
 
-    allCircles.transition('morph')
+    const graveX = d => {
+      const sortedIdx = d.type === 'draw' ? drawDeceasedMap.get(d.id) : compDeceasedMap.get(d.id);
+      const col = sortedIdx % layout.graveCols;
+      return (d.type === 'draw' ? layout.drawGraveX : layout.compGraveX) + col * layout.colSpacing;
+    };
+    const graveY = d => {
+      const sortedIdx = d.type === 'draw' ? drawDeceasedMap.get(d.id) : compDeceasedMap.get(d.id);
+      const row = Math.floor(sortedIdx / layout.graveCols);
+      if (!layout.isMobile) return layout.yBaseline - row * layout.rowSpacing;
+      const baseline = d.type === 'draw' ? layout.drawGraveBaseline : layout.compGraveBaseline;
+      return baseline - row * layout.rowSpacing;
+    };
+
+    // Survivors: normal morph into grid with access colouring
+    allCircles.filter(d => !d.diedUnder5)
+      .transition('morph')
       .duration(transitionDuration)
       .attr('cx', d => {
-        if (d.diedUnder5) {
-          const sortedIdx = d.type === 'draw' ? drawDeceasedMap.get(d.id) : compDeceasedMap.get(d.id);
-          const col = sortedIdx % layout.graveCols;
-          const startX = d.type === 'draw' ? layout.drawGraveX : layout.compGraveX;
-          return startX + col * layout.colSpacing;
-        }
         const idx = parseInt(d.id.split('-')[1]);
         return d.type === 'draw'
           ? layout.drawX + (idx % layout.cols) * layout.colSpacing
           : layout.compX + (idx % layout.cols) * layout.colSpacing;
       })
       .attr('cy', d => {
-        if (d.diedUnder5) {
-          const sortedIdx = d.type === 'draw' ? drawDeceasedMap.get(d.id) : compDeceasedMap.get(d.id);
-          const row = Math.floor(sortedIdx / layout.graveCols);
-          if (!layout.isMobile) {
-            return layout.yBaseline - row * layout.rowSpacing;
-          } else {
-            const baseline = d.type === 'draw' ? layout.drawGraveBaseline : layout.compGraveBaseline;
-            return baseline - row * layout.rowSpacing;
-          }
-        }
         const idx = parseInt(d.id.split('-')[1]);
         return d.type === 'draw'
           ? layout.drawY + Math.floor(idx / layout.cols) * layout.rowSpacing
           : layout.compY + Math.floor(idx / layout.cols) * layout.rowSpacing;
       })
       .attr('fill', d => {
-        if (d.diedUnder5) return '#2f2836'; // dead stay charcoal
-
         let hasAccess = false;
         if (activeMetric === 'water') hasAccess = d.hasWater;
         else if (activeMetric === 'electricity') hasAccess = d.hasElectricity;
         else if (activeMetric === 'schooling') hasAccess = d.hasUniversity;
+        return hasAccess
+          ? (d.type === 'draw' ? '#B58A63' : '#6F8CA1')
+          : '#BC463B';
+      })
+      .attr('opacity', 0.85)
+      .attr('r', layout.dotRadius);
 
-        if (hasAccess) {
-          return d.type === 'draw' ? '#B58A63' : '#6F8CA1'; // Soft Indigo vs Soft Blue
-        } else {
-          return '#BC463B'; // warning rose red
-        }
+    // Deceased: first snap to their grid slots so they're visible in the main chart,
+    // then fall to the graveyard with a slow staggered animation
+    const deadGridX = d => {
+      const idx = parseInt(d.id.split('-')[1]);
+      return d.type === 'draw'
+        ? layout.drawX + (idx % layout.cols) * layout.colSpacing
+        : layout.compX + (idx % layout.cols) * layout.colSpacing;
+    };
+    const deadGridY = d => {
+      const idx = parseInt(d.id.split('-')[1]);
+      return d.type === 'draw'
+        ? layout.drawY + Math.floor(idx / layout.cols) * layout.rowSpacing
+        : layout.compY + Math.floor(idx / layout.cols) * layout.rowSpacing;
+    };
+
+    allCircles.filter(d => d.diedUnder5)
+      .interrupt()
+      .attr('cx', deadGridX)
+      .attr('cy', deadGridY)
+      .attr('fill', d => d.type === 'draw' ? '#B58A63' : '#6F8CA1')
+      .attr('opacity', isResize ? 0.25 : 0.7)
+      .attr('r', layout.dotRadius);
+
+    allCircles.filter(d => d.diedUnder5)
+      .transition('fall')
+      .ease(d3.easeQuadIn)
+      .duration(isResize ? 0 : (prefersReduced ? 0 : 2400))
+      .delay(d => {
+        if (isResize || prefersReduced) return 0;
+        const idx = parseInt(d.id.split('-')[1]);
+        return 300 + idx * 2.0 + Math.random() * 350;
       })
-      .attr('opacity', d => {
-        if (d.diedUnder5) return 0.25;
-        return 0.85;
-      })
+      .attr('cx', graveX)
+      .attr('cy', graveY)
+      .attr('fill', '#2f2836')
+      .attr('opacity', 0.25)
       .attr('r', layout.dotRadius);
 
     const displayCompCountry = truncateText(compCountry, layout.isMobile ? 18 : 28);
@@ -2671,7 +2717,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#ffffff')
       .attr('font-size', '14px')
       .attr('font-weight', '700')
-      .text(layout.isMobile ? `Draw: ${activeMetric.toUpperCase()} Access` : `Draw Cohort: Access to ${activeMetric === 'schooling' ? 'University' : activeMetric.toUpperCase()}`);
+      .text(layout.isMobile ? t('chart_draw_header_mobile') : t('chart_draw_header'));
 
     svg.append('text').attr('class', 'chart-title')
       .attr('x', layout.isMobile ? layout.headerX : layout.compHeaderX)
@@ -2679,7 +2725,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#ffffff')
       .attr('font-size', '14px')
       .attr('font-weight', '700')
-      .text(layout.isMobile ? `Comp in ${displayCompCountry}` : `Comparison Cohort in ${compCountry}`);
+      .text(layout.isMobile ? t('chart_comp_header_mobile', { country: displayCompCountry }) : t('chart_comp_header', { country: compCountry }));
 
     const drawAccessCount = state.cohortDraws.filter(d => !d.diedUnder5 && (activeMetric === 'water' ? d.hasWater : (activeMetric === 'electricity' ? d.hasElectricity : d.hasUniversity))).length;
     const compareAccessCount = state.compareCohortDraws.filter(d => !d.diedUnder5 && (activeMetric === 'water' ? d.hasWater : (activeMetric === 'electricity' ? d.hasElectricity : d.hasUniversity))).length;
@@ -2690,7 +2736,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#B58A63')
       .attr('font-size', '12px')
       .attr('font-weight', '600')
-      .text(`🔵 ${drawAccessCount} had access`);
+      .text(`🔵 ${t('chart_had_access', { n: drawAccessCount })}`);
 
     svg.append('text').attr('class', 'chart-title')
       .attr('x', layout.isMobile ? layout.counterX : layout.compCounterX)
@@ -2698,10 +2744,11 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#6F8CA1')
       .attr('font-size', '12px')
       .attr('font-weight', '600')
-      .text(`🔵 ${compareAccessCount} had access`);
+      .text(`🔵 ${t('chart_had_access', { n: compareAccessCount })}`);
 
     if (takeawayEl) {
-      takeawayEl.innerHTML = `Opportunity Deficit: Only <strong>${drawAccessCount} of 1,000</strong> survivors have access to <strong>${metricLabel}</strong> (vs <strong>${compareAccessCount}</strong> in ${compCountry}). The rose and charcoal dots represent children left in the dark or lost.`;
+      takeawayEl.textContent = t('take_opportunity', { draw: drawAccessCount, metric: metricLabel, comp: compareAccessCount, country: compCountry });
+      takeawayEl.dataset.state = 'loaded';
     }
 
   } else if (step === 3) {
@@ -2757,7 +2804,7 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#ffffff')
       .attr('font-size', '14px')
       .attr('font-weight', '700')
-      .text(layout.isMobile ? 'Income Distribution (PPP)' : 'Annual Household Income Distribution (PPP)');
+      .text(layout.isMobile ? t('chart_income_title_mobile') : t('chart_income_title'));
 
     // Vertical line & comparison annotation
     if (userCData) {
@@ -2780,11 +2827,11 @@ const renderAggregateStory = (step, isResize = false) => {
       const multiplier = Math.max(1, Math.round(compInc / medianInc));
 
       const displayCompCountryShort = truncateText(compCountry, layout.isMobile ? 12 : 25);
-      let labelText = `${displayCompCountryShort} Avg: $${Math.round(compInc).toLocaleString()}/yr`;
+      let labelText = t('chart_income_ref', { country: displayCompCountryShort, amount: Math.round(compInc).toLocaleString() });
       if (!fits) {
-        labelText += ` (← all fit. YOU: ${multiplier}x further right)`;
+        labelText += ' ' + t('chart_income_offscale', { mult: multiplier });
       } else {
-        labelText += ` (${multiplier}x higher)`;
+        labelText += ' ' + t('chart_income_higher', { mult: multiplier });
       }
 
       svg.append('text')
@@ -2798,7 +2845,8 @@ const renderAggregateStory = (step, isResize = false) => {
         .text(labelText);
 
       if (takeawayEl) {
-        takeawayEl.innerHTML = `Income Gap: The median lottery survivor earns <strong>$${Math.round(medianInc).toLocaleString()}/yr</strong>. Your baseline average is <strong>$${Math.round(compInc).toLocaleString()}/yr</strong> (<strong>${multiplier}×</strong> further right). The entire cohort fits in a clump on the left.`;
+        takeawayEl.textContent = t('take_income', { median: Math.round(medianInc).toLocaleString(), comp: Math.round(compInc).toLocaleString(), mult: multiplier });
+        takeawayEl.dataset.state = 'loaded';
       }
     }
 
@@ -2826,7 +2874,7 @@ const renderAggregateStory = (step, isResize = false) => {
         if (d.type === 'compare') return '#6F8CA1';
         if (d.diedUnder5) return '#2f2836'; // dead stay charcoal
 
-        const compLife = userCData ? (userCData.metrics.life_exp_female + userCData.metrics.life_exp_male) / 2 : 78;
+        const compLife = userCData ? userCData.metrics.life_exp : 78;
         return d.lifeExp < compLife ? '#BC463B' : '#B58A63'; // warning rose vs normal indigo
       })
       .attr('opacity', d => {
@@ -2853,10 +2901,10 @@ const renderAggregateStory = (step, isResize = false) => {
       .attr('fill', '#ffffff')
       .attr('font-size', '14px')
       .attr('font-weight', '700')
-      .text(layout.isMobile ? 'Life Expectancy Timeline' : 'Life Expectancy Timeline & Deaths Attrition');
+      .text(layout.isMobile ? t('chart_life_title_mobile') : t('chart_life_title'));
 
     if (userCData) {
-      const compLife = (userCData.metrics.life_exp_female + userCData.metrics.life_exp_male) / 2;
+      const compLife = userCData.metrics.life_exp;
       const lineX = xScaleLife(compLife);
 
       svg.append('line')
@@ -2881,10 +2929,11 @@ const renderAggregateStory = (step, isResize = false) => {
         .attr('fill', '#6F8CA1')
         .attr('font-size', layout.isMobile ? '9px' : '11px')
         .attr('font-weight', '700')
-        .text(`${displayCompCountryShort} Avg: ${compLife.toFixed(1)}y (+${difference.toFixed(1)}y longer)`);
+        .text(t('chart_life_ref', { country: displayCompCountryShort, life: compLife.toFixed(1), diff: difference.toFixed(1) }));
 
       if (takeawayEl) {
-        takeawayEl.innerHTML = `Life Expectancy: The median life expectancy in this lottery cohort is <strong>${medianLife.toFixed(1)} years</strong>. That means a random life loses <strong>${difference.toFixed(1)} years</strong> compared to someone in ${compCountry} (${compLife.toFixed(1)} years).`;
+        takeawayEl.textContent = t('take_life', { median: medianLife.toFixed(1), diff: difference.toFixed(1), country: compCountry, comp: compLife.toFixed(1) });
+        takeawayEl.dataset.state = 'loaded';
       }
     }
   }
@@ -3256,7 +3305,7 @@ const drawAggregateShareCard = async (step, canvas) => {
         fill = '#2f2836'; // Charcoal
         opacity = 0.25;
       } else {
-        const compLife = state.compareCohortDraws[0] ? (state.compareCohortDraws[0].rawData.metrics.life_exp_female + state.compareCohortDraws[0].rawData.metrics.life_exp_male) / 2 : 78;
+        const compLife = state.compareCohortDraws[0] ? state.compareCohortDraws[0].rawData.metrics.life_exp : 78;
         if (d.lifeExp < compLife) fill = '#BC463B'; // Warning Rose
       }
 
@@ -3271,7 +3320,7 @@ const drawAggregateShareCard = async (step, canvas) => {
 
     const userCData = state.compareCohortDraws[0] ? state.compareCohortDraws[0].rawData : null;
     if (userCData) {
-      const compLife = (userCData.metrics.life_exp_female + userCData.metrics.life_exp_male) / 2;
+      const compLife = userCData.metrics.life_exp;
       const lineX = xScale(compLife);
 
       ctx.strokeStyle = '#6F8CA1'; // Soft Blue
@@ -3444,7 +3493,7 @@ const loadSeed = async (seed) => {
     if (drawLabelEl) {
       const labelSpan = drawLabelEl.querySelector('span');
       if (labelSpan) {
-        labelSpan.textContent = `🎲 Random Birth Draw (Loaded from Link)`;
+        labelSpan.textContent = t('draw_label_loaded');
       }
     }
   }
@@ -3494,7 +3543,69 @@ const updateTranslations = () => {
   if (el['probabilistic-note']) el['probabilistic-note'].textContent = l.probabilistic_note;
 
   // Disability toggle
-  if (el['disability-toggle-label']) el['disability-toggle-label'].textContent = 'Calculate disability probability (15% global rate)';
+  if (el['disability-toggle-label']) el['disability-toggle-label'].textContent = l.disability_label;
+
+  // Legend labels
+  if (el['cb-legend-draw-label']) el['cb-legend-draw-label'].textContent = l.legend_draw;
+  if (el['cb-legend-base-label']) el['cb-legend-base-label'].textContent = l.legend_base;
+  if (el['cb-legend-deficit-label']) el['cb-legend-deficit-label'].textContent = l.legend_deficit;
+
+  // Dashboard tabs
+  if (el['tab-single']) el['tab-single'].textContent = l.tab_individual;
+  if (el['tab-aggregate']) el['tab-aggregate'].textContent = l.tab_aggregate;
+
+  // Metric card titles
+  const metricTitleMap = {
+    'life-exp-card': l.life_expectancy,
+    'under5-mort-card': l.under_5_mortality,
+    'maternal-card': l.maternal_mortality,
+    'income-card': l.ppp_income,
+    'electricity-card': l.electricity,
+    'water-card': l.clean_water,
+    'sanitation-card': l.sanitation,
+    'schooling-card': l.expected_schooling,
+    'school-prim-card': l.primary,
+    'school-sec-card': l.secondary,
+    'school-tert-card': l.tertiary,
+    'democracy-card': l.democracy,
+    'conflict-card': l.conflict_risk,
+    'child-marriage-card': l.child_marriage,
+    'fgm-card': l.fgm,
+  };
+  Object.entries(metricTitleMap).forEach(([cardId, title]) => {
+    const card = document.getElementById(cardId);
+    if (card) {
+      const titleEl = card.querySelector('.metric-title');
+      if (titleEl) titleEl.textContent = title;
+    }
+  });
+
+  // Aggregate dashboard static elements
+  if (el['agg-eyebrow']) el['agg-eyebrow'].textContent = l.agg_eyebrow;
+  if (el['agg-title']) el['agg-title'].textContent = l.agg_title;
+  if (el['agg-subtitle']) el['agg-subtitle'].textContent = l.agg_subtitle;
+  if (el['step-back-btn']) el['step-back-btn'].textContent = l.agg_back_btn;
+  if (el['step-next-btn']) el['step-next-btn'].textContent = l.agg_next_btn;
+  if (el['step-pill-1']) el['step-pill-1'].textContent = l.agg_pill_1;
+  if (el['step-pill-2']) el['step-pill-2'].textContent = l.agg_pill_2;
+  if (el['step-pill-3']) el['step-pill-3'].textContent = l.agg_pill_3;
+  if (el['step-pill-4']) el['step-pill-4'].textContent = l.agg_pill_4;
+  if (el['opt-toggle-water']) el['opt-toggle-water'].textContent = l.agg_toggle_water;
+  if (el['opt-toggle-electricity']) el['opt-toggle-electricity'].textContent = l.agg_toggle_elec;
+  if (el['opt-toggle-schooling']) el['opt-toggle-schooling'].textContent = l.agg_toggle_university;
+  if (el['chart-placeholder-title']) el['chart-placeholder-title'].textContent = l.agg_placeholder_title;
+  if (el['chart-placeholder-hint']) el['chart-placeholder-hint'].textContent = l.agg_placeholder_hint;
+  if (el['share-step-text']) el['share-step-text'].textContent = ' ' + l.agg_share_step;
+  // Only update takeaway if still showing the initial placeholder text
+  if (el['aggregate-takeaway'] && el['aggregate-takeaway'].dataset.state !== 'loaded') {
+    el['aggregate-takeaway'].textContent = l.agg_takeaway_init;
+  }
+
+  // Section fullscreen titles (kept in sync with translated section headings)
+  sectionFullscreenMap['survival-health'].title = l.survival;
+  sectionFullscreenMap['material-conditions'].title = l.material_conditions;
+  sectionFullscreenMap['education'].title = l.education;
+  sectionFullscreenMap['freedoms-risk'].title = l.freedoms_risk;
 
   // Layout direction for RTL
   if (state.lang === 'ar') {
@@ -3507,6 +3618,7 @@ const updateTranslations = () => {
 // Draw three-ring demographic wheel: sex (inner) · residence (mid) · wealth (outer)
 const drawWheelSVG = () => {
   if (!el['wheel']) return;
+  const lw = locales[state.lang] || locales.en;
 
   const xe = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -3529,11 +3641,11 @@ const drawWheelSVG = () => {
       id: 'wheel-wealth',
       r1: 80, r2: 107,
       sectors: [
-        { label: 'Poorest 20%', color: '#3D3530' },
-        { label: 'Lower 20%', color: '#5C4E44' },
-        { label: 'Middle 20%', color: '#8A6E52' },
-        { label: 'Upper 20%', color: '#A27B5C' },
-        { label: 'Richest 20%', color: '#B58A63' },
+        { label: lw.quintile_q1, color: '#3D3530' },
+        { label: lw.quintile_q2, color: '#5C4E44' },
+        { label: lw.quintile_q3, color: '#8A6E52' },
+        { label: lw.quintile_q4, color: '#A27B5C' },
+        { label: lw.quintile_q5, color: '#B58A63' },
       ],
       fontSize: 6.0, textR: 93,
     },
@@ -3541,8 +3653,8 @@ const drawWheelSVG = () => {
       id: 'wheel-residence',
       r1: 56, r2: 76,
       sectors: [
-        { label: 'Urban', color: '#C9974B' },
-        { label: 'Rural', color: '#7C9A6A' },
+        { label: lw.residence_urban, color: '#C9974B' },
+        { label: lw.residence_rural, color: '#7C9A6A' },
       ],
       fontSize: 7.5, textR: 66,
     },
@@ -3550,8 +3662,8 @@ const drawWheelSVG = () => {
       id: 'wheel-sex',
       r1: 30, r2: 52,
       sectors: [
-        { label: 'Male', color: '#6F8CA1' },
-        { label: 'Female', color: '#B58A63' },
+        { label: lw.gender_male, color: '#6F8CA1' },
+        { label: lw.gender_female, color: '#B58A63' },
       ],
       fontSize: 7.5, textR: 41,
     },
