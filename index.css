@@ -509,7 +509,7 @@ body {
 .tools-links {
     display: flex;
     gap: 12px;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
 }
 
 .tool-link {
