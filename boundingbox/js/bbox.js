@@ -16,6 +16,10 @@ const currentmouse = L.latLng(0, 0);
 const MAX_RECENT_BBOXES = 10;
 let coordinatePrecision = 6;
 
+// Styling used to show which drawn shape is currently selected
+const ACTIVE_LAYER_STYLE = { color: '#ff7800', weight: 4, opacity: 1.0 };
+const INACTIVE_LAYER_STYLE = { color: '#3388ff', weight: 2, opacity: 0.65 };
+
 // Satellite view layers
 let currentLayer = 'street';
 let streetLayer = null;
@@ -43,10 +47,11 @@ const FormatSniffer = (function () {
 
         this.regExes = {
             ogrinfoExtent: /Extent\:\s\((.*)\)/,
-            bbox: /^\(([\s|\-|0-9]*\.[0-9]*,[\s|\-|0-9]*\.[0-9]*,[\s|\-|0-9]*\.[0-9]*,[\s|\-|0-9]*\.[0-9|\s]*)\)$/
+            number: /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/
         };
         this.data = options.data || "";
         this.parse_type = null;
+        this.lastError = null;
     };
 
     FormatSniffer.prototype.sniff = function () {
@@ -68,26 +73,37 @@ const FormatSniffer = (function () {
     };
 
     FormatSniffer.prototype._is_normal_bbox = function () {
-        const match = this.regExes.bbox.exec(this.data.trim());
+        // Four numbers, in the order xMin,yMin,xMax,yMax. Surrounding brackets are
+        // optional and the separator can be commas, whitespace or both -- that covers
+        // plain CSV, the GDAL space-separated form, and the bracketed forms this
+        // tool's own copy buttons produce.
+        const trimmed = this.data.trim()
+            .replace(/^[\(\[\{]\s*/, '')
+            .replace(/\s*[\)\]\}]$/, '');
+
         let extent = [];
-        if (match) {
-            const bbox = match[1].split(",");
-            for (let indx = 0; indx < bbox.length; indx++) {
-                const coord = bbox[indx].trim();
-                extent = (extent.concat([parseFloat(coord)]));
-            }
+        const parts = trimmed.split(/[\s,]+/).filter(function (part) { return part !== ''; });
+        if (parts.length === 4 && parts.every(function (part) { return this.regExes.number.test(part); }, this)) {
+            extent = parts.map(parseFloat);
+            if (extent.some(isNaN)) extent = [];
         }
+
         this.parse_type = "bbox";
         return extent;
     };
 
     FormatSniffer.prototype._is_geojson = function () {
+        // parsed_data has to be declared out here: declaring it inside the try block
+        // scopes it to that block, and the return below then throws a ReferenceError
+        // that gets swallowed as "not parsable".
+        let parsed_data = null;
+
         try {
             // try JSON
             const json = JSON.parse(this.data);
 
             // try GeoJSON
-            const parsed_data = new L.geoJson(json)
+            parsed_data = new L.geoJson(json);
 
         } catch (err) {
 
@@ -152,7 +168,7 @@ const FormatSniffer = (function () {
                     "name": "NoTypeMatchError",
                     "message": "The data is not a recognized format:\n \
 1. ogrinfo extent output\n \
-2. bbox as (xMin,yMin,xMax,yMax )\n \
+2. bbox as xMin,yMin,xMax,yMax (brackets optional)\n \
 3. GeoJSON\n \
 4. WKT\n\n "
                 }
@@ -160,6 +176,7 @@ const FormatSniffer = (function () {
 
 
         } catch (err) {
+            this.lastError = err.message;
             console.error("Your paste is not parsable:\n" + err.message);
             fail = true;
 
@@ -167,7 +184,16 @@ const FormatSniffer = (function () {
 
         if (!fail) {
 
-            this._formatHandler[this.parse_type].call(this._formatHandler, parsed_data);
+            // Building the layer can fail even when the text parsed cleanly (an
+            // unsupported geometry, coordinates out of range). Treat that as a parse
+            // failure rather than letting it escape to the click handler.
+            try {
+                this._formatHandler[this.parse_type].call(this._formatHandler, parsed_data);
+            } catch (err) {
+                this.lastError = err.message;
+                console.error("Could not build a layer from your paste:\n" + err.message);
+                fail = true;
+            }
 
         }
 
@@ -214,8 +240,21 @@ const FormatSniffer = (function () {
         },
 
         get_leaflet_bounds: function (data) {
-            const sw = [data[1], data[0]];
-            const ne = [data[3], data[2]];
+            // data arrives as [xMin, yMin, xMax, yMax] i.e. lng/lat order. If that
+            // reading puts a latitude outside +/-90 but the swapped reading is valid,
+            // the paste was lat/lng -- use it rather than failing outright.
+            let xMin = data[0], yMin = data[1], xMax = data[2], yMax = data[3];
+
+            const latsOutOfRange = Math.abs(yMin) > 90 || Math.abs(yMax) > 90;
+            const swapIsValid = Math.abs(xMin) <= 90 && Math.abs(xMax) <= 90 &&
+                Math.abs(yMin) <= 180 && Math.abs(yMax) <= 180;
+
+            if (latsOutOfRange && swapIsValid) {
+                [xMin, yMin, xMax, yMax] = [yMin, xMin, yMax, xMax];
+            }
+
+            const sw = [yMin, xMin];
+            const ne = [yMax, xMax];
             return new L.LatLngBounds(sw, ne);
         },
 
@@ -620,6 +659,94 @@ function updateRecentList() {
     });
 }
 
+// L.Polygon.getLatLngs() nests one level deeper for polygons with holes, and another
+// for multi-polygons. Walk down to the first (outer) ring so callers that only handle
+// a flat list of points do not read undefined off an array.
+function getOuterRing(layer) {
+    if (!layer || typeof layer.getLatLngs !== 'function') return [];
+
+    let ring = layer.getLatLngs();
+    while (Array.isArray(ring) && Array.isArray(ring[0])) ring = ring[0];
+
+    return Array.isArray(ring) ? ring : [];
+}
+
+// Only rectangles, polygons and circles can be the active box that the coordinate
+// panel and the export buttons read from. Markers and polylines are never selectable.
+function isSelectableLayer(layer) {
+    return !!layer && (layer instanceof L.Polygon || layer instanceof L.Circle);
+}
+
+// Keep smaller shapes painted above larger ones. Without this a box drawn inside
+// another one can end up underneath it and become impossible to click.
+function restackLayers() {
+    if (typeof drawnItems === 'undefined' || !drawnItems) return;
+
+    drawnItems.getLayers()
+        .filter(layer => isSelectableLayer(layer) && typeof layer.bringToFront === 'function')
+        .map(function (layer) {
+            const layerBounds = layer.getBounds();
+            const size = (layerBounds.getNorth() - layerBounds.getSouth()) *
+                (layerBounds.getEast() - layerBounds.getWest());
+            return { layer: layer, size: size };
+        })
+        .sort((a, b) => b.size - a.size)
+        .forEach(entry => entry.layer.bringToFront());
+}
+
+// Repaint the drawn shapes so it is obvious which one is selected.
+function updateSelectionStyles() {
+    if (typeof drawnItems === 'undefined' || !drawnItems) return;
+
+    drawnItems.eachLayer(function (layer) {
+        if (!isSelectableLayer(layer) || typeof layer.setStyle !== 'function') return;
+
+        layer.setStyle(layer === activeScreenshotLayer ? ACTIVE_LAYER_STYLE : INACTIVE_LAYER_STYLE);
+    });
+
+    restackLayers();
+}
+
+// The one place the coordinate readout is written. It always reflects the selected
+// box -- never drawnItems.getBounds(), which is the union of everything on the map.
+function refreshActiveBoxDisplay() {
+    const hasActive = activeScreenshotLayer &&
+        typeof activeScreenshotLayer.getBounds === 'function' &&
+        activeScreenshotLayer.getBounds().isValid();
+
+    if (!hasActive) {
+        $('#boxbounds').text('No bounding box drawn');
+        $('#boxboundsmerc').text('No bounding box drawn');
+        return;
+    }
+
+    const activeLayerBounds = activeScreenshotLayer.getBounds();
+    $('#boxbounds').text(formatBounds(activeLayerBounds, '4326'));
+    $('#boxboundsmerc').text(formatBounds(activeLayerBounds, currentproj));
+}
+
+// Make a layer the active box and refresh everything that depends on it.
+// options.fit  - zoom the map to the layer
+// options.save - add the layer to Recent History
+function setActiveLayer(layer, options) {
+    const opts = options || {};
+    if (!isSelectableLayer(layer)) return;
+
+    activeScreenshotLayer = layer;
+    $('#download-png').show();
+
+    const layerBounds = layer.getBounds();
+    activeBounds = new L.LatLngBounds(layerBounds.getSouthWest(), layerBounds.getNorthEast());
+    bounds.setBounds(layerBounds);
+
+    refreshActiveBoxDisplay();
+    updateSelectionStyles();
+
+    if (opts.fit) map.fitBounds(layerBounds);
+    updateBboxInfo(layerBounds);
+    if (opts.save) saveRecentBbox(layerBounds);
+}
+
 function syncUrlHash() {
     let hashParts = [];
 
@@ -634,9 +761,11 @@ function syncUrlHash() {
                 const radius = activeScreenshotLayer.getRadius();
                 hashParts.push(`C:${center.lat.toFixed(6)},${center.lng.toFixed(6)},${radius.toFixed(2)}`);
             } else if (activeScreenshotLayer && activeScreenshotLayer instanceof L.Polygon && !(activeScreenshotLayer instanceof L.Rectangle)) {
-                const latlngs = activeScreenshotLayer.getLatLngs()[0];
-                const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
-                hashParts.push(`P:${pts}`);
+                const latlngs = getOuterRing(activeScreenshotLayer);
+                if (latlngs.length >= 3) {
+                    const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
+                    hashParts.push(`P:${pts}`);
+                }
             } else {
                 hashParts.push(`${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`);
             }
@@ -681,9 +810,11 @@ function syncUrlHash() {
                     const ne = layer.getBounds().getNorthEast();
                     hashParts.push(`RB:${sw.lat.toFixed(6)},${sw.lng.toFixed(6)},${ne.lat.toFixed(6)},${ne.lng.toFixed(6)}`);
                 } else if (layer instanceof L.Polygon) {
-                    const latlngs = layer.getLatLngs()[0];
-                    const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
-                    hashParts.push(`PB:${pts}`);
+                    const latlngs = getOuterRing(layer);
+                    if (latlngs.length >= 3) {
+                        const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
+                        hashParts.push(`PB:${pts}`);
+                    }
                 } else if (layer instanceof L.Circle) {
                     const center = layer.getLatLng();
                     const radius = layer.getRadius();
@@ -975,8 +1106,14 @@ $(function () { // Modern equivalent of $(document).ready
         "Click ✏️ \"Enter Coordinates\" to paste:\n" +
         "• GeoJSON features and geometries\n" +
         "• WKT (Well-Known Text) geometries\n" +
-        "• Bounding box coordinates (xmin,ymin,xmax,ymax)\n" +
+        "• Bounding box coordinates as xmin,ymin,xmax,ymax\n" +
+        "  (brackets optional, comma or space separated)\n" +
         "• ogrinfo extent output\n\n" +
+
+        "WORKING WITH SEVERAL BOXES:\n" +
+        "• Click any box on the map to select it\n" +
+        "• The selected box is highlighted in orange\n" +
+        "• Coordinates and all Copy buttons apply to the selected box\n\n" +
 
         "KEYBOARD SHORTCUTS:\n" +
         "• R - Draw rectangle\n" +
@@ -1179,6 +1316,25 @@ $(function () { // Modern equivalent of $(document).ready
     drawnItems = new L.FeatureGroup();
     map.addLayer(drawnItems);
 
+    // Clicking a drawn box selects it, so the coordinate panel and the export buttons
+    // follow whichever shape the user is looking at. Bound through layeradd so it
+    // covers every route a layer can arrive by: drawn by hand, pasted in, or loaded
+    // from a shared URL.
+    drawnItems.on('layeradd', function (e) {
+        const layer = e.layer;
+        if (!isSelectableLayer(layer)) return;
+
+        layer.on('click', function (ev) {
+            if (ev && ev.originalEvent) L.DomEvent.stopPropagation(ev.originalEvent);
+            if (layer === activeScreenshotLayer) return;
+
+            setActiveLayer(layer);
+            syncUrlHash();
+        });
+
+        updateSelectionStyles();
+    });
+
     drawControl = new L.Control.Draw({
         draw: {
             polyline: true,
@@ -1224,22 +1380,9 @@ $(function () { // Modern equivalent of $(document).ready
         $('#draw-hint').addClass('hidden');
 
         // Only Rectangles, Polygons, and Circles can become the active screenshot layer.
-        if (layer instanceof L.Rectangle || layer instanceof L.Polygon || layer instanceof L.Circle) {
-            activeScreenshotLayer = layer;
-            $('#download-png').show();
-
+        if (isSelectableLayer(layer)) {
             try {
-                const screenshotBounds = activeScreenshotLayer.getBounds();
-                activeBounds = new L.LatLngBounds(screenshotBounds.getSouthWest(), screenshotBounds.getNorthEast());
-
-                bounds.setBounds(screenshotBounds);
-                $('#boxbounds').text(formatBounds(screenshotBounds, '4326'));
-                $('#boxboundsmerc').text(formatBounds(screenshotBounds, currentproj));
-                map.fitBounds(screenshotBounds);
-
-                updateBboxInfo(screenshotBounds);
-                saveRecentBbox(screenshotBounds);
-
+                setActiveLayer(layer, { fit: true, save: true });
             } catch (error) {
                 console.error('Error in draw:created handler for box:', error);
             }
@@ -1315,7 +1458,7 @@ $(function () { // Modern equivalent of $(document).ready
 
             if (remainingLayers.length > 0) {
                 for (let i = remainingLayers.length - 1; i >= 0; i--) {
-                    if (remainingLayers[i] instanceof L.Rectangle || remainingLayers[i] instanceof L.Polygon) {
+                    if (isSelectableLayer(remainingLayers[i])) {
                         activeScreenshotLayer = remainingLayers[i];
                         break;
                     }
@@ -1324,18 +1467,13 @@ $(function () { // Modern equivalent of $(document).ready
         }
 
         if (activeScreenshotLayer) {
-            const screenshotBounds = activeScreenshotLayer.getBounds();
-            activeBounds = new L.LatLngBounds(screenshotBounds.getSouthWest(), screenshotBounds.getNorthEast());
-            bounds.setBounds(screenshotBounds);
-            $('#boxbounds').text(formatBounds(screenshotBounds, '4326'));
-            $('#boxboundsmerc').text(formatBounds(screenshotBounds, currentproj));
-            map.fitBounds(screenshotBounds);
+            setActiveLayer(activeScreenshotLayer, { fit: true });
         } else {
             activeBounds = null;
             $('#download-png').hide();
-            $('#boxbounds').text('No bounding box drawn');
-            $('#boxboundsmerc').text('No bounding box drawn');
             bounds.setBounds(new L.LatLngBounds([0.0, 0.0], [0.0, 0.0]));
+            refreshActiveBoxDisplay();
+            updateSelectionStyles();
         }
         syncUrlHash();
     });
@@ -1345,23 +1483,13 @@ $(function () { // Modern equivalent of $(document).ready
         if (layers.length > 0) {
             const editedLayer = layers[layers.length - 1];
 
-            if (editedLayer instanceof L.Rectangle || editedLayer instanceof L.Polygon) {
+            if (isSelectableLayer(editedLayer)) {
                 activeScreenshotLayer = editedLayer;
             }
         }
 
         if (activeScreenshotLayer) {
-            $('#download-png').show();
-            const screenshotBounds = activeScreenshotLayer.getBounds();
-            activeBounds = new L.LatLngBounds(screenshotBounds.getSouthWest(), screenshotBounds.getNorthEast());
-
-            bounds.setBounds(screenshotBounds);
-            $('#boxbounds').text(formatBounds(screenshotBounds, '4326'));
-            $('#boxboundsmerc').text(formatBounds(screenshotBounds, currentproj));
-            map.fitBounds(screenshotBounds);
-
-            updateBboxInfo(screenshotBounds);
-            saveRecentBbox(screenshotBounds);
+            setActiveLayer(activeScreenshotLayer, { fit: true, save: true });
         }
         syncUrlHash();
     });
@@ -1902,11 +2030,32 @@ $(function () { // Modern equivalent of $(document).ready
     });
 
     $('button#add').on('click', function () {
-        const sniffer = FormatSniffer({ data: $('#rsidebar textarea').val() });
-        const is_valid = sniffer.sniff();
-        if (is_valid) {
-            $('#create-geojson button').toggleClass('enabled');
+        const pasted = $('#rsidebar textarea').val();
+
+        if (!pasted.trim()) {
+            showToast('Paste some coordinates first', 'error');
+            return;
+        }
+
+        const sniffer = FormatSniffer({ data: pasted });
+
+        if (!sniffer.sniff()) {
+            // The detail is on the console; the toast stays short enough to read.
+            showToast('Could not read that. Expected GeoJSON, WKT, a bbox like ' +
+                '-2.22,53.87,-1.44,54.14, or ogrinfo extent output.', 'error', 6000);
+            return;
+        }
+
+        $('#rsidebar textarea').val('');
+        $('#create-geojson button').click();
+        showToast('Added to the map', 'success');
+
+        // A pasted point or line leaves the box bounds untouched, so fall back to
+        // whatever is now on the map rather than zooming to 0,0.
+        if (bounds.getBounds().isValid() && activeScreenshotLayer) {
             map.fitBounds(bounds.getBounds());
+        } else if (drawnItems.getLayers().length > 0) {
+            map.fitBounds(drawnItems.getBounds(), { maxZoom: 15 });
         }
     });
     $('button#clear').on('click', function () {
@@ -1978,17 +2127,10 @@ $(function () { // Modern equivalent of $(document).ready
                         $('#projlabel').text(`EPSG:${inputValue} - ${proj4defs[inputValue][0]}`);
                         currentproj = inputValue;
 
-                        $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
+                        refreshActiveBoxDisplay();
                         $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
                         $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
                         $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
-
-                        if (drawnItems.getLayers().length > 0) {
-                            const layerBounds = drawnItems.getBounds();
-                            if (layerBounds.isValid()) {
-                                $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
-                            }
-                        }
 
                         updateProjectionInfo(inputValue);
                         console.log('Projection changed successfully to:', inputValue);
@@ -2022,18 +2164,10 @@ $(function () { // Modern equivalent of $(document).ready
                                 $('#projlabel').text(`EPSG:${inputValue} - ${defName}`);
 
                                 // Update all coordinate displays
-                                $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
+                                refreshActiveBoxDisplay();
                                 $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
                                 $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
                                 $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
-
-                                // Update projection info if function exists
-                                if (drawnItems.getLayers().length > 0) {
-                                    const layerBounds = drawnItems.getBounds();
-                                    if (layerBounds.isValid()) {
-                                        $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
-                                    }
-                                }
 
                                 updateProjectionInfo(inputValue);
                                 showToast(`Projection EPSG:${inputValue} loaded successfully!`, 'success', 2000);
@@ -2084,14 +2218,9 @@ $(function () { // Modern equivalent of $(document).ready
         $('#mousepos').text(formatPoint(currentmouse, '4326'));
         $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
 
-        // Update bounding box coordinates if they exist
-        if (drawnItems.getLayers().length > 0) {
-            const layerBounds = drawnItems.getBounds();
-            if (layerBounds.isValid()) {
-                $('#boxbounds').text(formatBounds(layerBounds, '4326'));
-                $('#boxboundsmerc').text(formatBounds(layerBounds, currentproj));
-            }
-        }
+        // Update the selected bounding box -- not drawnItems.getBounds(), which is the
+        // union of every shape on the map and matches nothing the user selected.
+        refreshActiveBoxDisplay();
 
         showToast('Coordinate format updated', 'success', 1500);
     });
@@ -2183,7 +2312,8 @@ $(function () { // Modern equivalent of $(document).ready
         }
         if (layer instanceof L.Polygon && !(layer instanceof L.Rectangle)) {
             // Calculate centroid for non-rectangular polygons
-            const latlngs = layer.getLatLngs()[0];
+            const latlngs = getOuterRing(layer);
+            if (latlngs.length === 0) return layer.getBounds().getCenter();
             
             // If using a projection, calculate centroid in projected space for better accuracy
             if (typeof currentproj !== 'undefined' && currentproj !== '4326' && typeof proj4 !== 'undefined') {
@@ -2287,11 +2417,13 @@ $(function () { // Modern equivalent of $(document).ready
                     if (activeScreenshotLayer instanceof L.Rectangle) {
                         activeScreenshotLayer.setBounds(newBounds);
                     } else if (activeScreenshotLayer instanceof L.Polygon) {
-                        const latlngs = activeScreenshotLayer.getLatLngs()[0];
-                        const newLatLngs = latlngs.map(latlng =>
-                            L.latLng(latlng.lat + latOffset, latlng.lng + lngOffset)
-                        );
-                        activeScreenshotLayer.setLatLngs([newLatLngs]);
+                        // Recurse so holes and multi-polygon rings move too
+                        const shiftRing = function (latlngs) {
+                            return latlngs.map(item => Array.isArray(item)
+                                ? shiftRing(item)
+                                : L.latLng(item.lat + latOffset, item.lng + lngOffset));
+                        };
+                        activeScreenshotLayer.setLatLngs(shiftRing(activeScreenshotLayer.getLatLngs()));
                     } else if (activeScreenshotLayer instanceof L.Circle) {
                         const currentLatLng = activeScreenshotLayer.getLatLng();
                         activeScreenshotLayer.setLatLng([currentLatLng.lat + latOffset, currentLatLng.lng + lngOffset]);

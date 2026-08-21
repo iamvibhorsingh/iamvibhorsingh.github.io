@@ -195,11 +195,7 @@ Wkt.Wkt.prototype.toObject = function (config) {
  * Absorbs the geometry of another Wkt.Wkt instance, merging it with its own,
  * creating a collection (MULTI-geometry) based on their types, which must agree.
  * For example, creates a MULTIPOLYGON from a POLYGON type merged with another
-<<<<<<< HEAD
- * POLYGON type.
-=======
  * POLYGON type, or adds a POLYGON instance to a MULTIPOLYGON instance.
->>>>>>> dev
  * @memberof Wkt.Wkt
  * @method
  */
@@ -262,6 +258,34 @@ Wkt.Wkt.prototype.read = function (wkt) {
     return this.components;
 }; // eo readWkt
 
+
+/**
+ * Splits a WKT fragment on the commas that separate whole geometries, ignoring any
+ * commas nested inside parentheses. Used to break a GEOMETRYCOLLECTION into members.
+ * @param   str {String}    A WKT fragment
+ * @return      {Array}     An Array of WKT strings
+ * @memberof Wkt.Wkt
+ * @method
+ */
+Wkt.Wkt.prototype.splitGeometries = function (str) {
+    var i, chr, depth = 0, start = 0, members = [];
+
+    for (i = 0; i < str.length; i += 1) {
+        chr = str.charAt(i);
+
+        if (chr === '(') {
+            depth += 1;
+        } else if (chr === ')') {
+            depth -= 1;
+        } else if (chr === ',' && depth === 0) {
+            members.push(str.slice(start, i));
+            start = i + 1;
+        }
+    }
+    members.push(str.slice(start));
+
+    return members;
+};
 
 /**
  * This object contains functions as property names that ingest WKT
@@ -396,7 +420,21 @@ Wkt.Wkt.prototype.ingest = {
      * @instance
      */
     geometrycollection: function (str) {
-        console.log('The geometrycollection WKT type is not yet supported.');
+        var i, fragment, member, components = [];
+
+        // Each member is a complete WKT geometry, so read it with its own Wkt
+        // instance and keep that instance as the component. construct.geometrycollection
+        // then builds each member through its own type handler.
+        fragment = this.splitGeometries(Wkt.trim(str));
+        for (i = 0; i < fragment.length; i += 1) {
+            if (Wkt.trim(fragment[i]) === '') continue;
+
+            member = new Wkt.Wkt();
+            member.read(Wkt.trim(fragment[i]));
+            components.push(member);
+        }
+
+        return components;
     }
 
 }; // eo ingest
@@ -488,7 +526,7 @@ Wkt.Wkt.prototype.construct = {
         var coords = this.components,
             latlngs = this.coordsToLatLngs(coords, 1);
 
-        return L.multiPolyline(latlngs, config);
+        return L.polyline(latlngs, config);
     },
 
     /**
@@ -513,7 +551,7 @@ Wkt.Wkt.prototype.construct = {
         var coords = this.trunc(this.components),
             latlngs = this.coordsToLatLngs(coords, 2);
 
-        return L.multiPolygon(latlngs, config);
+        return L.polygon(latlngs, config);
     },
 
     /**
@@ -522,12 +560,18 @@ Wkt.Wkt.prototype.construct = {
      * @return          {L.featureGroup}
      */
     geometrycollection: function (config) {
-        var comps, i, layers;
+        var i, member, layers = [], members = this.components || [];
 
-        comps = this.trunc(this.components);
-        layers = [];
-        for (i = 0; i < this.components.length; i += 1) {
-            layers.push(this.construct[comps[i].type].call(this, comps[i]));
+        // Each member is its own Wkt instance (see ingest.geometrycollection), so
+        // build it against itself -- the old code passed the member in as `config`
+        // while the handlers read this.components, which never worked.
+        for (i = 0; i < members.length; i += 1) {
+            member = members[i];
+            if (!member || !member.type || typeof member.construct[member.type] !== 'function') {
+                continue;
+            }
+
+            layers.push(member.construct[member.type].call(member, config));
         }
 
         return L.featureGroup(layers, config);
@@ -536,8 +580,13 @@ Wkt.Wkt.prototype.construct = {
 };
 
 L.Util.extend(Wkt.Wkt.prototype, {
-    coordsToLatLngs: L.GeoJSON.coordsToLatLngs,
-    // TODO Why doesn't the coordsToLatLng function in L.GeoJSON already suffice?
+    // Leaflet 1.x takes the per-coordinate converter as the third argument and falls
+    // back to its own array-based one ([lng, lat]) when it is missing. Wkt components
+    // are {x, y} objects, so the converter below has to be passed through explicitly
+    // or every multi-coordinate geometry comes out as LatLng(undefined, undefined).
+    coordsToLatLngs: function (coords, levelsDeep) {
+        return L.GeoJSON.coordsToLatLngs(coords, levelsDeep, this.coordsToLatLng.bind(this));
+    },
     coordsToLatLng: function (coords, reverse) {
         var lat = reverse ? coords.x : coords.y,
             lng = reverse ? coords.y : coords.x;
