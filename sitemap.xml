@@ -37,6 +37,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://vibhorsingh.com/portfolio/blog/random-isnt-human.html</loc>
+    <lastmod>2026-09-21</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vibhorsingh.com/portfolio/blog/pairs-trading.html</loc>
     <lastmod>2026-03-16</lastmod>
     <changefreq>yearly</changefreq>

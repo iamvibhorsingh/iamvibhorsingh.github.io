@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Isn't Human: Modeling Request Timing | Vibhor Singh</title>
+    <meta name="description"
+        content="An experiment in making a scraper's inter-request timing statistically human-like, and testing it against real browsing data with a trained detector.">
+    <meta name="author" content="Vibhor Singh">
+    <link rel="canonical" href="https://vibhorsingh.com/portfolio/blog/random-isnt-human.html" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Random Isn't Human: Modeling Request Timing | Vibhor Singh">
+    <meta property="og:description"
+        content="Why random.uniform() sleeps are a fingerprint, what a more human timing model looks like, and what happened when a detector tried to tell them apart.">
+    <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/random-isnt-human.html">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-grid"></div>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="logo">VS<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../../index.html#about_container">About</a></li>
+                    <li><a href="../../index.html#work_container">Projects</a></li>
+                    <li><a href="../../index.html#gallery_container">Gallery</a></li>
+                    <li><a href="../../index.html#contact_container">Contact</a></li>
+                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <article class="blog-post-container">
+            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to
+                Blog</a>
+
+            <header class="blog-header">
+                <h1 class="blog-title">Why Random Delays Aren't Human: Modeling Request Timing for Scrapers</h1>
+                <div class="blog-meta">
+                    <span><i class="far fa-calendar"></i> September 21, 2026</span>
+                    <span><i class="fas fa-tag"></i> Web Scraping</span>
+                </div>
+            </header>
+
+            <div class="blog-content">
+                <p>Almost every scraper I've seen has some version of this line in it:</p>
+                <p><code>time.sleep(random.uniform(1, 3))</code></p>
+                <p>The idea is to not hammer the server, and not look like a machine firing requests on a
+                    fixed clock. But "random" and "human" are not the same thing. A uniform sleep has its own very
+                    recognizable shape, and in some ways it's easier to spot than no delay at all.</p>
+                <p>That got me wondering: what would it actually take to make the <em>timing</em> of requests
+                    statistically indistinguishable from a person clicking around? And more importantly how would
+                    you even check?</p>
+                <p>The short version: the right structure gets you a long way, but only if you fit it to real data.
+                    My first, hand-tuned model did worse than a much simpler one fitted to real data and that
+                    was one of the most useful lessons of this whole experiment.</p>
+
+                <h3>Why timing, and why only timing</h3>
+                <p>Modern bot detection leans on a lot of signals and
+                    request timing is one of the weaker ones. Things like TLS and HTTP/2 fingerprints, JavaScript
+                    challenges, IP reputation and mouse/scroll telemetry usually matter far more. A perfectly
+                    human-looking delay won't save a scraper that fails any of those.</p>
+                <p>So this isn't really a "how to beat bot detection" post. It's just a narrower, fun question I found
+                    interesting on
+                    its own: <strong>how do you generate a sequence of waiting times that has the same statistical
+                        character as human behavior?</strong> This problem also shows up in load testing, synthetic
+                    traffic generation and crawl scheduling. Basically, anywhere you want traffic that looks like people
+                    rather
+                    than a metronome.</p>
+                <p>I deliberately isolated this one variable. Keeping this experiment narrow made it possible to
+                    actually
+                    measure something tangible instead of hand waving about "stealth scraping".</p>
+
+                <h3>The usual approach and what's wrong with it</h3>
+                <p>The step up from a uniform sleep is usually a <strong><a
+                            href="https://en.wikipedia.org/wiki/Log-normal_distribution" target="_blank"
+                            rel="noopener noreferrer">lognormal</a></strong> delay, typically generated with the
+                    <a href="https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform" target="_blank"
+                        rel="noopener noreferrer">Box-Muller transform</a>. The lognormal is a good choice for a single
+                    delay: most waits are short, a few are long, and it can never go negative. Individual human dwell
+                    times really do look roughly like that.
+                </p>
+                <p>The problem isn't really the shape of any one particular delay. It's how all the delays relate to one
+                    another. Each can be
+                    drawn independently which then causes three giveaways:</p>
+                <ul>
+                    <li><strong>No memory.</strong> Knowing the last delay tells you nothing about the next one. We skim
+                        a few pages quickly,
+                        then settle into reading something then wander off to get coffee. Human timing comes in
+                        <em>bursts</em> and <em>lulls</em>.
+                    </li>
+                    <li><strong>Every session is the same person.</strong> The same parameters every time means
+                        thousands of sessions with identical pacing. Real users differ from each other and the same
+                        user differs day to day (I am a different man once I have had my coffee).</li>
+                    <li><strong>Hard caps leave a fingerprint.</strong> Clamping delays to a maximum with
+                        <code>min(delay, t_max)</code> piles up probability exactly at <code>t_max</code>. A simple
+                        statistical test finds that spike instantly.
+                    </li>
+                </ul>
+                <p>Two ideas help describe what's missing. <strong>Burstiness</strong> measures how clumpy a sequence of
+                    events is: around -1 for a perfectly regular clock, 0 for purely random timing, and positive for
+                    bursty human-like activity. <strong>Autocorrelation</strong> measures whether a long wait tends to
+                    be
+                    followed by another long wait. An independent lognormal has zero autocorrelation by how it's
+                    designed.
+                </p>
+
+                <h3>What I built</h3>
+                <p>I used Box-Muller since it's a good way to generate Gaussian random numbers and built the structure
+                    around it in layers:</p>
+                <ul>
+                    <li><strong>Session layer:</strong> each session gets its own slightly different pace so no two
+                        "visitors" are identical. Mimicing the fact that no two people have the same browsing behaviour.
+                    </li>
+                    <li><strong>Regime layer:</strong> a small <a href="https://en.wikipedia.org/wiki/Markov_chain"
+                            target="_blank" rel="noopener noreferrer">Markov chain</a> switches between browsing modes
+                        like
+                        <em>scanning</em>, <em>reading</em> and <em>idle</em>. Modes tend to persist, which naturally
+                        produces bursts and lulls.
+                    </li>
+                    <li><strong>Within regime:</strong> a lognormal delay per browsing mode with the reading time scaled
+                        to how
+                        much content is on the page and a heavy-tailed idle mode for the occasional "left the tab open"
+                        gap.</li>
+                    <li><strong>Bounds by redrawing:</strong> if a delay falls outside the allowed range draw again
+                        instead of clamping. This means no spike at the edge.</li>
+                </ul>
+                <p>On paper this looked great. Compared to an independent lognormal it was bursty, it had memory, and it
+                    had a realistic long tail. But every initial parameter in it was my guess. Reasonable guesses in my
+                    head, but
+                    they were still just guesses.</p>
+                <p>Which raised the real question: <strong>compared to what?</strong></p>
+
+                <h3>How I tested it</h3>
+                <p>To know if something looks human, you need human data. I used about three months of timestamps from
+                    my own browser history but only the times of page visits. After removing redirects, reloads and
+                    embedded frames
+                    and merging sub-second bursts into single actions that left roughly 46,000 navigations split into
+                    about 560 browsing sessions.</p>
+                <p>It's an imperfect proxy since browser history mixes all open tabs into one stream and it's just my
+                    data, 1 person
+                    but still it's real data and far better than tuning against my own guess work instead.</p>
+                <p>I compared five generators against this data:</p>
+                <ul>
+                    <li>Uniform jitter, the way Scrapy randomizes delays (0.5-1.5× a base delay), with the base set to
+                        the real data's average gap so the average pace matched</li>
+                    <li>An independent lognormal, fitted to the real data</li>
+                    <li>My layered model with hand-picked parameters</li>
+                    <li>The layered model with its regimes <em>fitted</em> to the real data</li>
+                    <li>The fitted model without the per-session variation to see if that layer mattered</li>
+                </ul>
+                <p>Summary statistics are useful, but they're easy to game since you can match a median and still look
+                    nothing like a person. So the main test was adversarial: I trained a <strong>detector</strong> (a
+                    gradient-boosted classifier) to look at windows of 20 consecutive delays and decide "human or
+                    generated". Its score is the <strong>AUC</strong>: 1.0 means it can always tell them apart, 0.5
+                    means it's reduced to a coin flip. For a generator, lower is better.</p>
+                <p>This is a deliberately tough test. The detector was trained on the exact person the model is trying
+                    to imitate, which is more than any real website would have since multiple users would be trickier.
+                </p>
+
+                <h3>What happened</h3>
+                <figure>
+                    <img src="../images/projects/human_timing_traces.png"
+                        alt="200 consecutive delays from four sources on a log scale" class="blog-hero-image">
+                    <figcaption>
+                        <center>200 consecutive delays from three of the generators and from real browsing. Uniform
+                            jitter is a
+                            flat band; the independent lognormal is noisy but structureless; the fitted model and real
+                            behavior both show bursts and lulls.</center>
+                    </figcaption>
+                </figure>
+                <br>
+                <figure>
+                    <img src="../images/projects/human_timing_detector_auc.png" alt="Detector AUC for each timing model"
+                        class="blog-hero-image">
+                    <figcaption>
+                        <center>How easily a trained detector separates each generator from real behavior. Lower is
+                            more human-like.</center>
+                    </figcaption>
+                </figure>
+                <br>
+                <p>Uniform jitter was caught every time (AUC 1.00). No surprise since it has negative burstiness,
+                    meaning
+                    it's
+                    <em>more regular than chance</em> which is the opposite of how people behave.
+                </p>
+                <p>The independent lognormal, fitted to real data, did noticeably better at 0.86. Getting the basic
+                    shape right buys you something.</p>
+                <p>And then my hand-tuned layered model scored <strong>0.99</strong> which was almost as bad as uniform
+                    jitter.
+                    The structure was right, but the numbers weren't. My guessed pace was nearly 3 times slower than
+                    real browsing, the memory faded too quickly and the sessions were too similar to each other. Moral
+                    of the story -
+                    A sophisticated model with wrong parameters was easier to detect than a simple model with right
+                    ones.
+                </p>
+                <p>Once I fitted the regimes to the real data, the same structure dropped to <strong>0.72</strong> -
+                    the best of anything I tested. The fitted model found three natural modes: a quick one around 2
+                    seconds, a middle one around 6 seconds, and a slow, very spread-out one around 30 seconds. Each
+                    tending to persist for about 5 steps before switching.</p>
+                <p>Two other findings stood out:</p>
+                <ul>
+                    <li><strong>Longer sessions are faster.</strong> Session length and pace were clearly linked.
+                        People clicking through many pages tend to do it quickly, they're usually in a rush. That's the
+                        kind of relationship you'd
+                        never think to hardcode, but it falls right out of the data itself.</li>
+                    <li><strong>The remaining gap is about the <em>shape</em> of memory.</strong> Real behavior had
+                        weak short-term correlation but a pace that drifted slowly over long stretches. The fitted model
+                        had the opposite: too "sticky" in the short term, too little slow drift. I tried three fixes.
+                        Adding a slow drift term, reducing stickiness and tying pace to session length. None of them
+                        beat 0.72. Closing that gap maybe needs a different class of model entirely, something to look
+                        into.</li>
+                </ul>
+
+                <h3>What I learned</h3>
+                <ul>
+                    <li><strong>Structure without calibration is just a more elaborate guess.</strong> It's very
+                        tempting to believe
+                        a model is realistic because it has all the right ingredients. The data disagreed.
+                        If you take one thing from this post: fit your timing model against real behavior before
+                        trusting it.</li>
+                    <li><strong>Test against an adversary not a checklist.</strong> Matching the median and the tail
+                        felt like progress. A detector trained to find differences was far more honest about what was
+                        still wrong and it pointed straight at the remaining problem.</li>
+                    <li><strong>Human timing is slow, and that's a real trade-off.</strong> Realistic pacing means tens
+                        of pages per hour per session, not thousands. For most large-scale crawling, careful rate
+                        limiting and respecting server signals matter more than lifelike pauses. Realistic timing earns
+                        its place when you need a small number of long-lived sessions, or when you're generating
+                        synthetic traffic for testing.</li>
+                </ul>
+
+                <h3>What I'd explore next</h3>
+                <p>The results point to a few clear next steps. The most interesting is the remaining gap in how memory
+                    decays so maybe trying something like <strong>long-memory processes</strong> where the influence of
+                    the past
+                    fades slowly rather than exponentially to see if that captures the slow drift the current model
+                    misses.</p>
+                <p>I'd also want <strong>more than one person's data</strong>. Everything fitted here describes one
+                    user. A model meant to be shared should be fitted per person or to a population and then evaluated
+                    on people it hasn't seen.</p>
+                <p>On the practical side: an <strong>adaptive layer</strong> that slows down on rising latency or rate
+                    limiting and honors <code>Retry-After</code> headers, then packaging the whole thing as a drop-in
+                    middleware for frameworks like Scrapy and Crawlee, so it's easy to try without rewriting a scraper.
+                </p>
+
+                <h3>Final thoughts</h3>
+                <p>I went into this expecting the interesting part to be the modeling work - Markov chains, heavy tails,
+                    layered randomness. But the actual takeaway was simpler and more humbling: my intuition about how
+                    people
+                    behave was measurably wrong and it took exploring my own data and an adversarial test to show me
+                    how.</p>
+                <p>Next time you write <code>random.uniform(1, 3)</code>, it's worth asking: <em>random compared to
+                        what?</em></p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="contact-section">
+        <div class="container">
+            <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and
+                <i class="fas fa-coffee"></i>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+
+</html>
