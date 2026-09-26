@@ -4,8 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="https://t.contentsquare.net/uxa/873c6699ef385.js" async></script>
+    <script>
+        window.addEventListener('load', function () {
+            var s = document.createElement('script');
+            s.src = 'https://t.contentsquare.net/uxa/873c6699ef385.js';
+            s.async = true;
+            document.head.appendChild(s);
+        });
+    </script>
 
     <!-- Primary Meta Tags -->
     <title>Vibhor Singh — Senior Data Engineer | Portfolio</title>
@@ -109,16 +115,16 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-    <!-- Fonts (non-blocking) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <!-- Fonts & Asset Preload -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
-        rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2"
+        as="font" type="font/woff2" crossorigin>
+    <link rel="preload" as="image" href="assets/visuals/home/hero-home-v1-800.webp" type="image/webp"
+        fetchpriority="high">
 
-    <!-- Icons (non-blocking) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        media="print" onload="this.media='all'">
+    <!-- Icons -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- CSS -->
     <link rel="stylesheet" href="index.css">
@@ -134,11 +140,6 @@
 <body>
     <!-- Scroll Progress Bar -->
     <div id="scroll-progress"></div>
-
-    <!-- Loading Screen -->
-    <div id="loading">
-        <div id="spinner"></div>
-    </div>
 
     <!-- Particle Canvas (lightweight replacement) -->
     <canvas id="particles-canvas"></canvas>
@@ -164,16 +165,18 @@
                     <li><a href="#blog_container">Blog</a></li>
                     <li><a href="#gallery_container">Gallery</a></li>
                     <li><a href="#contact_container">Contact</a></li>
-                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                    <li>
+                        <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
                 </ul>
             </nav>
-            <div class="hamburger" aria-label="Toggle menu">
+            <button class="hamburger" aria-label="Toggle navigation menu" type="button">
                 <span></span>
                 <span></span>
                 <span></span>
-            </div>
+            </button>
         </div>
     </header>
 
@@ -230,8 +233,12 @@
         <div class="hero-visual">
             <div class="hero-visual-card">
                 <span class="hero-visual-label">Vibhor Singh</span>
-                <img src="assets/visuals/home/hero-home-v1.jpg" alt="Portrait of Vibhor Singh" class="hero-image"
-                    width="400" height="400" onerror="this.style.display='none'">
+                <picture>
+                    <source srcset="assets/visuals/home/hero-home-v1-800.webp" type="image/webp">
+                    <img src="assets/visuals/home/hero-home-v1.jpg" alt="Portrait of Vibhor Singh" class="hero-image"
+                        width="400" height="300" fetchpriority="high" loading="eager"
+                        onerror="this.style.display='none'">
+                </picture>
             </div>
         </div>
     </section>
@@ -490,8 +497,8 @@
                         </div>
                         <h3>Random Isn't Human</h3>
                         <p>Why Random Delays Aren't Human: Modeling Request Timing for Scrapers</p>
-                        <a href="portfolio/blog/random-isnt-human.html" class="blog-card-link">Read More <i
-                                class="fas fa-arrow-right"></i></a>
+                        <a href="portfolio/blog/random-isnt-human.html" class="blog-card-link">Read More <span
+                                class="sr-only">about Random Isn't Human</span><i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
@@ -504,7 +511,8 @@
                         </div>
                         <h3>Path Signature Pairs Trading</h3>
                         <p>Filtering classic pairs trades by the shape of the price path using Lévy area.</p>
-                        <a href="portfolio/blog/pairs-trading.html" class="blog-card-link">Read More <i
+                        <a href="portfolio/blog/pairs-trading.html" class="blog-card-link">Read More <span
+                                class="sr-only">about Path Signature Pairs Trading</span><i
                                 class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
@@ -518,8 +526,8 @@
                         </div>
                         <h3>LookStuffUp</h3>
                         <p>A deep dive into building a browser extension for on-page lookups.</p>
-                        <a href="portfolio/blog/look-stuff-up.html" class="blog-card-link">Read More <i
-                                class="fas fa-arrow-right"></i></a>
+                        <a href="portfolio/blog/look-stuff-up.html" class="blog-card-link">Read More <span
+                                class="sr-only">about LookStuffUp</span><i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
@@ -532,7 +540,8 @@
                         </div>
                         <h3>Geospatial Visualizations</h3>
                         <p>Exploring spatial data through interactive maps.</p>
-                        <a href="portfolio/blog/geospatial-viz.html" class="blog-card-link">Read More <i
+                        <a href="portfolio/blog/geospatial-viz.html" class="blog-card-link">Read More <span
+                                class="sr-only">about Geospatial Visualizations</span><i
                                 class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
@@ -546,7 +555,8 @@
                         </div>
                         <h3>Network Visualizations</h3>
                         <p>Sankey diagrams showing donation flows.</p>
-                        <a href="portfolio/blog/network-viz.html" class="blog-card-link">Read More <i
+                        <a href="portfolio/blog/network-viz.html" class="blog-card-link">Read More <span
+                                class="sr-only">about Network Visualizations</span><i
                                 class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
@@ -560,7 +570,8 @@
                         </div>
                         <h3>Temporal Visualizations</h3>
                         <p>Visualizing changes over time.</p>
-                        <a href="portfolio/blog/temporal-viz.html" class="blog-card-link">Read More <i
+                        <a href="portfolio/blog/temporal-viz.html" class="blog-card-link">Read More <span
+                                class="sr-only">about Temporal Visualizations</span><i
                                 class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
@@ -697,6 +708,15 @@
                 <a href="https://www.linkedin.com/in/iamvibhorsingh/" target="_blank" aria-label="LinkedIn"><i
                         class="fab fa-linkedin"></i></a>
                 <a href="mailto:contact@vibhorsingh.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+            </div>
+            <div class="canvas-interactive-note">
+                <i class="fas fa-project-diagram" aria-hidden="true"></i>
+                <div class="canvas-note-text">
+                    The ambient background you see is a real-time particle simulation. It uses pairwise
+                    Euclidean distance to form dynamic proximity graphs, periodic toroidal boundary
+                    wrapping, and radial force repulsion that responds to your cursor and touch
+                    gestures. <i>(kinda extra, I know)</i>
+                </div>
             </div>
             <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
                     class="fas fa-coffee"></i>.</p>
