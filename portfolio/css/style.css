@@ -72,6 +72,90 @@ body.light-theme .nav-links.active {
   background: rgba(245, 245, 247, 0.98);
 }
 
+/* Light Theme - Blog Post Overrides */
+body.light-theme .blog-title {
+  background: linear-gradient(90deg, #1a1a1c 0%, #52525b 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #1a1a1c;
+}
+
+body.light-theme .name {
+  background: linear-gradient(90deg, #1a1a1c 0%, #52525b 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #1a1a1c;
+}
+
+body.light-theme .blog-meta {
+  color: #71717a;
+}
+
+body.light-theme .back-link {
+  color: #52525b;
+}
+
+body.light-theme .back-link:hover {
+  color: var(--accent-color);
+}
+
+body.light-theme .blog-content {
+  color: #27272a;
+}
+
+body.light-theme .blog-content h2 {
+  color: #1a1a1c;
+}
+
+body.light-theme .blog-content h3 {
+  color: #0891b2;
+}
+
+body.light-theme .blog-content h4 {
+  color: #1a1a1c;
+}
+
+body.light-theme .blog-content strong,
+body.light-theme .blog-content b {
+  color: #18181b;
+}
+
+body.light-theme .blog-content code {
+  background: rgba(0, 0, 0, 0.06);
+  color: #0891b2;
+}
+
+body.light-theme .blog-content pre {
+  background: #18181b;
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+body.light-theme .blog-content pre code {
+  color: #f4f4f5;
+  background: none;
+}
+
+body.light-theme .blog-content blockquote {
+  color: #52525b;
+  background: rgba(8, 145, 178, 0.05);
+  border-left: 4px solid var(--accent-color);
+  padding: 1rem 1.5rem;
+  border-radius: 0 6px 6px 0;
+}
+
+body.light-theme .blog-content hr {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme #chart,
+body.light-theme #visualization-container {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
 /* Reset & Base */
 * {
   margin: 0;
@@ -967,6 +1051,13 @@ img {
   margin: 2rem 0;
   font-style: italic;
   color: var(--text-secondary);
+}
+
+.blog-content hr {
+  border: 0;
+  height: 1px;
+  background: var(--border-color);
+  margin: 3rem 0;
 }
 
 .back-link {

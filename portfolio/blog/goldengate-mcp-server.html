@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automating Oracle GoldenGate Root Cause Analysis with AI Agents | Vibhor Singh</title>
+    <meta name="description"
+        content="Automating Oracle GoldenGate Root Cause Analysis with AI Agents using the Model Context Protocol (MCP).">
+    <meta name="author" content="Vibhor Singh">
+    <link rel="canonical" href="https://vibhorsingh.com/portfolio/blog/goldengate-mcp-server.html" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Automating Oracle GoldenGate Root Cause Analysis with AI Agents | Vibhor Singh">
+    <meta property="og:description"
+        content="Automating Oracle GoldenGate Root Cause Analysis with AI Agents using the Model Context Protocol (MCP).">
+    <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/goldengate-mcp-server.html">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Parisienne&family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-grid"></div>
+
+    <header class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="logo">VS<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links">
+                    <li><a href="../../index.html#about_container">About</a></li>
+                    <li><a href="../../index.html#work_container">Projects</a></li>
+                    <li><a href="../../index.html#gallery_container">Gallery</a></li>
+                    <li><a href="../../index.html#contact_container">Contact</a></li>
+                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </ul>
+            </nav>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <article class="blog-post-container">
+            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to
+                Projects</a>
+
+            <header class="blog-header">
+                <h1 class="blog-title">Automating Oracle GoldenGate Root Cause Analysis with AI Agents</h1>
+                <div class="blog-meta">
+                    <span><i class="far fa-calendar"></i> April 21, 2026</span>
+                    <span><i class="fas fa-tag"></i> Data Engineering &amp; AI</span>
+                </div>
+            </header>
+
+            <div class="blog-content">
+                <img src="../images/goldengate_mcp_hero.png" alt="Oracle GoldenGate MCP AI Debugging"
+                    class="blog-hero-image" style="width: 100%; border-radius: 8px; margin-bottom: 2rem;">
+
+                <p>If you’ve ever managed an enterprise data pipeline, you know the sinking feeling of getting a
+                    PagerDuty alert at 3:00 AM: “Production Oracle GoldenGate Replicat <code>RPT01</code> is 45 minutes
+                    behind.”</p>
+
+                <p>Oracle GoldenGate is the gold standard for real-time data replication, but troubleshooting it often
+                    feels like reading tea leaves. You jump into the OCI Dashboard (if you’re lucky enough to have it
+                    configured) or start desperately tailing <code>ggserr.log</code>. You check the source database, you
+                    check the target, you look at discard rates and you try to mentally calculate if the current lag is
+                    a temporary network blip or a systemic failure.</p>
+
+                <p>It’s manual, stressful work and doesn't scale in a modern DevOps environment.</p>
+
+                <p>I realized with the frontier AI at my dispospal and a proper harness around it, I could just ask my
+                    system: <em>"Why is RPT01 lagging on production?"</em> and get a straight,
+                    deterministic answer. By bridging Oracle GoldenGate with AI Agents using the Model Context Protocol
+                    (MCP), I’ve transformed GoldenGate from a black-box replication engine into a conversational,
+                    self-diagnosing system.</p>
+
+                <p>Here is a deep dive into the architecture, security, and strategy behind this Oracle
+                    GoldenGate MCP server.</p>
+
+                <hr>
+
+                <h2>The Challenge: Enterprise Reality Meets AI Hype</h2>
+
+                <p>We’ve all seen the impressive demos of Large Language Models (LLMs) writing code or summarizing PDFs.
+                    But when it comes to enterprise operations, there is a massive gap between the hype and the reality.
+                </p>
+
+                <p>The biggest problem with LLMs in DevOps is that if they don't have hard data, they guess. In a
+                    production database environment, guessing is dangerous. If you simply give an LLM raw terminal
+                    access, it might confidently tell you to restart a Replicat when the actual issue is a locked table
+                    on the target database.</p>
+
+                <p>To make AI actually useful for GoldenGate DBAs, I needed a solution that provided three things:</p>
+
+                <ul>
+                    <li><em>Context Access:</em> The AI needs real-time access to GoldenGate’s internal state.</li>
+                    <li><em>Stateless Integration:</em> Enterprise environments don't want another heavy monitoring
+                        agent storing gigabytes of metrics.</li>
+                    <li><em>Safety:</em> The AI must operate in a strictly read-only mode by default, with an
+                        audit trail that detects tampering.</li>
+                </ul>
+
+                <hr>
+
+                <h2>The Missing Link: The Model Context Protocol</h2>
+
+                <p>Enter the <em>Model Context Protocol (MCP)</em>. MCP is an open standard introduced by Anthropic that
+                    allows AI assistants to securely interact with local tools and data sources.
+                    Think of it as USB-C for AI: a universal plug that connects the reasoning power of an LLM to the
+                    specific, proprietary data of your enterprise.</p>
+
+                <p>Instead of giving the AI raw API access and hoping for the best, I built the MCP server to act as a
+                    structured intelligence layer. It translates the chaotic reality of an Oracle GoldenGate deployment
+                    into clean, deterministic facts that the AI can understand.</p>
+
+                <hr>
+
+                <h2>Building for Production: Curing Hallucinations</h2>
+
+                <p>When the AI asks for the health of a deployment, the server reaches out to the GoldenGate
+                    Microservices REST API and pulls live data like throughput, lag seconds, discard rates, and recent
+                    errors. Instead of handing the AI a massive, unreadable JSON blob, I parse and structure it.</p>
+
+                <p>Because the AI receives these structured facts, it doesn't have to guess. It synthesizes the live
+                    data and provides a highly accurate, human-readable response. It looks something like this:</p>
+
+                <blockquote>
+                    <p>"Replicat RPT01 is experiencing 2,700 seconds of lag. The discard rate has spiked, and the recent
+                        warnings indicate a constraint violation on the target database preventing rows from applying."
+                    </p>
+                </blockquote>
+
+                <h3>Connecting the Client</h3>
+
+                <p>Configuring the MCP server for a local LLM client is remarkably straightforward. Here is an example
+                    of what the <code>config.json</code> looks like to connect to a GoldenGate microservices
+                    deployment:</p>
+
+                <pre><code>{
+  "mcpServers": {
+    "goldengate": {
+      "command": "python",
+      "args": ["-m", "goldengate_mcp_server"],
+      "env": {
+        "GG_READ_ONLY": "true",
+        "GG_DEPLOYMENT_1_NAME": "gg_prod_sample",
+        "GG_DEPLOYMENT_1_URL": "https://gg-server:9000",
+        "GG_DEPLOYMENT_1_USERNAME": "oggadmin",
+        "GG_DEPLOYMENT_1_PASSWORD": "your-password",
+        "GG_DEPLOYMENT_1_VERIFY_SSL": "true"
+      }
+    }
+  }
+}</code></pre>
+
+                <hr>
+
+                <h2>Strategy Beyond the Code</h2>
+
+                <p>Building the technical integration was only half the battle. Making it an enterprise-ready tool that
+                    security teams would actually approve required strategic design decisions.</p>
+
+                <h3>Stateless is Beautiful</h3>
+
+                <p>My first thought was to build a heavy monitoring agent that stored gigabytes of metrics. But
+                    enterprise environments hate that. They don't want another database to manage.</p>
+
+                <p>So I made a strict design decision: <em>The server will be completely stateless out of the box.</em>
+                </p>
+
+                <p>By default (<code>GG_ENABLE_METRICS=false</code>), the MCP server stores absolutely nothing on disk.
+                    It acts solely as a real-time, in-memory REST pass-through layer. It's incredibly lightweight. If
+                    you want predictive baselining (knowing that 300 seconds of lag is exactly 5 standard deviations
+                    above normal), you can enable the optional SQLite metrics store, but it's completely opt-in.</p>
+
+                <h3>The Security Conundrum: 100% Fail-Proof Read-Only</h3>
+
+                <p>How do you ensure an AI doesn't accidentally restart a production database process? You don't trust
+                    the AI. You enforce it in the Python server layer.</p>
+
+                <p>The server ships with <code>GG_READ_ONLY=true</code> by default, and it is enforced twice. First, the
+                    write tools are never advertised. When the AI asks what tools exist, the registry filters them out,
+                    so as far as it can tell <code>start_extract</code> doesn't exist:</p>
+
+                <pre><code>def all_tools(*, enable_metrics: bool = True, read_only: bool = False) -&gt; List[Tool]:
+    tools = [*DEPLOYMENT_TOOLS, ..., *WRITE_TOOLS, ...]
+    if not enable_metrics:
+        ...  # drop the metrics-dependent tools
+    if read_only:
+        tools = [t for t in tools if t.name not in WRITE_TOOL_NAMES]
+    return [_annotate(t) for t in tools]</code></pre>
+
+                <p>But hiding a tool only helps with well-behaved clients: nothing stops a client from calling a tool
+                    by name even if it was never listed. So I also hardcoded a block in the routing logic. If the AI
+                    somehow attempts to call <code>start_extract</code> anyway, it hits a literal wall in my
+                    <code>WriteMixin</code> class:
+                </p>
+
+                <pre><code>async def _handle_write_operation(self, operation: str, arguments: Dict[str, Any]):
+    if self.config.read_only:
+        logger.warning("Write operation %s blocked: server in read-only mode", operation)
+        return {
+            "error": "Write operation blocked",
+            "reason": "Server is running in read-only mode",
+            "operation": operation,
+        }
+    # Actual REST call happens down here...</code></pre>
+
+                <p>The AI is completely sandboxed. It can’t bypass the Python execution layer to inject write commands.
+                    It also generates a redacted audit log for every single tool call, so you always know exactly what
+                    the agent looked at.</p>
+
+                <p>That audit log is hash-chained. Each entry carries a sequence number, the SHA-256 hash of the entry
+                    before it, and its own hash, and the chain carries on across restarts and log rotation. Edit,
+                    delete or reorder an entry and the chain breaks at that point; <code>verify_audit_log()</code>
+                    tells you which line. It's <em>tamper-evident</em>.</p>
+
+                <hr>
+
+                <h2>What Success Looks Like</h2>
+
+                <p>By implementing this MCP server, we transform the daily workflow of a goldengate administrator. The
+                    benefits are tangible:</p>
+
+                <ul>
+                    <li><em>Faster Problem Resolution:</em> What used to take 20 minutes of digging through logs now
+                        takes a single prompt so maybe 2 mins tops.</li>
+                    <li><em>Reduced Cognitive Load:</em> DBAs no longer need to memorize complex REST API endpoints or
+                        navigate clunky UIs.</li>
+                    <li><em>Democratized Diagnostics:</em> Junior engineers can perform complex root-cause analysis by
+                        simply asking the AI, leveling up the entire team.</li>
+                    <li><em>LLMs with Constraints:</em> You feed the AI highly deterministic, pre-parsed facts so it can
+                        focus on reasoning, not data extraction.</li>
+                </ul>
+
+                <hr>
+
+                <h2>The Bigger Picture</h2>
+
+                <p>Building this Oracle GoldenGate MCP server fundamentally changed how I view infrastructure
+                    monitoring. We are moving away from passive dashboards that just show us symptoms (like a red light
+                    flashing because lag is high) toward context-aware, diagnostic systems that can actually tell us why
+                    the light is red.</p>
+
+                <hr>
+
+                <h2>Summary</h2>
+
+                <p>The era of manually parsing database logs at 3:00 AM is ending. By leveraging MCP and frontier
+                    intelligence, we can safely and securely bridge the gap between enterprise infrastructure and
+                    advanced AI reasoning.</p>
+
+                <p>You can check out the source code for the Oracle GoldenGate MCP server and run it yourself from the
+                    <a href="https://github.com/iamvibhorsingh/Oracle-Golden-Gate-Mcp" target="_blank"
+                        rel="noopener noreferrer">GitHub repository</a>. Hopefully, it saves you from a few 3:00 AM
+                    pagers.
+                </p>
+
+                <p>If you enjoy deep dives into solving niche development problems, check out my other post on <a
+                        href="look-stuff-up.html">Building the LookStuffUp Extension</a>!</p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="contact-section">
+        <div class="container">
+            <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+                    class="fas fa-coffee"></i>.</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+</body>
+
+</html>

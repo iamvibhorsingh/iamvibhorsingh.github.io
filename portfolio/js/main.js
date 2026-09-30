@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile Menu Toggle
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
+    const navbar = document.querySelector('.navbar');
     const imageModalTriggers = document.querySelectorAll('.image-modal-trigger');
     const galleryImageTriggers = Array.from(document.querySelectorAll('.gallery-image-trigger'));
     const heroImageModal = document.querySelector('#hero-image-modal');
@@ -25,11 +26,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeToggle = document.querySelector('.theme-toggle');
     const themeIcon = themeToggle?.querySelector('i');
 
+    function updateNavbar() {
+        if (!navbar) return;
+        const isLight = document.body.classList.contains('light-theme');
+        if (window.scrollY > 50) {
+            navbar.style.background = isLight ? 'rgba(245, 245, 247, 0.95)' : 'rgba(10, 10, 10, 0.95)';
+            navbar.style.boxShadow = isLight ? '0 2px 10px rgba(0,0,0,0.06)' : '0 2px 10px rgba(0,0,0,0.3)';
+        } else {
+            navbar.style.background = isLight ? 'rgba(245, 245, 247, 0.85)' : 'rgba(10, 10, 10, 0.8)';
+            navbar.style.boxShadow = 'none';
+        }
+    }
+
     function applyTheme(theme) {
         document.body.classList.toggle('light-theme', theme === 'light');
         if (themeIcon) {
             themeIcon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
         }
+        updateNavbar();
     }
 
     applyTheme(localStorage.getItem('theme') || 'dark');
@@ -71,16 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Navbar Scroll Effect
-    const navbar = document.querySelector('.navbar');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.style.background = 'rgba(10, 10, 10, 0.95)';
-            navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-        } else {
-            navbar.style.background = 'rgba(10, 10, 10, 0.8)';
-            navbar.style.boxShadow = 'none';
-        }
-    });
+    window.addEventListener('scroll', updateNavbar);
 
     const updateGalleryNavigationState = () => {
         const hasGalleryNavigation = currentGalleryIndex !== -1 && galleryImageTriggers.length > 1;

@@ -12,7 +12,8 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta property="og:type" content="article">
     <meta property="og:title" content="Building LookStuffUp | Vibhor Singh">
-    <meta property="og:description" content="A deep dive into the technical decisions and challenges behind building a privacy-first browser extension for on-page lookups.">
+    <meta property="og:description"
+        content="A deep dive into the technical decisions and challenges behind building a privacy-first browser extension for on-page lookups.">
     <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/look-stuff-up.html">
 
     <!-- Fonts -->
@@ -43,7 +44,7 @@
                     <li><a href="../../index.html#contact_container">Contact</a></li>
                     <button class="theme-toggle" aria-label="Toggle Dark Mode">
                         <i class="fas fa-moon"></i>
-                   </button>
+                    </button>
                 </ul>
             </nav>
             <div class="hamburger">
@@ -56,7 +57,8 @@
 
     <main>
         <article class="blog-post-container">
-            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to
+                Projects</a>
 
             <header class="blog-header">
                 <h1 class="blog-title">Building "LookStuffUp": A Deep Dive</h1>
@@ -73,7 +75,7 @@
                 <h3>The First Hurdle: The Tooltip vs. The Wild West of CSS</h3>
                 <p>The very first feature was the most obvious one: show a tooltip with information. This sounds simple,
                     but it’s an absolute minefield in extension development. How do you inject a UI element onto
-                    <em>any</em> webpage—from a minimalist blog to a complex, style-heavy web app—without it looking
+                    <em>any</em> webpage, from a minimalist blog to a complex, style-heavy web app, without it looking
                     like a broken mess?
                 </p>
                 <p>My first attempt was naive. I just injected my HTML and CSS directly into the page. It was a
@@ -84,8 +86,9 @@
                     incredible browser feature that lets you create a completely encapsulated, isolated DOM tree. My
                     <code>content.js</code> script creates a single, empty <code>&lt;div&gt;</code> on the page to act
                     as a host. Then, it attaches a shadow root to it:
-                    <code>tooltipHost.attachShadow({ mode: 'open' });</code>. Everything—my tooltip's HTML, its
-                    structure, and its styles—lives inside this shadow root. The page's CSS can't get in, and mine can't
+                    <code>tooltipHost.attachShadow({ mode: 'open' });</code>. Everything including my tooltip's HTML,
+                    its
+                    structure, and its styles lives inside this shadow root. The page's CSS can't get in, and mine can't
                     get out.
                 </p>
                 <p>To load the styles, I used <code>chrome.runtime.getURL('styles.css')</code> to get the path to my
@@ -128,7 +131,7 @@
                         <code>formatWiktionaryResult</code>) to parse their unique JSON structures.
                     </li>
                 </ol>
-                <p>This layered approach is the core of the extension's logic. It provides resilience — if one service
+                <p>This layered approach is the core of the extension's logic. It provides resilience, if one service
                     is down or doesn't have a result, another one probably will.</p>
 
                 <h3>Before the Search: Language Detection</h3>
@@ -164,7 +167,7 @@
                     </li>
                     <li><strong>UI Polish & Options:</strong> The little things make a difference. I built out an
                         <code>options.html</code> page to give users control. Using <code>chrome.storage.sync</code>, I
-                        save their preferences for dark mode, font size, and—a personal favorite—a "Draggable Tooltip"
+                        save their preferences for dark mode, font size, and a personal favorite, a "Draggable Tooltip"
                         setting. The logic in <code>content.js</code> for the draggable tooltip was fun to write: on
                         <code>mousedown</code> on the tooltip's header, it sets a flag and records the mouse offset. On
                         <code>mousemove</code>, it updates the tooltip's <code>left</code> and <code>top</code> style
