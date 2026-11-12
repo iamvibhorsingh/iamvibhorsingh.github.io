@@ -64,7 +64,7 @@
           "url": "https://vibhorsingh.com/",
           "image": "https://vibhorsingh.com/portfolio/images/author.jpeg",
           "jobTitle": "Senior Data Engineer",
-          "description": "Senior Data Engineer at Fastenal with 4+ years of expertise in distributed systems, event-driven architectures, cloud infrastructure, and privacy-first AI tools",
+          "description": "Senior Data Engineer at Fastenal with 5+ years of expertise in distributed systems, event-driven architectures, cloud infrastructure, and privacy-first AI tools",
           "worksFor": {
             "@type": "Organization",
             "name": "Fastenal",
@@ -141,7 +141,7 @@
     <!-- Scroll Progress Bar -->
     <div id="scroll-progress"></div>
 
-    <!-- Particle Canvas (lightweight replacement) -->
+    <!-- Interactive WebGL2 Particle & Proximity Field Canvas -->
     <canvas id="particles-canvas"></canvas>
 
     <!-- Box Animation -->
@@ -165,6 +165,7 @@
                     <li><a href="#blog_container">Blog</a></li>
                     <li><a href="#gallery_container">Gallery</a></li>
                     <li><a href="#contact_container">Contact</a></li>
+                    <li><a href="portfolio/resume/Vibhor_Singh_Resume.pdf" target="_blank" rel="noopener noreferrer" class="nav-resume-link">Resume</a></li>
                     <li>
                         <button class="theme-toggle" aria-label="Toggle Dark Mode">
                             <i class="fas fa-moon"></i>
@@ -206,6 +207,10 @@
 
             <div class="hero-cta">
                 <a href="#work_container" class="btn btn-primary">Check out my work</a>
+                <a href="portfolio/resume/Vibhor_Singh_Resume.pdf" target="_blank" rel="noopener noreferrer"
+                    class="btn btn-outline hero-resume-btn">
+                    <i class="fas fa-file-alt" aria-hidden="true"></i> Resume
+                </a>
             </div>
 
             <div class="tools-row">
@@ -251,7 +256,60 @@
         <div class="section-inner">
             <h2 class="section-title">projects.</h2>
 
-            <div class="project-card">
+            <div class="project-filters" role="group" aria-label="Filter projects by category">
+                <button type="button" class="filter-pill active" data-filter="all" aria-pressed="true">All</button>
+                <button type="button" class="filter-pill" data-filter="data" aria-pressed="false">Data &amp; Infra</button>
+                <button type="button" class="filter-pill" data-filter="ai" aria-pressed="false">AI &amp; MCP</button>
+                <button type="button" class="filter-pill" data-filter="web-gis" aria-pressed="false">Web &amp; GIS Tools</button>
+                <button type="button" class="filter-pill" data-filter="research" aria-pressed="false">Research &amp; ML</button>
+            </div>
+
+            <div class="project-card" data-categories="web-gis data">
+                <h3><i class="fas fa-server"></i> Data Center Atlas <span class="achievement-badge">🌐 3D
+                        Globe</span></h3>
+                <div class="project-date">2026 • Interactive 3D Infrastructure Map</div>
+                <p>
+                    Full-bleed interactive 3D night globe mapping global colocation, hyperscale, AI, and crypto
+                    data center facilities. Features company and status filtering, live density heatmaps, fiber
+                    backbone overlays, search, and slide-over site dossiers.
+                </p>
+                <div class="project-tech">
+                    <span class="tech-badge">WebGL / Canvas</span>
+                    <span class="tech-badge">JavaScript</span>
+                    <span class="tech-badge">Geospatial</span>
+                    <span class="tech-badge">Data Visualization</span>
+                </div>
+                <div class="project-links">
+                    <a href="/datacentermap/" target="_blank" rel="noopener noreferrer"><i
+                            class="fas fa-globe"></i> Launch Atlas</a>
+                </div>
+            </div>
+
+            <div class="project-card" data-categories="ai web-gis">
+                <h3><i class="fas fa-plug"></i> Bounding Box MCP Server <span class="achievement-badge">📦 npm
+                        Package</span></h3>
+                <div class="project-date">2026 • Open Source AI Agent Toolkit</div>
+                <p>
+                    Zero-config Model Context Protocol server giving LLM and AI agents 6 geospatial tools:
+                    coordinate projection across 3,900+ EPSG systems, Uber H3 hexagonal indexing, OpenStreetMap
+                    Overpass QL queries, spatial density binning, and shareable map verification links.
+                </p>
+                <div class="project-tech">
+                    <span class="tech-badge">Model Context Protocol</span>
+                    <span class="tech-badge">Node.js</span>
+                    <span class="tech-badge">Uber H3</span>
+                    <span class="tech-badge">OpenStreetMap</span>
+                    <span class="tech-badge">AI Agents</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://www.npmjs.com/package/bbox-mcp-server" target="_blank"
+                        rel="noopener noreferrer"><i class="fab fa-npm"></i> View on npm</a>
+                    <a href="https://github.com/iamvibhorsingh/bbox-mcp-server" target="_blank"
+                        rel="noopener noreferrer"><i class="fab fa-github"></i> View on GitHub</a>
+                </div>
+            </div>
+
+            <div class="project-card" data-categories="web-gis">
                 <h3><i class="fas fa-map-marked-alt"></i> BoundingBox - Advanced GIS Coordinate Tool <span
                         class="achievement-badge">🌍 Free Tool</span></h3>
                 <div class="project-date">2026 • Production Web Application</div>
@@ -278,7 +336,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="ai web-gis">
                 <h3><i class="fab fa-chrome"></i> LookStuffUp - Chrome Extension <span class="achievement-badge">★ 5.0
                         Rating</span></h3>
                 <div class="project-date">2025 • Production</div>
@@ -300,7 +358,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="web-gis data">
                 <h3><i class="fas fa-baby"></i> The Birth Lottery <span class="achievement-badge">📊 Simulation
                         Tool</span></h3>
                 <div class="project-date">2026 • Production Web Application</div>
@@ -322,7 +380,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="web-gis">
                 <h3><i class="fas fa-map-marked-alt"></i> Supercharged Overpass <span class="achievement-badge">📍
                         GeoGuessr Tool</span></h3>
                 <div class="project-date">2025 • Production Web Application</div>
@@ -341,7 +399,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="data ai">
                 <h3><i class="fas fa-heartbeat"></i> Self-Healing Distributed System POC</h3>
                 <div class="project-date">2025 • Research & Development</div>
                 <p>
@@ -363,7 +421,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="data">
                 <h3><i class="fas fa-stream"></i> Kafka Streams Design Patterns</h3>
                 <div class="project-date">2023 • Open Source</div>
                 <p>
@@ -383,7 +441,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="research ai">
                 <h3><i class="fas fa-ruler"></i> Quasi-Euclidean Distance Metric <span class="achievement-badge">📄
                         Published</span></h3>
                 <div class="project-date">2020 • Academic Research (AICAI)</div>
@@ -408,7 +466,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="web-gis">
                 <h3><i class="fab fa-discord"></i> Discord Giveaway Bot</h3>
                 <div class="project-date">2025 • Production</div>
                 <p>
@@ -429,7 +487,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="data research">
                 <h3><i class="fas fa-chart-line"></i> Stock Market Prediction Platform</h3>
                 <div class="project-date">2020 • Data Engineering & ML</div>
                 <p>
@@ -447,7 +505,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="research ai">
                 <h3><i class="fas fa-robot"></i> Human Detection in Floods (MaskRCNN)</h3>
                 <div class="project-date">2019 • Computer Vision</div>
                 <p>
@@ -464,7 +522,7 @@
                 </div>
             </div>
 
-            <div class="project-card">
+            <div class="project-card" data-categories="data">
                 <h3><i class="fas fa-satellite"></i> Mercury Telemetry System</h3>
                 <div class="project-date">2020 • NYU Capstone</div>
                 <p>
@@ -590,32 +648,32 @@
             <div class="gallery-grid">
                 <div class="gallery-item">
                     <button type="button" class="gallery-image-trigger image-modal-trigger"
-                        data-modal-src="portfolio/images/1.jpg" data-modal-eyebrow="Gallery"
-                        data-modal-title="Gallery image 1" data-modal-alt="Gallery image 1">
+                        data-modal-src="portfolio/images/1.jpg" data-modal-eyebrow="NYC Photography"
+                        data-modal-title="Urban Architecture" data-modal-alt="NYC street photography — urban architecture">
                         <img src="portfolio/images/1.jpg" alt="NYC street photography — urban architecture"
                             loading="lazy" width="600" height="400">
                     </button>
                 </div>
                 <div class="gallery-item">
                     <button type="button" class="gallery-image-trigger image-modal-trigger"
-                        data-modal-src="portfolio/images/2.jpg" data-modal-eyebrow="Gallery"
-                        data-modal-title="Gallery image 2" data-modal-alt="Gallery image 2">
+                        data-modal-src="portfolio/images/2.jpg" data-modal-eyebrow="NYC Photography"
+                        data-modal-title="Skyline View" data-modal-alt="NYC cityscape — skyline view">
                         <img src="portfolio/images/2.jpg" alt="NYC cityscape — skyline view" loading="lazy" width="600"
                             height="400">
                     </button>
                 </div>
                 <div class="gallery-item">
                     <button type="button" class="gallery-image-trigger image-modal-trigger"
-                        data-modal-src="portfolio/images/3.jpg" data-modal-eyebrow="Gallery"
-                        data-modal-title="Gallery image 3" data-modal-alt="Gallery image 3">
+                        data-modal-src="portfolio/images/3.jpg" data-modal-eyebrow="NYC Photography"
+                        data-modal-title="City Life" data-modal-alt="NYC photography — city life">
                         <img src="portfolio/images/3.jpg" alt="NYC photography — city life" loading="lazy" width="600"
                             height="400">
                     </button>
                 </div>
                 <div class="gallery-item">
                     <button type="button" class="gallery-image-trigger image-modal-trigger"
-                        data-modal-src="portfolio/images/4.jpg" data-modal-eyebrow="Gallery"
-                        data-modal-title="Gallery image 4" data-modal-alt="Gallery image 4">
+                        data-modal-src="portfolio/images/4.jpg" data-modal-eyebrow="NYC Photography"
+                        data-modal-title="Street Scene" data-modal-alt="NYC photography — street scene">
                         <img src="portfolio/images/4.jpg" alt="NYC photography — street scene" loading="lazy"
                             width="600" height="400">
                     </button>
@@ -703,8 +761,18 @@
     <section id="contact_container" class="section">
         <div class="section-inner" style="text-align:center;">
             <h2 class="section-title">contact.</h2>
-            <p>Interested in collaborating or just want to say hi?</p>
-            <p style="margin-top:10px;">Email: contact@vibhorsingh.com</p>
+            <p>Interested in collaborating, discussing distributed systems, or just saying hi?</p>
+            <div class="contact-actions">
+                <a href="mailto:contact@vibhorsingh.com" class="contact-email-link">contact@vibhorsingh.com</a>
+                <button type="button" class="copy-email-btn" data-email="contact@vibhorsingh.com"
+                    aria-label="Copy email address">
+                    <i class="far fa-copy" aria-hidden="true"></i> <span>Copy email</span>
+                </button>
+                <a href="portfolio/resume/Vibhor_Singh_Resume.pdf" target="_blank" rel="noopener noreferrer"
+                    class="contact-resume-btn">
+                    <i class="fas fa-file-alt" aria-hidden="true"></i> View Resume
+                </a>
+            </div>
             <div class="social-links">
                 <a href="https://github.com/iamvibhorsingh" target="_blank" aria-label="GitHub"><i
                         class="fab fa-github"></i></a>
@@ -715,10 +783,10 @@
             <div class="canvas-interactive-note">
                 <i class="fas fa-project-diagram" aria-hidden="true"></i>
                 <div class="canvas-note-text">
-                    The ambient background you see is a real-time particle simulation. It uses pairwise
-                    Euclidean distance to form dynamic proximity graphs, periodic toroidal boundary
-                    wrapping, and radial force repulsion that responds to your cursor and touch
-                    gestures. <i>(kinda extra, I know)</i>
+                    The ambient background you see is a real-time <strong>WebGL2</strong> shader &amp; 3D particle
+                    simulation. It renders perspective proximity graphs with pairwise Euclidean distance,
+                    toroidal boundary wrapping, cursor/touch radial repulsion, click shockwaves, and
+                    kinetic scroll velocity coupling. <i>(kinda extra, I know)</i>
                 </div>
             </div>
             <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
@@ -758,6 +826,8 @@
     <button id="back-to-top" aria-label="Back to top" title="Back to top"><i class="fas fa-arrow-up"></i><span
             class="btt-tooltip">Back to top</span></button>
 
+    <script src="webgl-bg.js"></script>
+    <script src="kinetic-scroll.js"></script>
     <script src="index.js"></script>
 </body>
 
