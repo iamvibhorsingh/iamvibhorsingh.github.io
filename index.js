@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== Active Nav & Sidenav Section Highlighting =====
-    const sections = document.querySelectorAll('section[id], main[id]');
+    const sections = document.querySelectorAll('section[id], footer[id]');
     const navLinksAll = document.querySelectorAll('.nav-links a[href^="#"]');
     const sideNavLinks = document.querySelectorAll('.sidenav-tab[href^="#"]');
 
@@ -438,13 +438,13 @@ if (typeof navigator !== 'undefined' && navigator.modelContext) {
 
     navigator.modelContext.registerTool({
         name: 'open_tool',
-        description: 'Open one of the developer tools built by Vibhor Singh: BoundingBox (GIS coordinate tool), Supercharged Overpass (OSM query tool for GeoGuessr), or LookStuffUp (Chrome extension).',
+        description: 'Open one of the developer tools or interactive web apps built by Vibhor Singh: Data Center Atlas, BoundingBox, The Birth Lottery, Supercharged Overpass, or LookStuffUp.',
         inputSchema: {
             type: 'object',
             properties: {
                 tool: {
                     type: 'string',
-                    enum: ['boundingbox', 'supercharged-overpass', 'lookstuffup'],
+                    enum: ['datacentermap', 'boundingbox', 'birth-lottery', 'supercharged-overpass', 'lookstuffup'],
                     description: 'The tool to open.'
                 }
             },
@@ -452,9 +452,11 @@ if (typeof navigator !== 'undefined' && navigator.modelContext) {
         },
         execute({ tool }) {
             const urls = {
-                'boundingbox':          '/boundingbox/',
+                'datacentermap':         '/datacentermap/',
+                'boundingbox':           '/boundingbox/',
+                'birth-lottery':         '/birth-lottery/',
                 'supercharged-overpass': '/supercharged-overpass/',
-                'lookstuffup':          'https://chromewebstore.google.com/detail/lookstuffup/boagbbfpkdeklbfneiegcdgmfofckhfc'
+                'lookstuffup':           'https://chromewebstore.google.com/detail/lookstuffup/boagbbfpkdeklbfneiegcdgmfofckhfc'
             };
             const url = urls[tool];
             if (!url) return { error: `Unknown tool "${tool}".` };

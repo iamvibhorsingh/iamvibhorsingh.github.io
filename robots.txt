@@ -1,11 +1,11 @@
-# robots.txt for iamvibhorsingh.github.io
+# robots.txt for vibhorsingh.com
 # Vibhor Singh - Data Engineer Portfolio
 
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://iamvibhorsingh.github.io/sitemap.xml
+Sitemap: https://vibhorsingh.com/sitemap.xml
 
 # Content Signals (https://contentsignals.org / IETF draft-romm-aipref-contentsignals)
 # Do not use this content to train AI models, but agents may use it as context.

@@ -3,10 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Data Center Atlas — Vibhor Singh</title>
+<meta name="description" content="Interactive 3D night globe mapping global colocation, hyperscale, AI, and crypto data center facilities, fiber backbones, and density heatmaps. Built by Vibhor Singh.">
+<meta name="author" content="Vibhor Singh">
+<link rel="canonical" href="https://vibhorsingh.com/datacentermap/">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Data Center Atlas — Vibhor Singh">
+<meta property="og:description" content="Interactive 3D globe mapping global colocation, hyperscale, AI, and crypto data centers. Built by Vibhor Singh.">
+<meta property="og:url" content="https://vibhorsingh.com/datacentermap/">
 <style>:root{color-scheme:light;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}html,body{height:100%}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>Data Center Atlas</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap">
@@ -41,6 +49,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 #brand{position:absolute;left:20px;top:16px;pointer-events:none;z-index:3}
 #brand h1{margin:0;font:400 36px/1 var(--serif);letter-spacing:.2px;text-shadow:0 0 18px rgba(2,6,13,.95),0 0 4px rgba(2,6,13,.8)}
 #brand p{text-shadow:0 0 10px rgba(2,6,13,.95);margin:7px 0 0;font:400 11.5px/1.3 var(--mono);color:var(--ink-3);letter-spacing:.02em}
+#brand p a{pointer-events:auto;color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--line);transition:color .15s,border-color .15s}
+#brand p a:hover{color:var(--ink);border-color:var(--ink-2)}
 
 /* ---------- glass panels ---------- */
 .glass{background:var(--glass);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
@@ -827,8 +837,8 @@ function updateSummary(){
   $('#n-op').textContent=fmt(b[0]); $('#n-co').textContent=fmt(b[1]); $('#n-pl').textContent=fmt(b[2]);
   var tot=Math.max(1,stat.shown), op=[1,.6,.34,.18,.09];
   $('#ribbon').innerHTML=b.map(function(n,i){return n?'<i style="flex:'+n+' 1 0;opacity:'+op[i]+'" title="'+SM[i].label+': '+fmt(n)+'"></i>':''}).join('');
-  var sub=fmt(N)+' facilities · '+fmt(R.filter(function(r){return r[C.status]===1||r[C.status]===2}).length)+' in the pipeline';
-  $('#brand-sub').textContent=sub;
+  var sub=fmt(N)+' facilities · '+fmt(R.filter(function(r){return r[C.status]===1||r[C.status]===2}).length)+' in the pipeline · <a href="https://vibhorsingh.com/">by Vibhor Singh</a>';
+  $('#brand-sub').innerHTML=sub;
 }
 function buildChips(){
   var host=$('#chips'), html='';
@@ -975,7 +985,7 @@ $('#bars').addEventListener('click',function(e){
 (function(){
   var hasOsm=R.some(function(r){return r[C.sources].indexOf('osm')>=0});
   $('#about-body').innerHTML=
-   'Built '+esc(D.generated)+' by merging open datasets and de-duplicating by distance and name. Marker colour is the facility type, and the shape shows its status. '+
+   'Built by <a href="https://vibhorsingh.com/">Vibhor Singh</a> ('+esc(D.generated)+') by merging open datasets and de-duplicating by distance and name. Marker colour is the facility type, and the shape shows its status. '+
    'Positions are only as exact as the source: street-level for PeeringDB and Epoch addresses, city-level for Google and Meta, and metro-level for cloud regions. '+
    'Partner and tenant links come from press reports, filings and Epoch; each one carries its evidence link and confidence, so check the source before relying on it. '+
    'Data: PeeringDB, Epoch AI (CC BY 4.0), FracTracker Alliance (non-commercial), PNNL IM3 data center atlas (ODbL), Wikidata, Google and Meta published location lists, cloud-provider region lists, SEC EDGAR filings'+

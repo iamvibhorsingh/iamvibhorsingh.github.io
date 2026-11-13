@@ -189,8 +189,10 @@
     <a id="sidenav-contact" href="#contact_container" class="sidenav-tab sidenav-bottom"
         aria-label="Contact Vibhor Singh">contact</a>
 
-    <!-- Hero -->
-    <section id="hero">
+    <!-- Main Content -->
+    <main>
+        <!-- Hero -->
+        <section id="hero">
         <div class="hero-content">
             <p class="greeting">Data @ Fastenal</p>
             <h1>Vibhor Singh.</h1>
@@ -252,7 +254,7 @@
     </section>
 
     <!-- Projects -->
-    <main id="work_container" class="section" role="main" aria-label="Projects and Work">
+    <section id="work_container" class="section" aria-label="Projects and Work">
         <div class="section-inner">
             <h2 class="section-title">projects.</h2>
 
@@ -260,11 +262,12 @@
                 <button type="button" class="filter-pill active" data-filter="all" aria-pressed="true">All</button>
                 <button type="button" class="filter-pill" data-filter="data" aria-pressed="false">Data &amp; Infra</button>
                 <button type="button" class="filter-pill" data-filter="ai" aria-pressed="false">AI &amp; MCP</button>
-                <button type="button" class="filter-pill" data-filter="web-gis" aria-pressed="false">Web &amp; GIS Tools</button>
+                <button type="button" class="filter-pill" data-filter="gis" aria-pressed="false">GIS &amp; Maps</button>
+                <button type="button" class="filter-pill" data-filter="web" aria-pressed="false">Web &amp; Tools</button>
                 <button type="button" class="filter-pill" data-filter="research" aria-pressed="false">Research &amp; ML</button>
             </div>
 
-            <div class="project-card" data-categories="web-gis data">
+            <div class="project-card" data-categories="data gis web">
                 <h3><i class="fas fa-server"></i> Data Center Atlas <span class="achievement-badge">🌐 3D
                         Globe</span></h3>
                 <div class="project-date">2026 • Interactive 3D Infrastructure Map</div>
@@ -285,14 +288,40 @@
                 </div>
             </div>
 
-            <div class="project-card" data-categories="ai web-gis">
-                <h3><i class="fas fa-plug"></i> Bounding Box MCP Server <span class="achievement-badge">📦 npm
-                        Package</span></h3>
+            <div class="project-card" data-categories="data ai">
+                <h3><i class="fas fa-database"></i> Oracle GoldenGate MCP Server <span class="achievement-badge">🛡️
+                        Open Source</span></h3>
+                <div class="project-date">2026 • AI Agent Tooling &amp; Database Ops</div>
+                <p>
+                    Open-source counterpart to an internal tool. Enables LLM agents to diagnose replication
+                    lag via the GoldenGate Microservices REST API using structured facts (lag, throughput, discard
+                    rates, errors). Read-only by default (enforced in both tool discovery and routing), stateless
+                    in-memory operation with opt-in SQLite baselining, and a SHA-256 hash-chained audit log.
+                </p>
+                <div class="project-tech">
+                    <span class="tech-badge">Python</span>
+                    <span class="tech-badge">Model Context Protocol</span>
+                    <span class="tech-badge">Oracle GoldenGate</span>
+                    <span class="tech-badge">SQLite</span>
+                    <span class="tech-badge">AI Agents</span>
+                </div>
+                <div class="project-links">
+                    <a href="https://github.com/iamvibhorsingh/Oracle-Golden-Gate-Mcp" target="_blank"
+                        rel="noopener noreferrer"><i class="fab fa-github"></i> View on GitHub</a>
+                    <a href="portfolio/blog/goldengate-mcp-server.html"><i class="fas fa-book-open"></i> Read Deep
+                        Dive</a>
+                </div>
+            </div>
+
+            <div class="project-card" data-categories="ai gis">
+                <h3><i class="fas fa-plug"></i> Bounding Box MCP Server <span class="achievement-badge">📦 npm &amp; MCP
+                        Registry</span></h3>
                 <div class="project-date">2026 • Open Source AI Agent Toolkit</div>
                 <p>
-                    Zero-config Model Context Protocol server giving LLM and AI agents 6 geospatial tools:
-                    coordinate projection across 3,900+ EPSG systems, Uber H3 hexagonal indexing, OpenStreetMap
-                    Overpass QL queries, spatial density binning, and shareable map verification links.
+                    Zero-config Model Context Protocol server published to npm and the official MCP registry, giving LLM
+                    and AI agents 6 geospatial tools: coordinate projection across 3,900+ EPSG systems, Uber H3
+                    hexagonal indexing, OpenStreetMap Overpass QL queries, spatial density binning, and shareable map
+                    verification links.
                 </p>
                 <div class="project-tech">
                     <span class="tech-badge">Model Context Protocol</span>
@@ -309,14 +338,14 @@
                 </div>
             </div>
 
-            <div class="project-card" data-categories="web-gis">
+            <div class="project-card" data-categories="gis web">
                 <h3><i class="fas fa-map-marked-alt"></i> BoundingBox - Advanced GIS Coordinate Tool <span
-                        class="achievement-badge">🌍 Free Tool</span></h3>
-                <div class="project-date">2026 • Production Web Application</div>
+                        class="achievement-badge">🌍 Adopted by PDOK</span></h3>
+                <div class="project-date">2025–2026 • Production Web Application</div>
                 <p>
                     Professional GIS tool for generating and visualizing bounding boxes with coordinate system support.
-                    An enhanced, feature-rich alternative to bboxfinder.com used by GIS professionals, data engineers,
-                    and developers working with geospatial data. Completely free with no sign-ups required.
+                    Recommended by PDOK (Netherlands' National Geo Platform) in their official OGC API learning modules
+                    as a feature-rich alternative to bboxfinder.com. Completely free with no sign-ups required.
                 </p>
                 <p style="margin-top:10px;">
                     <b>Key Features:</b> Draw rectangles, circles, and polygons with instant coordinate output • Support
@@ -336,15 +365,15 @@
                 </div>
             </div>
 
-            <div class="project-card" data-categories="ai web-gis">
-                <h3><i class="fab fa-chrome"></i> LookStuffUp - Chrome Extension <span class="achievement-badge">★ 5.0
-                        Rating</span></h3>
+            <div class="project-card" data-categories="ai web">
+                <h3><i class="fab fa-chrome"></i> LookStuffUp - Chrome Extension <span class="achievement-badge">★
+                        Featured · 5.0 Rating</span></h3>
                 <div class="project-date">2025 • Production</div>
                 <p>
-                    A free, privacy-first Chrome extension providing instant context for selected text. Features
-                    intelligent multi-source search (Wikipedia, Wiktionary, Dictionary), on-device AI for summaries and
-                    translation (20+ languages), and a customizable draggable interface with dark mode. Zero tracking,
-                    ads, or data collection.
+                    Featured Chrome extension providing instant context for selected text. Features intelligent
+                    multi-source search (Wikipedia, Wiktionary, Dictionary), on-device AI for summaries and translation
+                    (20+ languages), and a customizable draggable interface with dark mode. Zero tracking, ads, or data
+                    collection.
                 </p>
                 <div class="project-tech">
                     <span class="tech-badge">JavaScript</span>
@@ -358,7 +387,7 @@
                 </div>
             </div>
 
-            <div class="project-card" data-categories="web-gis data">
+            <div class="project-card" data-categories="web data">
                 <h3><i class="fas fa-baby"></i> The Birth Lottery <span class="achievement-badge">📊 Simulation
                         Tool</span></h3>
                 <div class="project-date">2026 • Production Web Application</div>
@@ -380,7 +409,7 @@
                 </div>
             </div>
 
-            <div class="project-card" data-categories="web-gis">
+            <div class="project-card" data-categories="gis web">
                 <h3><i class="fas fa-map-marked-alt"></i> Supercharged Overpass <span class="achievement-badge">📍
                         GeoGuessr Tool</span></h3>
                 <div class="project-date">2025 • Production Web Application</div>
@@ -401,7 +430,7 @@
 
             <div class="project-card" data-categories="data ai">
                 <h3><i class="fas fa-heartbeat"></i> Self-Healing Distributed System POC</h3>
-                <div class="project-date">2025 • Research & Development</div>
+                <div class="project-date">2024 • Research &amp; Development</div>
                 <p>
                     Engineered a fault-tolerant system demonstrating resilience and automation in hyperscale
                     environments. Built with containerized microservices communicating via Redis Streams, implementing
@@ -466,7 +495,7 @@
                 </div>
             </div>
 
-            <div class="project-card" data-categories="web-gis">
+            <div class="project-card" data-categories="web">
                 <h3><i class="fab fa-discord"></i> Discord Giveaway Bot</h3>
                 <div class="project-date">2025 • Production</div>
                 <p>
@@ -542,7 +571,7 @@
                 </div>
             </div>
         </div>
-    </main>
+    </section>
 
     <!-- Blog / Write-ups -->
     <section id="blog_container" class="section">
@@ -699,19 +728,18 @@
                 </p>
                 <p style="margin-top:20px;">
                     <b>Key Achievements:</b><br>
-                    - Architected Kafka-as-a-Managed-Service platform serving <b>15+ technology teams</b><br>
-                    - Maintained <b>99.9% uptime</b> for critical event streams through proactive management<br>
-                    - Reduced integration time by <b>60%</b> using Kafka Connect and Oracle GoldenGate<br>
-                    - Achieved <b>95% reduction</b> in issue resolution time through Azure DevOps automation<br>
-                    - Manage <b>~50 RHEL VMs</b> with Puppet, reducing cluster load by <b>60%</b>
+                    - Architected Kafka-as-a-Managed-Service platform across <b>10+ clusters</b> serving <b>15+ technology teams</b> and <b>100M+ daily events</b><br>
+                    - Maintained <b>99.95% uptime</b> SLA for critical event streams with <b>70% MTTR reduction</b><br>
+                    - Engineered <b>100+ custom Kafka Connect &amp; Oracle GoldenGate</b> integrations, reducing integration time by <b>90%</b><br>
+                    - Built Azure DevOps CI/CD automation cutting deployment cycles to 4 hours and reducing configuration errors by <b>95%</b><br>
+                    - Manage <b>50+ RHEL VMs</b> with Puppet, reducing cluster load by <b>70%</b>
                 </p>
             </div>
             <div class="about-block">
                 <h3>about me</h3>
                 <p>
-                    Outside of work, I'm passionate about cybersecurity—staying on top of breaches, hacks, data dumps,
-                    and
-                    new vulnerabilities, especially targeting Windows OS. I also enjoy playing CSGO, watching Chelsea,
+                    Outside of work, I'm passionate about cybersecurity—following security write-ups, breaches,
+                    CVE teardowns, and Windows internals. I also enjoy playing CSGO, watching Chelsea,
                     and photography. Currently learning <b>on-device LLMs</b> and exploring the intersection of
                     AI and privacy.
                 </p>
@@ -756,9 +784,10 @@
             </div>
         </div>
     </section>
+    </main>
 
     <!-- Contact -->
-    <section id="contact_container" class="section">
+    <footer id="contact_container" class="section">
         <div class="section-inner" style="text-align:center;">
             <h2 class="section-title">contact.</h2>
             <p>Interested in collaborating, discussing distributed systems, or just saying hi?</p>
@@ -792,7 +821,7 @@
             <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
                     class="fas fa-coffee"></i>.</p>
         </div>
-    </section>
+    </footer>
 
     <!-- Image Modal (from portfolio) -->
     <div class="image-modal" id="image-modal" aria-hidden="true" role="dialog" aria-modal="true"

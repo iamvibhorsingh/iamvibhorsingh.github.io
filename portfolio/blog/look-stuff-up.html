@@ -42,9 +42,11 @@
                     <li><a href="../../index.html#work_container">Projects</a></li>
                     <li><a href="../../index.html#gallery_container">Gallery</a></li>
                     <li><a href="../../index.html#contact_container">Contact</a></li>
-                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
-                        <i class="fas fa-moon"></i>
-                    </button>
+                    <li>
+                        <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </li>
                 </ul>
             </nav>
             <div class="hamburger">
@@ -58,12 +60,12 @@
     <main>
         <article class="blog-post-container">
             <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to
-                Projects</a>
+                Blog</a>
 
             <header class="blog-header">
                 <h1 class="blog-title">Building "LookStuffUp": A Deep Dive</h1>
                 <div class="blog-meta">
-                    <span><i class="far fa-calendar"></i> June 10, 2023</span>
+                    <span><i class="far fa-calendar"></i> July 10, 2025</span>
                     <span><i class="fas fa-tag"></i> Browser Extension</span>
                 </div>
             </header>
@@ -178,7 +180,7 @@
                 <h3>The Cross-Browser Conundrum: Chrome vs. Firefox</h3>
                 <p>I wanted this to work for as many people as possible. Thankfully, building a cross-browser extension
                     is easier than ever.</p>
-                <p>All i did was a tiny compatibility check at the top of any script that called an extension API:<br>
+                <p>All I did was a tiny compatibility check at the top of any script that called an extension API:<br>
                     <code>const runtimeAPI = typeof browser !== 'undefined' ? browser.runtime : chrome.runtime;</code>
                 </p>
                 <p>The other major difference is the <code>manifest.json</code> file.</p>
@@ -220,7 +222,7 @@
 
     <footer class="contact-section">
         <div class="container">
-            <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+            <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
                     class="fas fa-coffee"></i>.</p>
         </div>
     </footer>

@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dev Diary: Building "WhereAreYou?" | Vibhor Singh</title>
     <meta name="description"
-        content="A dev diary about building a simple GeoGuesser-style game with Flask, vanilla JavaScript, and the Google Maps API.">
+        content="A dev diary about building a simple GeoGuessr-style game with Flask, vanilla JavaScript, and the Google Maps API.">
     <meta name="author" content="Vibhor Singh">
     <link rel="canonical" href="https://vibhorsingh.com/portfolio/blog/where-are-you.html" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <meta property="og:type" content="article">
     <meta property="og:title" content="Building WhereAreYou? | Vibhor Singh">
-    <meta property="og:description" content="A dev diary about building a GeoGuesser-style game with Flask, vanilla JavaScript, and the Google Maps API.">
+    <meta property="og:description" content="A dev diary about building a GeoGuessr-style game with Flask, vanilla JavaScript, and the Google Maps API.">
     <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/where-are-you.html">
 
     <!-- Fonts -->
@@ -41,9 +41,11 @@
                     <li><a href="../../index.html#work_container">Projects</a></li>
                     <li><a href="../../index.html#gallery_container">Gallery</a></li>
                     <li><a href="../../index.html#contact_container">Contact</a></li>
-                    <button class="theme-toggle" aria-label="Toggle Dark Mode">
-                        <i class="fas fa-moon"></i>
-                   </button>
+                    <li>
+                        <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                            <i class="fas fa-moon"></i>
+                       </button>
+                    </li>
                 </ul>
             </nav>
             <div class="hamburger">
@@ -56,7 +58,7 @@
 
     <main>
         <article class="blog-post-container">
-            <a href="../../index.html#work_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to Blog</a>
 
             <header class="blog-header">
                 <h1 class="blog-title">Dev Diary: Building "WhereAreYou?"</h1>
@@ -134,7 +136,7 @@
                         panorama within 100km of this random point." This dramatically increases the chances of finding
                         something.</li>
                     <li>I also added <code>source: 'outdoor'</code> to prioritize outdoor shots, which is what you want
-                        for a GeoGuesser game.</li>
+                        for a GeoGuessr game.</li>
                     <li>The API response has a <code>status</code> field. If <code>status</code> is <code>'OK'</code>,
                         it means a panorama was found. I break the loop and send the coordinates from the metadata
                         (which are the <em>actual</em> panorama coordinates, not my random guess) back to the client.
@@ -206,7 +208,7 @@
 
     <footer class="contact-section">
         <div class="container">
-            <p class="copyright">&copy; 2025 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
+            <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and <i
                     class="fas fa-coffee"></i>.</p>
         </div>
     </footer>
