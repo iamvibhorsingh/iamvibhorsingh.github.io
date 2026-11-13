@@ -1118,6 +1118,23 @@ body.light-theme .filter-pill.active {
     margin-bottom: 30px;
 }
 
+.about-block::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.about-chill-img {
+    float: right;
+    width: 155px;
+    height: 155px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 4px 0 16px 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
 .about-block h3 {
     font-size: 1.4rem;
     margin-bottom: 15px;
@@ -1522,6 +1539,14 @@ body.light-theme .canvas-interactive-note:hover {
     .section-title {
         font-size: 32px;
         margin-bottom: 20px;
+    }
+
+    .about-chill-img {
+        float: none;
+        display: block;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 20px auto;
     }
 
     .gallery-grid { grid-template-columns: repeat(2, 1fr); }
