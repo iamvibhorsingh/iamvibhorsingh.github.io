@@ -818,8 +818,12 @@ function syncUrlHash() {
                 } else if (layer instanceof L.Polyline) {
                     const latlngs = getOuterRing(layer);
                     if (latlngs.length >= 2) {
-                        const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
-                        hashParts.push(`LB:${pts}`);
+                        if (latlngs.length > 15) {
+                            hashParts.push(`LBE:${encodeHashPolyline(latlngs)}`);
+                        } else {
+                            const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
+                            hashParts.push(`LB:${pts}`);
+                        }
                     }
                 } else if (layer instanceof L.Circle) {
                     const center = layer.getLatLng();
@@ -855,6 +859,72 @@ function syncUrlHash() {
         }
     }
     return finalHash;
+}
+
+/**
+ * Encodes an array of Leaflet {lat, lng} points using Google Encoded Polyline (1e5 precision),
+ * escaping `|` as `!` (unused in 63..126) before percent-encoding so hash delimiters never split LBE:.
+ */
+function encodeHashPolyline(latlngs) {
+    let encoded = '';
+    let prevLat = 0;
+    let prevLng = 0;
+    const writeSigned = (val) => {
+        let sgn = val < 0 ? ~(val << 1) : (val << 1);
+        while (sgn >= 0x20) {
+            encoded += String.fromCharCode((0x20 | (sgn & 0x1f)) + 63);
+            sgn >>>= 5;
+        }
+        encoded += String.fromCharCode(sgn + 63);
+    };
+    for (let i = 0; i < latlngs.length; i++) {
+        const latE5 = Math.round(latlngs[i].lat * 1e5);
+        const lngE5 = Math.round(latlngs[i].lng * 1e5);
+        writeSigned(latE5 - prevLat);
+        writeSigned(lngE5 - prevLng);
+        prevLat = latE5;
+        prevLng = lngE5;
+    }
+    return encodeURIComponent(encoded.replace(/\|/g, '!'));
+}
+
+/**
+ * Decodes an LBE: Google Encoded Polyline string (with `!` -> `|` restoration) into `[lat, lng]` pairs.
+ */
+function decodeHashPolyline(str) {
+    if (!str) return [];
+    let raw;
+    try {
+        raw = decodeURIComponent(str).replace(/!/g, '|');
+    } catch (e) {
+        return [];
+    }
+    const points = [];
+    let index = 0;
+    let lat = 0;
+    let lng = 0;
+    const readSigned = () => {
+        let result = 0;
+        let shift = 0;
+        let b;
+        do {
+            if (index >= raw.length) return null;
+            b = raw.charCodeAt(index++) - 63;
+            if (b < 0 || b > 63) return null;
+            result |= (b & 0x1f) << shift;
+            shift += 5;
+        } while (b >= 0x20);
+        return (result & 1) ? ~(result >>> 1) : (result >>> 1);
+    };
+    while (index < raw.length) {
+        const dLat = readSigned();
+        const dLng = readSigned();
+        if (dLat === null || dLng === null) break;
+        lat += dLat;
+        lng += dLng;
+        points.push([lat / 1e5, lng / 1e5]);
+    }
+    return points;
 }
 
 function generateShareUrl() {
@@ -981,8 +1051,10 @@ function loadBboxFromHash() {
                     }
                     return;
                 }
-                if (part.startsWith('LB:')) {
-                    const latlngs = parseHashLatLngPairs(part.substring(3));
+                if (part.startsWith('LB:') || part.startsWith('LBE:')) {
+                    const latlngs = part.startsWith('LBE:')
+                        ? decodeHashPolyline(part.substring(4))
+                        : parseHashLatLngPairs(part.substring(3));
                     if (latlngs.length >= 2) {
                         const lyr = new L.Polyline(latlngs, {
                             fill: false,
