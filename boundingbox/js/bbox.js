@@ -815,6 +815,12 @@ function syncUrlHash() {
                         const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
                         hashParts.push(`PB:${pts}`);
                     }
+                } else if (layer instanceof L.Polyline) {
+                    const latlngs = getOuterRing(layer);
+                    if (latlngs.length >= 2) {
+                        const pts = latlngs.map(ll => `${ll.lat.toFixed(6)},${ll.lng.toFixed(6)}`).join(',');
+                        hashParts.push(`LB:${pts}`);
+                    }
                 } else if (layer instanceof L.Circle) {
                     const center = layer.getLatLng();
                     const radius = layer.getRadius();
@@ -868,6 +874,20 @@ function generateShareUrl() {
     });
 }
 
+function parseHashLatLngPairs(coordStr) {
+    const nums = coordStr.split(',').map(parseFloat);
+    const latlngs = [];
+    for (let i = 0; i + 1 < nums.length; i += 2) {
+        const lat = nums[i];
+        const lng = nums[i + 1];
+        if (Number.isFinite(lat) && Number.isFinite(lng) &&
+            lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            latlngs.push([lat, lng]);
+        }
+    }
+    return latlngs;
+}
+
 function loadBboxFromHash() {
     const hash = location.hash.replace(/^#/, '');
     if (!hash) return false;
@@ -877,122 +897,135 @@ function loadBboxFromHash() {
 
     // Parse BBox
     if (parts[0] !== '') {
-        if (parts[0].startsWith('C:')) {
-            const bboxParts = parts[0].substring(2).split(',').map(parseFloat);
-            if (bboxParts.length === 3) {
-                const [lat, lng, radius] = bboxParts;
-                if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius) &&
-                    lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && radius > 0) {
+        try {
+            if (parts[0].startsWith('C:')) {
+                const bboxParts = parts[0].substring(2).split(',').map(parseFloat);
+                if (bboxParts.length === 3) {
+                    const [lat, lng, radius] = bboxParts;
+                    if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius) &&
+                        lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 && radius > 0) {
 
-                    const lyr = new L.Circle([lat, lng], { radius: radius });
-                    const evt = { layer: lyr, layerType: 'circle' };
+                        const lyr = new L.Circle([lat, lng], { radius: radius });
+                        const evt = { layer: lyr, layerType: 'circle' };
+
+                        map.fire('draw:created', evt);
+                        map.fitBounds(lyr.getBounds());
+                        loadedBbox = true;
+                    }
+                }
+            } else if (parts[0].startsWith('P:')) {
+                const latlngs = parseHashLatLngPairs(parts[0].substring(2));
+                if (latlngs.length >= 3) {
+                    const lyr = new L.Polygon(latlngs);
+                    const evt = { layer: lyr, layerType: 'polygon' };
 
                     map.fire('draw:created', evt);
                     map.fitBounds(lyr.getBounds());
                     loadedBbox = true;
                 }
-            }
-        } else if (parts[0].startsWith('P:')) {
-            const pts = parts[0].substring(2).split(',').map(parseFloat);
-            const latlngs = [];
-            for(let i = 0; i < pts.length; i+=2) {
-                if (!isNaN(pts[i]) && !isNaN(pts[i+1])) {
-                    latlngs.push([pts[i], pts[i+1]]);
+            } else if (!/^[A-Za-z][A-Za-z0-9_-]*:/.test(parts[0])) {
+                const bboxParts = parts[0].split(',').map(parseFloat);
+                if (bboxParts.length === 4) {
+                    const [lat1, lng1, lat2, lng2] = bboxParts;
+                    if (!isNaN(lat1) && !isNaN(lng1) && !isNaN(lat2) && !isNaN(lng2) &&
+                        lat1 >= -90 && lat1 <= 90 && lat2 >= -90 && lat2 <= 90 &&
+                        lng1 >= -180 && lng1 <= 180 && lng2 >= -180 && lng2 <= 180) {
+
+                        const sw = L.latLng(lat1, lng1);
+                        const ne = L.latLng(lat2, lng2);
+                        const loadedBounds = L.latLngBounds(sw, ne);
+
+                        const lyr = new L.Rectangle(loadedBounds);
+                        const evt = {
+                            layer: lyr,
+                            layerType: 'polygon'
+                        };
+
+                        map.fire('draw:created', evt);
+                        map.fitBounds(loadedBounds);
+                        loadedBbox = true;
+                    }
                 }
             }
-            if (latlngs.length >= 3) {
-                const lyr = new L.Polygon(latlngs);
-                const evt = { layer: lyr, layerType: 'polygon' };
-
-                map.fire('draw:created', evt);
-                map.fitBounds(lyr.getBounds());
-                loadedBbox = true;
-            }
-        } else {
-            const bboxParts = parts[0].split(',').map(parseFloat);
-            if (bboxParts.length === 4) {
-                const [lat1, lng1, lat2, lng2] = bboxParts;
-                if (!isNaN(lat1) && !isNaN(lng1) && !isNaN(lat2) && !isNaN(lng2) &&
-                    lat1 >= -90 && lat1 <= 90 && lat2 >= -90 && lat2 <= 90 &&
-                    lng1 >= -180 && lng1 <= 180 && lng2 >= -180 && lng2 <= 180) {
-
-                    const sw = L.latLng(lat1, lng1);
-                    const ne = L.latLng(lat2, lng2);
-                    const loadedBounds = L.latLngBounds(sw, ne);
-
-                    const lyr = new L.Rectangle(loadedBounds);
-                    const evt = {
-                        layer: lyr,
-                        layerType: 'polygon'
-                    };
-
-                    map.fire('draw:created', evt);
-                    map.fitBounds(loadedBounds);
-                    loadedBbox = true;
-                }
-            }
+        } catch (err) {
+            console.warn('Skipping invalid primary hash feature:', err);
         }
     }
 
-    // Parse Markers
+    // Parse Markers and Overlay Features
     if (parts.length > 1) {
         parts.slice(1).forEach(part => {
             if (!part) return;
-            if (part.startsWith('CB:')) {
-                const bboxParts = part.substring(3).split(',').map(parseFloat);
-                if (bboxParts.length === 3 && !isNaN(bboxParts[0])) {
-                    const lyr = new L.Circle([bboxParts[0], bboxParts[1]], { radius: bboxParts[2] });
-                    if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+            try {
+                if (part.startsWith('CB:')) {
+                    const bboxParts = part.substring(3).split(',').map(parseFloat);
+                    if (bboxParts.length === 3 && !isNaN(bboxParts[0])) {
+                        const lyr = new L.Circle([bboxParts[0], bboxParts[1]], { radius: bboxParts[2] });
+                        if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                    }
+                    return;
                 }
-                return;
-            }
-            if (part.startsWith('RB:')) {
-                const bboxParts = part.substring(3).split(',').map(parseFloat);
-                if (bboxParts.length === 4 && !isNaN(bboxParts[0])) {
-                    const lyr = new L.Rectangle(L.latLngBounds([bboxParts[0], bboxParts[1]], [bboxParts[2], bboxParts[3]]));
-                    if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                if (part.startsWith('RB:')) {
+                    const bboxParts = part.substring(3).split(',').map(parseFloat);
+                    if (bboxParts.length === 4 && !isNaN(bboxParts[0])) {
+                        const lyr = new L.Rectangle(L.latLngBounds([bboxParts[0], bboxParts[1]], [bboxParts[2], bboxParts[3]]));
+                        if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                    }
+                    return;
                 }
-                return;
-            }
-            if (part.startsWith('PB:')) {
-                const pts = part.substring(3).split(',').map(parseFloat);
-                const latlngs = [];
-                for(let i = 0; i < pts.length; i+=2) {
-                    if (!isNaN(pts[i]) && !isNaN(pts[i+1])) {
-                        latlngs.push([pts[i], pts[i+1]]);
+                if (part.startsWith('PB:')) {
+                    const latlngs = parseHashLatLngPairs(part.substring(3));
+                    if (latlngs.length >= 3) {
+                        const lyr = new L.Polygon(latlngs);
+                        if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                    }
+                    return;
+                }
+                if (part.startsWith('LB:')) {
+                    const latlngs = parseHashLatLngPairs(part.substring(3));
+                    if (latlngs.length >= 2) {
+                        const lyr = new L.Polyline(latlngs, {
+                            fill: false,
+                            color: '#3388ff',
+                            weight: 4,
+                            opacity: 0.85
+                        });
+                        if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
+                    }
+                    return;
+                }
+                // Skip unknown typed prefixes (e.g. future encodings) without breaking the viewer
+                if (/^[A-Za-z][A-Za-z0-9_-]*:/.test(part) && !part.startsWith('C:')) {
+                    return;
+                }
+                const markerParts = part.split(',');
+                if (markerParts.length >= 2) {
+                    let isCircle = false;
+                    if (markerParts[0].startsWith('C:')) {
+                        isCircle = true;
+                        markerParts[0] = markerParts[0].substring(2);
+                    }
+                    const lat = parseFloat(markerParts[0]);
+                    const lng = parseFloat(markerParts[1]);
+                    if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                        const nameParts = markerParts.slice(2);
+                        let name = nameParts.length > 0 ? decodeURIComponent(nameParts.join(',')) : (isCircle ? "Circle" : "Marker");
+
+                        const marker = isCircle ? L.circleMarker([lat, lng]) : L.marker([lat, lng]);
+                        if (name) {
+                            marker.bindPopup(name);
+                            marker.options.title = name;
+                        }
+
+                        const evt = {
+                            layer: marker,
+                            layerType: isCircle ? 'circlemarker' : 'marker'
+                        };
+                        map.fire('draw:created', evt);
                     }
                 }
-                if (latlngs.length >= 3) {
-                    const lyr = new L.Polygon(latlngs);
-                    if (typeof drawnItems !== 'undefined') drawnItems.addLayer(lyr);
-                }
-                return;
-            }
-            const markerParts = part.split(',');
-            if (markerParts.length >= 2) {
-                let isCircle = false;
-                if (markerParts[0].startsWith('C:')) {
-                    isCircle = true;
-                    markerParts[0] = markerParts[0].substring(2);
-                }
-                const lat = parseFloat(markerParts[0]);
-                const lng = parseFloat(markerParts[1]);
-                if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
-                    const nameParts = markerParts.slice(2);
-                    let name = nameParts.length > 0 ? decodeURIComponent(nameParts.join(',')) : (isCircle ? "Circle" : "Marker");
-
-                    const marker = isCircle ? L.circleMarker([lat, lng]) : L.marker([lat, lng]);
-                    if (name) {
-                        marker.bindPopup(name);
-                        marker.options.title = name;
-                    }
-
-                    const evt = {
-                        layer: marker,
-                        layerType: isCircle ? 'circlemarker' : 'marker'
-                    };
-                    map.fire('draw:created', evt);
-                }
+            } catch (err) {
+                console.warn('Skipping invalid hash feature:', err);
             }
         });
 
