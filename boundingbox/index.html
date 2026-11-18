@@ -74,7 +74,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
         crossorigin="anonymous" />
-    <link rel="stylesheet" href="css/bbox.css?v=3" />
+    <link rel="stylesheet" href="css/bbox.css?v=5" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.css"
         crossorigin="anonymous" />
 
@@ -96,7 +96,7 @@
         integrity="sha384-hRLVGjv/5g5uHvtM+2E7RVhdUxQrIBllMHa139zPNM8LGNAIdHNxKaTBNCsBSEBO"
         crossorigin="anonymous"></script>
     <script defer src="js/maps/wkt.parser.js?v=2"></script>
-    <script defer src="js/bbox.js?v=9"></script>
+    <script defer src="js/bbox.js?v=11"></script>
 
 </head>
 
@@ -366,6 +366,8 @@
                 <div id="proj-info" style="font-size: 11px; margin-top: 8px; color: #666; line-height: 1.4;">
                     <span id="proj-description"></span>
                 </div>
+                <button type="button" class="btn_one" id="preview-projection" aria-haspopup="dialog"
+                    aria-controls="projection-preview">Preview projection</button>
             </div>
             <div id="output-formats">
                 <div class="bboxlabel">Box Formats</div>
@@ -395,6 +397,29 @@
         </div>
         <footer id="map-attribution" aria-label="Map attribution"></footer>
     </section>
+
+    <dialog id="projection-preview" aria-labelledby="projection-preview-title">
+        <header class="projection-preview-header">
+            <h2 id="projection-preview-title">Projection preview</h2>
+            <form method="dialog"><button type="submit" class="btn_one">Close preview</button></form>
+        </header>
+        <div class="projection-preview-surface">
+            <div id="projection-preview-map" role="region" aria-label="Map in the selected projection" tabindex="0"></div>
+            <div class="projection-preview-controls" aria-label="Preview map controls">
+                <button type="button" id="projection-preview-in" class="btn_one" aria-label="Zoom in">+</button>
+                <button type="button" id="projection-preview-out" class="btn_one" aria-label="Zoom out">−</button>
+                <button type="button" id="projection-preview-fit" class="btn_one">Fit area</button>
+            </div>
+        </div>
+        <footer class="projection-preview-footer">
+            <div id="projection-preview-legend" hidden>
+                <span class="projection-preview-selection">Original box</span>
+                <span class="projection-preview-envelope">Projected bounds</span>
+            </div>
+            <p id="projection-preview-status" role="status"></p>
+            <div id="projection-preview-credits"></div>
+        </footer>
+    </dialog>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GTJTE1MMWK"></script>

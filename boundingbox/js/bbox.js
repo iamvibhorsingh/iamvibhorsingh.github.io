@@ -354,6 +354,12 @@ function addLayer(layer, name, title, zIndex, on, callback) {
 
 const optionalScripts = {
     bboxWorldOverview: ['data/world-110m.js?v=2'],
+    bboxProjectionDefinitions: ['proj/proj4defs.js'],
+    bboxProjectionPreview: ['js/projection-preview.js?v=2'],
+    ol: [
+        'https://cdn.jsdelivr.net/npm/ol@10.11.0/dist/ol.js',
+        'sha384-rwbCGPbgxLkcQaFvIra1Vz3KBT1yBeF2/1VgLs/gCCNCJ61GHJGimHpkufVKcqap'
+    ],
     proj4: [
         'https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js',
         'sha384-BIsA8GBrihzaRmijjpqTCihj8D5Vox3hyBFg9sJiTGAEOv6KusZ8QOCKbTFEAfhm'
@@ -1318,9 +1324,9 @@ $(function () { // Modern equivalent of $(document).ready
     map = L.map('map').setView([0, 0], 3);
     document.getElementById('map-attribution').append(map.attributionControl.getContainer());
 
-    // Define Mapbox Layer
     const mapboxLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
         attribution: '© <a href="https://www.mapbox.com/about/maps/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        crossOrigin: true,
         maxZoom: 18,
         id: 'mapbox/streets-v11',
         tileSize: 512,
@@ -1330,6 +1336,7 @@ $(function () { // Modern equivalent of $(document).ready
 
     const developmentStreets = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
         maxZoom: 20,
+        crossOrigin: true,
         attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
@@ -2310,11 +2317,7 @@ $(function () { // Modern equivalent of $(document).ready
 
     function getProjectionCatalog() {
         if (!projectionCatalog) {
-            projectionCatalog = fetch('proj/proj4defs.json')
-                .then(response => {
-                    if (!response.ok) throw new Error('Projection catalog unavailable.');
-                    return response.json();
-                })
+            projectionCatalog = loadOptionalScript('bboxProjectionDefinitions')
                 .then(data => Object.assign(proj4defs, data))
                 .catch(error => {
                     projectionCatalog = undefined;
@@ -2403,6 +2406,48 @@ $(function () { // Modern equivalent of $(document).ready
     $('#wgslabel').text('EPSG:4326 - WGS 84');
     $('#projlabel').text('EPSG:3857 - Web Mercator');
     updateProjectionInfo('3857');
+
+    const previewDialog = document.getElementById('projection-preview');
+    const previewTitle = document.getElementById('projection-preview-title');
+    const previewStatus = document.getElementById('projection-preview-status');
+    let previewRequest;
+
+    previewDialog.addEventListener('close', () => previewRequest?.abort());
+    previewDialog.addEventListener('keydown', event => event.stopPropagation());
+    document.getElementById('preview-projection').addEventListener('click', async () => {
+        if (previewDialog.open) return;
+        const controller = new AbortController();
+        previewRequest = controller;
+        const { signal } = controller;
+        previewTitle.textContent = 'Projection preview';
+        previewStatus.textContent = 'Loading the projected map…';
+        document.getElementById('projection-preview-credits').textContent = '';
+        document.getElementById('projection-preview-legend').hidden = true;
+        previewDialog.showModal();
+
+        try {
+            const requested = projectionInput.value.trim().replace(/^EPSG:\s*/i, '');
+            await applyProjection();
+            if (signal.aborted) return;
+            if (requested && requested !== currentproj) throw new Error('Enter an available EPSG code and try again.');
+            const code = `EPSG:${currentproj}`;
+            previewTitle.textContent = `${code} · ${projectionNames[currentproj] || proj4defs[currentproj][0]}`;
+            const area = activeBounds || map.getBounds();
+            const [renderPreview, ol] = await Promise.all([loadOptionalScript('bboxProjectionPreview'), loadOptionalScript('ol')]);
+            if (signal.aborted) return;
+            const activeRaster = map.hasLayer(satelliteLayer) ? satelliteLayer : streetLayer;
+            await renderPreview({
+                ol, proj4: window.proj4, code, signal,
+                bounds: [area.getWest(), area.getSouth(), area.getEast(), area.getNorth()],
+                hasSelection: Boolean(activeBounds),
+                sourceMap: map,
+                sourceLayer: activeRaster,
+                loadOverview: () => loadOptionalScript('bboxWorldOverview')
+            });
+        } catch (error) {
+            if (!signal.aborted) previewStatus.textContent = error.message;
+        }
+    });
 
     // Re-render display on any format change to update all coordinates
     $('input[name="coord-order"], #gdal').on('change', function () {

@@ -1,4 +1,4 @@
-{"3819":["HD1909","+proj=longlat +ellps=bessel +towgs84=595.48,121.69,515.35,4.115,-2.9383,0.853,-3.408 +no_defs "],
+window.bboxProjectionDefinitions = {"3819":["HD1909","+proj=longlat +ellps=bessel +towgs84=595.48,121.69,515.35,4.115,-2.9383,0.853,-3.408 +no_defs "],
 "3821":["TWD67","+proj=longlat +ellps=aust_SA +no_defs "],
 "3824":["TWD97","+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs "],
 "3889":["IGRS","+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs "],
@@ -3908,4 +3908,4 @@
 "32760":["WGS 84 / UTM zone 60S","+proj=utm +zone=60 +south +datum=WGS84 +units=m +no_defs "],
 "32761":["WGS 84 / UPS South","+proj=stere +lat_0=-90 +lat_ts=-90 +lon_0=0 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs "],
 "32766":["WGS 84 / TM 36 SE","+proj=tmerc +lat_0=0 +lon_0=36 +k=0.9996 +x_0=500000 +y_0=10000000 +datum=WGS84 +units=m +no_defs "]
-}
+};

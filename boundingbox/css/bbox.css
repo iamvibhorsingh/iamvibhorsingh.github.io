@@ -184,6 +184,136 @@ body,
     color: var(--link-color);
 }
 
+#preview-projection {
+    margin-top: 8px;
+}
+
+#projection-preview {
+    width: min(1080px, calc(100vw - 24px));
+    height: min(780px, calc(100dvh - 24px));
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--primary-bg);
+    color: var(--text-color);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#projection-preview[open] {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+#projection-preview::backdrop {
+    background: rgba(19, 35, 39, 0.58);
+}
+
+.projection-preview-header,
+.projection-preview-footer {
+    padding: 10px 14px;
+    background: var(--primary-bg);
+}
+
+.projection-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.projection-preview-header h2 {
+    font-size: clamp(15px, 2vw, 20px);
+    margin: 0;
+}
+
+.projection-preview-header button {
+    white-space: nowrap;
+}
+
+.projection-preview-surface {
+    position: relative;
+    overflow: hidden;
+    border-block: 1px solid var(--border-color);
+    background: #dce8eb;
+}
+
+#projection-preview-map {
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    user-select: none;
+}
+
+#projection-preview-map:focus-visible {
+    outline: 2px solid #155da2;
+    outline-offset: -2px;
+}
+
+.projection-preview-controls {
+    position: absolute;
+    top: 9px;
+    left: 9px;
+    display: flex;
+    gap: 4px;
+}
+
+.projection-preview-controls button {
+    min-width: 38px;
+    min-height: 38px;
+}
+
+.projection-preview-footer {
+    display: flex;
+    gap: 6px 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 12px;
+}
+
+#projection-preview-status {
+    margin: 0;
+    color: var(--label-color);
+}
+
+#projection-preview-credits {
+    margin-inline-start: auto;
+    color: var(--label-color);
+    font-size: 11px;
+}
+
+#projection-preview-credits a {
+    color: var(--link-color);
+}
+
+.projection-mapbox-logo {
+    display: inline-flex;
+    padding: 2px 4px;
+    margin-inline-end: 5px;
+    vertical-align: middle;
+    background: #fff;
+    border-radius: 3px;
+}
+
+#projection-preview-legend span {
+    display: inline-flex;
+    align-items: center;
+    margin-inline-end: 8px;
+    gap: 5px;
+}
+
+#projection-preview-legend span::before {
+    content: '';
+    width: 15px;
+    border-top: 2px solid #b74700;
+}
+
+#projection-preview-legend .projection-preview-envelope::before {
+    border-top: 2px dashed #155da2;
+}
+
 #info-toggle {
     display: flex;
     justify-content: space-between;
