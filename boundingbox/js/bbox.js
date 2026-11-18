@@ -353,6 +353,7 @@ function addLayer(layer, name, title, zIndex, on, callback) {
 }
 
 const optionalScripts = {
+    bboxWorldOverview: ['data/world-110m.js?v=2'],
     proj4: [
         'https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js',
         'sha384-BIsA8GBrihzaRmijjpqTCihj8D5Vox3hyBFg9sJiTGAEOv6KusZ8QOCKbTFEAfhm'
@@ -372,8 +373,12 @@ function loadOptionalScript(name) {
     if (!scriptLoads.has(name)) {
         scriptLoads.set(name, new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            [script.src, script.integrity] = optionalScripts[name];
-            script.crossOrigin = 'anonymous';
+            const [src, integrity] = optionalScripts[name];
+            script.src = src;
+            if (integrity) {
+                script.integrity = integrity;
+                script.crossOrigin = 'anonymous';
+            }
             script.onload = () => resolve(window[name]);
             script.onerror = () => {
                 script.remove();
@@ -1311,6 +1316,7 @@ $(function () { // Modern equivalent of $(document).ready
     // Initialize the map using standard Leaflet
     console.log('BBox Finder: Initializing map...');
     map = L.map('map').setView([0, 0], 3);
+    document.getElementById('map-attribution').append(map.attributionControl.getContainer());
 
     // Define Mapbox Layer
     const mapboxLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -1322,14 +1328,10 @@ $(function () { // Modern equivalent of $(document).ready
         accessToken: 'pk.eyJ1IjoidmliaG9yc2luZ2giLCJhIjoiY21id3lxM2R3MTcybzJpcHdhanU1dTB5dCJ9.vBNwuEDJXfsxT-lfLNCbWA'
     });
 
-    // Define CartoDB Voyager Layer (Fallback for localhost)
-    const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    const developmentStreets = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
         maxZoom: 20,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
-
-    // Add Mapbox first
-    streetLayer = mapboxLayer; // Set as current street layer
 
     // Initialize satellite layer (not added to map yet)
     satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -1337,17 +1339,42 @@ $(function () { // Modern equivalent of $(document).ready
         maxZoom: 19
     });
 
-    // Fallback Logic: If Mapbox fails (e.g. 403 on localhost), switch to CartoDB
-    mapboxLayer.on('tileerror', function (e) {
-        // Only trigger once to avoid flickering/loops
-        if (map.hasLayer(mapboxLayer)) {
-            console.warn('Mapbox tile error (likely token restriction), switching to CartoDB fallback.');
-            map.removeLayer(mapboxLayer);
-            cartoLayer.addTo(map);
-            streetLayer = cartoLayer; // Update street layer reference
-            showToast('Mapbox blocked on localhost. Switched to fallback map.', 'info');
-        }
-    });
+    function createOverviewLayer() {
+        const pane = map.createPane('overview-basemap');
+        pane.style.zIndex = '250';
+        pane.style.pointerEvents = 'none';
+        const overview = L.geoJSON(null, {
+            pane: 'overview-basemap',
+            interactive: false,
+            attribution: 'Overview from <a href="https://www.naturalearthdata.com/">Natural Earth</a>',
+            style: { color: '#738675', weight: 1, fillColor: '#e7eee2', fillOpacity: 1 }
+        });
+        // The classic data script also loads when the page is opened directly from disk.
+        loadOptionalScript('bboxWorldOverview')
+            .then(data => {
+                if (data?.type !== 'FeatureCollection') throw new Error('Invalid bundled overview.');
+                overview.addData(data);
+            })
+            .catch(error => {
+                console.error('Could not load the bundled basemap:', error);
+                showToast('Basemap unavailable. You can still draw or paste coordinates.', 'error');
+            });
+        return overview;
+    }
+
+    // The production Mapbox token rejects loopback origins.
+    const localPreview = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+    if (location.protocol === 'file:') {
+        streetLayer = createOverviewLayer();
+    } else {
+        streetLayer = localPreview ? developmentStreets : mapboxLayer;
+        streetLayer.on('tileerror', function ({ target: failedLayer }) {
+            if (!map.hasLayer(failedLayer)) return;
+            map.removeLayer(failedLayer);
+            streetLayer = createOverviewLayer().addTo(map);
+            showToast('Street tiles could not load. Using the overview map.', 'info');
+        });
+    }
 
     mapboxLayer.on('tileload', function () {
         console.log('Mapbox: Tile loaded successfully');
@@ -1869,6 +1896,22 @@ $(function () { // Modern equivalent of $(document).ready
             return;
         }
 
+        const usingDevelopmentTiles = map.hasLayer(developmentStreets);
+        function creditDevelopmentTiles(image) {
+            if (!usingDevelopmentTiles) return image;
+            const output = document.createElement('canvas');
+            output.width = Math.max(image.width, 405);
+            output.height = image.height + 20;
+            const context = output.getContext('2d');
+            context.drawImage(image, 0, 0);
+            context.fillStyle = '#fff';
+            context.fillRect(0, image.height, output.width, 20);
+            context.fillStyle = '#222';
+            context.font = '12px sans-serif';
+            context.fillText('© Stadia Maps © OpenMapTiles © OpenStreetMap contributors', 5, image.height + 14);
+            return output;
+        }
+
         $('.leaflet-control-container, #map-ui, #map-ui-proj').hide();
 
         window.html2canvas(document.getElementById('map'), {
@@ -1911,15 +1954,16 @@ $(function () { // Modern equivalent of $(document).ready
                 );
 
                 // Try toDataURL first, fall back to toBlob
+                const download = creditDevelopmentTiles(croppedCanvas);
                 try {
                     const link = document.createElement('a');
                     link.download = 'map_capture.png';
-                    link.href = croppedCanvas.toDataURL('image/png');
+                    link.href = download.toDataURL('image/png');
                     link.click();
                 } catch (securityError) {
                     // Canvas tainted by cross-origin tiles — try toBlob fallback
                     console.warn('toDataURL failed (tainted canvas), trying toBlob...', securityError);
-                    croppedCanvas.toBlob(function (blob) {
+                    download.toBlob(function (blob) {
                         if (blob) {
                             const link = document.createElement('a');
                             link.download = 'map_capture.png';
@@ -1930,7 +1974,7 @@ $(function () { // Modern equivalent of $(document).ready
                             // Last resort: open the full uncropped canvas in a new tab
                             showToast('Cross-origin tiles prevent direct download. Opening in new tab — right-click to save.', 'info', 5000);
                             const w = window.open('');
-                            w.document.write('<img src="' + canvas.toDataURL() + '"/>');
+                            w.document.write('<img src="' + creditDevelopmentTiles(canvas).toDataURL() + '"/>');
                         }
                     }, 'image/png');
                 }
@@ -1940,7 +1984,7 @@ $(function () { // Modern equivalent of $(document).ready
                 try {
                     const link = document.createElement('a');
                     link.download = 'map_capture.png';
-                    link.href = canvas.toDataURL('image/png');
+                    link.href = creditDevelopmentTiles(canvas).toDataURL('image/png');
                     link.click();
                     showToast('Downloaded full map (crop failed)', 'info', 3000);
                 } catch (e) {

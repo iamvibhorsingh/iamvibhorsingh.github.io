@@ -168,6 +168,22 @@ body,
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
 }
 
+#map-attribution {
+    padding: 2px 8px;
+    color: var(--label-color);
+    font-size: 11px;
+    line-height: 1.4;
+    text-align: right;
+}
+
+#map-attribution .leaflet-control {
+    float: none;
+}
+
+#map-attribution a {
+    color: var(--link-color);
+}
+
 #info-toggle {
     display: flex;
     justify-content: space-between;
@@ -1015,7 +1031,7 @@ body.dark-mode .format-scope-note {
 
     #result-panel {
         top: auto;
-        bottom: 10px;
+        bottom: 32px;
         max-height: 42dvh;
         min-width: 0;
     }
