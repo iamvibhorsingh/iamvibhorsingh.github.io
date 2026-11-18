@@ -8,7 +8,10 @@ let h3Layer = null; // Leaflet layer group for H3 hexagons
 let currentH3Cells = []; // Array of current H3 indices
 const MAX_H3_RENDER_CELLS = 3000; // Safety limit for rendering
 
-let proj4defs = null;
+const proj4defs = Object.create(null);
+const projectionNames = { 4326: 'WGS 84', 3857: 'WGS 84 / Pseudo-Mercator' };
+let projectionCatalog;
+let restoringSharedMap = false;
 const projdefs = { "4326": L.CRS.EPSG4326, "3857": L.CRS.EPSG3857 };
 let currentproj = "3857";
 const currentmouse = L.latLng(0, 0);
@@ -349,6 +352,71 @@ function addLayer(layer, name, title, zIndex, on, callback) {
     ui.appendChild(item);
 }
 
+const optionalScripts = {
+    proj4: [
+        'https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js',
+        'sha384-BIsA8GBrihzaRmijjpqTCihj8D5Vox3hyBFg9sJiTGAEOv6KusZ8QOCKbTFEAfhm'
+    ],
+    h3: [
+        'https://unpkg.com/h3-js@4.4.0/dist/h3-js.umd.js',
+        'sha384-Nk1k8oEtywe2AB2bxte3YzJLs/iA2WDd/TxHoEzUxlrrqoAA38iRHP0PVNyID2Jj'
+    ],
+    html2canvas: [
+        'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+        'sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H'
+    ]
+};
+const scriptLoads = new Map();
+
+function loadOptionalScript(name) {
+    if (!scriptLoads.has(name)) {
+        scriptLoads.set(name, new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            [script.src, script.integrity] = optionalScripts[name];
+            script.crossOrigin = 'anonymous';
+            script.onload = () => resolve(window[name]);
+            script.onerror = () => {
+                script.remove();
+                scriptLoads.delete(name);
+                reject(new Error(`Could not load ${name}.`));
+            };
+            document.head.append(script);
+        }));
+    }
+    return scriptLoads.get(name);
+}
+
+function projectedEnvelope(sw, ne, transformer) {
+    const limits = [Infinity, Infinity, -Infinity, -Infinity];
+
+    function extend(lng, lat) {
+        const [x, y] = transformer.forward([lng, lat]);
+        if (!Number.isFinite(x) || !Number.isFinite(y)) {
+            throw new RangeError('Bounds extend outside the projection domain');
+        }
+        limits[0] = Math.min(limits[0], x);
+        limits[1] = Math.min(limits[1], y);
+        limits[2] = Math.max(limits[2], x);
+        limits[3] = Math.max(limits[3], y);
+    }
+
+    // Sample the perimeter since the edges can curve in the output CRS.
+    const steps = 20;
+    for (let i = 0; i <= steps; i++) {
+        const lng = sw.lng + (ne.lng - sw.lng) * i / steps;
+        extend(lng, sw.lat);
+        extend(lng, ne.lat);
+    }
+    for (let i = 1; i < steps; i++) {
+        const lat = sw.lat + (ne.lat - sw.lat) * i / steps;
+        extend(sw.lng, lat);
+        extend(ne.lng, lat);
+    }
+    return limits;
+}
+
+const projectedTransformers = new Map();
+
 function formatBounds(bounds, proj) {
     try {
         const sw = bounds.getSouthWest();
@@ -364,17 +432,13 @@ function formatBounds(bounds, proj) {
             minx = sw.lng; miny = sw.lat;
             maxx = ne.lng; maxy = ne.lat;
         } else {
-            if (typeof projdefs !== 'undefined' && projdefs[proj]) {
+            if (projdefs[proj]) {
                 const p1 = projdefs[proj].project(sw);
                 const p2 = projdefs[proj].project(ne);
                 minx = p1.x; miny = p1.y;
                 maxx = p2.x; maxy = p2.y;
-            } else if (typeof proj4defs !== 'undefined' && proj4defs[proj]) {
-                // proj4(dest, point) assumes WGS84 source
-                const p1 = proj4(proj4defs[proj][1], [sw.lng, sw.lat]);
-                const p2 = proj4(proj4defs[proj][1], [ne.lng, ne.lat]);
-                minx = p1[0]; miny = p1[1];
-                maxx = p2[0]; maxy = p2[1];
+            } else if (projectedTransformers.has(proj)) {
+                [minx, miny, maxx, maxy] = projectedEnvelope(sw, ne, projectedTransformers.get(proj));
             } else {
                 return 'Unknown Projection';
             }
@@ -387,6 +451,7 @@ function formatBounds(bounds, proj) {
             return `${minx.toFixed(precision)}${separator}${miny.toFixed(precision)}${separator}${maxx.toFixed(precision)}${separator}${maxy.toFixed(precision)}`;
         }
     } catch (e) {
+        if (e instanceof RangeError) return 'Outside projection domain';
         console.error("formatBounds error:", e);
         return '';
     }
@@ -407,9 +472,8 @@ function formatPoint(latlng, proj) {
             if (typeof projdefs !== 'undefined' && projdefs[proj]) {
                 const p = projdefs[proj].project(latlng);
                 x = p.x; y = p.y;
-            } else if (typeof proj4defs !== 'undefined' && proj4defs[proj]) {
-                const p = proj4(proj4defs[proj][1], [latlng.lng, latlng.lat]);
-                x = p[0]; y = p[1];
+            } else if (projectedTransformers.has(proj)) {
+                [x, y] = projectedTransformers.get(proj).forward([latlng.lng, latlng.lat]);
             } else {
                 return '0, 0';
             }
@@ -748,6 +812,7 @@ function setActiveLayer(layer, options) {
 }
 
 function syncUrlHash() {
+    if (restoringSharedMap) return location.hash.slice(1);
     let hashParts = [];
 
     // 1. Get Bounding Box
@@ -928,7 +993,7 @@ function decodeHashPolyline(str) {
 }
 
 function generateShareUrl() {
-    const hash = syncUrlHash();
+    const hash = /(?:\||%7C)(?:H3|MCP):/.test(location.hash) ? location.hash.slice(1) : syncUrlHash();
     if (!hash) {
         showToast('Draw a bounding box or marker first', 'error');
         return;
@@ -962,7 +1027,7 @@ function loadBboxFromHash() {
     const hash = location.hash.replace(/^#/, '');
     if (!hash) return false;
 
-    const parts = hash.split(/\||%7C/i);
+    const parts = hash.includes('|') ? hash.split('|') : hash.split(/%7C/i);
     let loadedBbox = false;
 
     // Parse BBox
@@ -1085,7 +1150,9 @@ function loadBboxFromHash() {
 
                         const marker = isCircle ? L.circleMarker([lat, lng]) : L.marker([lat, lng]);
                         if (name) {
-                            marker.bindPopup(name);
+                            const label = document.createElement('span');
+                            label.textContent = name;
+                            marker.bindPopup(label);
                             marker.options.title = name;
                         }
 
@@ -1106,10 +1173,8 @@ function loadBboxFromHash() {
         }
     }
 
-    if (loadedBbox || parts.length > 1) {
+    if (loadedBbox || drawnItems.getLayers().length > 0) {
         $('#draw-hint').addClass('hidden');
-
-        syncUrlHash();
         console.log('Loaded features from URL');
         return true;
     }
@@ -1264,7 +1329,6 @@ $(function () { // Modern equivalent of $(document).ready
     });
 
     // Add Mapbox first
-    mapboxLayer.addTo(map);
     streetLayer = mapboxLayer; // Set as current street layer
 
     // Initialize satellite layer (not added to map yet)
@@ -1517,7 +1581,9 @@ $(function () { // Modern equivalent of $(document).ready
                     const name = (input ? input.value.trim() : '') || (layer instanceof L.CircleMarker && !(layer instanceof L.Circle) ? 'Circle' : 'Marker');
                     layer.closePopup();
                     layer.unbindPopup();
-                    layer.bindPopup(name);
+                    const label = document.createElement('span');
+                    label.textContent = name;
+                    layer.bindPopup(label);
                     layer.options.title = name;
                     syncUrlHash();
                 }
@@ -1526,7 +1592,9 @@ $(function () { // Modern equivalent of $(document).ready
                     const name = layer instanceof L.CircleMarker && !(layer instanceof L.Circle) ? 'Circle' : 'Marker';
                     layer.closePopup();
                     layer.unbindPopup();
-                    layer.bindPopup(name);
+                    const label = document.createElement('span');
+                    label.textContent = name;
+                    layer.bindPopup(label);
                     layer.options.title = name;
                     syncUrlHash();
                 }
@@ -1621,13 +1689,15 @@ $(function () { // Modern equivalent of $(document).ready
         }
     }
 
-    setTimeout(function () {
-        display();
-    }, 200);
-
+    let updateFrame = 0;
     map.on('move', function (e) {
         crosshair.setLatLng(map.getCenter());
-        display();
+        if (!updateFrame) {
+            updateFrame = requestAnimationFrame(() => {
+                updateFrame = 0;
+                display();
+            });
+        }
     });
 
     map.on('mousemove', function (e) {
@@ -1636,11 +1706,6 @@ $(function () { // Modern equivalent of $(document).ready
         $('.tilelevel').text(formatTile(e.latlng, map.getZoom()));
         $('#mousepos').text(formatPoint(e.latlng, '4326'));
         $('#mouseposmerc').text(formatPoint(e.latlng, currentproj));
-
-        $('#mapbounds').text(formatBounds(map.getBounds(), '4326'));
-        $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
-        $('#center').text(formatPoint(map.getCenter(), '4326'));
-        $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
     });
 
     map.on('zoomend', function (e) {
@@ -1785,15 +1850,28 @@ $(function () { // Modern equivalent of $(document).ready
         });
     });
 
-    $('#download-png').on('click', function () {
+    $('#download-png').on('click', async function () {
         if (!activeBounds) {
             alert("Please draw or select a bounding box first.");
             return;
         }
 
+        this.disabled = true;
+        try {
+            await loadOptionalScript('html2canvas');
+        } catch (error) {
+            showToast(error.message, 'error');
+            this.disabled = false;
+            return;
+        }
+        if (!activeBounds) {
+            this.disabled = false;
+            return;
+        }
+
         $('.leaflet-control-container, #map-ui, #map-ui-proj').hide();
 
-        html2canvas(document.getElementById('map'), {
+        window.html2canvas(document.getElementById('map'), {
             useCORS: true,
             allowTaint: true,
             logging: false
@@ -1874,6 +1952,8 @@ $(function () { // Modern equivalent of $(document).ready
             console.error('html2canvas failed:', error);
             $('.leaflet-control-container, #map-ui, #map-ui-proj').show();
             alert('Could not capture map image. See browser console for more details.');
+        }).finally(() => {
+            this.disabled = false;
         });
     });
 
@@ -1885,7 +1965,10 @@ $(function () { // Modern equivalent of $(document).ready
         } else {
             $('#create-geojson button').addClass('enabled');
             $('#rsidebar').show();
+            $('#coordinate-input').trigger('focus');
         }
+        if (isEnabled) this.focus();
+        $(this).attr('aria-expanded', String(!isEnabled));
     });
 
     // handle help button click events
@@ -2109,29 +2192,20 @@ $(function () { // Modern equivalent of $(document).ready
     });
 
     $('#info-toggle-button').click(function () {
-        $('#wgslabel, #projlabel').fadeToggle(200);
-        $('#info').delay(300).slideToggle(200);
-
-
-        const buttonText = $('#info-toggle-button').text();
-        if (buttonText == 'Hide Coordinates') {
-            $('#info-toggle-button').text('Show Coordinates');
-        } else {
-            $('#info-toggle-button').text('Hide Coordinates');
-        }
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!expanded));
+        this.textContent = expanded ? 'Show Coordinates' : 'Hide Coordinates';
+        $('#wgslabel, #projlabel, #info').toggle(!expanded);
     });
 
     // toggle coordinate tabs
     $('#wgslabel, #projlabel').click(function () {
-        let active = $(this).hasClass('active');
-        if (active) {
-            //do nothing
-        } else {
-            $('#wgslabel, #projlabel').toggleClass('active');
-            $('#wgscoords, #projcoords').toggle();
-        }
-
-
+        if (this.classList.contains('active')) return;
+        const projected = this.id === 'projlabel';
+        $('#wgslabel').toggleClass('active', !projected).attr('aria-pressed', String(!projected));
+        $('#projlabel').toggleClass('active', projected).attr('aria-pressed', String(projected));
+        $('#wgscoords').toggle(!projected);
+        $('#projcoords').toggle(projected);
     });
 
     $('button#add').on('click', function () {
@@ -2182,131 +2256,109 @@ $(function () { // Modern equivalent of $(document).ready
         }
     });
 
-    showLoading('Loading projection definitions...');
-    fetch("proj/proj4defs.json")
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+    const projectionInput = document.getElementById('projection');
+    const projectionStatus = document.getElementById('projection-status');
+    const projectionOptions = document.createElement('datalist');
+    projectionOptions.id = 'projection-options';
+    projectionInput.setAttribute('list', projectionOptions.id);
+    projectionInput.after(projectionOptions);
+    let requestNumber = 0;
+
+    function getProjectionCatalog() {
+        if (!projectionCatalog) {
+            projectionCatalog = fetch('proj/proj4defs.json')
+                .then(response => {
+                    if (!response.ok) throw new Error('Projection catalog unavailable.');
+                    return response.json();
+                })
+                .then(data => Object.assign(proj4defs, data))
+                .catch(error => {
+                    projectionCatalog = undefined;
+                    throw error;
+                });
+        }
+        return projectionCatalog;
+    }
+
+    async function suggestProjections() {
+        try {
+            await getProjectionCatalog();
+        } catch {
+            projectionStatus.textContent = 'Projection suggestions unavailable. You can still enter a code.';
+        }
+        const query = projectionInput.value.trim().toLowerCase();
+        const suggestions = document.createDocumentFragment();
+        const codes = [...new Set([...Object.keys(projectionNames), ...Object.keys(proj4defs)])];
+        let count = 0;
+        for (const code of codes) {
+            const name = projectionNames[code] || proj4defs[code][0];
+            if (query && !code.startsWith(query) && !name.toLowerCase().includes(query)) continue;
+            const option = document.createElement('option');
+            option.value = code;
+            option.label = name;
+            suggestions.append(option);
+            if (++count === 24) break;
+        }
+        projectionOptions.replaceChildren(suggestions);
+    }
+
+    async function applyProjection() {
+        const code = projectionInput.value.trim().replace(/^EPSG:\s*/i, '');
+        if (!/^\d{4,6}$/.test(code)) {
+            if (code) showToast('Enter a valid EPSG code.', 'error');
+            projectionInput.value = currentproj;
+            return;
+        }
+        if (code === currentproj) return;
+        const request = ++requestNumber;
+        projectionStatus.textContent = `Loading EPSG:${code}`;
+        try {
+            if (!projdefs[code] && !projectedTransformers.has(code)) {
+                await getProjectionCatalog().catch(() => {});
+                if (!proj4defs[code]) {
+                    const response = await fetch(`https://epsg.io/${code}.proj4`);
+                    if (!response.ok) throw new Error('Projection unavailable.');
+                    const definition = await response.text();
+                    if (!definition.trim().startsWith('+proj=')) throw new Error('Invalid projection.');
+                    proj4defs[code] = ['Custom projection', definition];
+                }
+                const project = await loadOptionalScript('proj4');
+                project.defs(`EPSG:${code}`, proj4defs[code][1]);
+                projectedTransformers.set(code, project('EPSG:4326', `EPSG:${code}`));
             }
-            return response.json();
-        })
-        .then(data => {
-            hideLoading();
-            proj4defs = data;
-            const autocompdata = [];
-            $.each(data, (key, val) => {
-                autocompdata.push({ label: `${key}-${val[0]}`, value: key });
-            });
+            if (request !== requestNumber || projectionInput.value.trim().replace(/^EPSG:\s*/i, '') !== code) return;
+            currentproj = code;
+            projectionInput.value = code;
+            const name = projectionNames[code] || proj4defs[code][0];
+            $('#projlabel').text(`EPSG:${code} - ${name}`);
+            updateProjectionInfo(code);
+            display();
+            refreshActiveBoxDisplay();
+            $('#mouseposmerc').text(formatPoint(currentmouse, code));
+            projectionStatus.textContent = `Using EPSG:${code}`;
+        } catch {
+            if (request !== requestNumber) return;
+            projectionInput.value = currentproj;
+            projectionStatus.textContent = `Could not load EPSG:${code}`;
+            showToast(projectionStatus.textContent, 'error');
+        }
+    }
 
-            $("#projection").autocomplete({
-                source: autocompdata,
-                minLength: 3,
-                select: (event, ui) => {
-                    $('#projlabel').text(`EPSG:${ui.item.value} - ${proj4defs[ui.item.value][0]}`);
-                    currentproj = ui.item.value;
-                    $('#boxboundsmerc').text(formatBounds(bounds.getBounds(), currentproj));
-                    $('#mouseposmerc').text(formatPoint(new L.LatLng(0, 0), currentproj));
-                    $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
-                    $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
-                    updateProjectionInfo(ui.item.value);
-                    showToast(`Projection changed to EPSG:${ui.item.value}`, 'success', 2000);
-                }
-            }).val('3857');
-
-            $('#projection').on('click', function () {
-                $("#projection").autocomplete("search", currentproj);
-            });
-
-            // Add Enter key and blur event handlers for manual EPSG input
-            $('#projection').on('keypress blur', function (e) {
-                if (e.type === 'keypress' && e.which !== 13) {
-                    return;
-                }
-
-                const inputValue = $(this).val().trim();
-                if (inputValue && inputValue !== currentproj) {
-                    console.log('Attempting to change projection to:', inputValue);
-
-                    if (proj4defs && proj4defs[inputValue]) {
-                        console.log('Found projection in database:', proj4defs[inputValue][0]);
-                        $('#projlabel').text(`EPSG:${inputValue} - ${proj4defs[inputValue][0]}`);
-                        currentproj = inputValue;
-
-                        refreshActiveBoxDisplay();
-                        $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
-                        $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
-                        $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
-
-                        updateProjectionInfo(inputValue);
-                        console.log('Projection changed successfully to:', inputValue);
-                        showToast(`Projection changed to EPSG:${inputValue}`, 'success', 2000);
-                    } else {
-                        // Dynamic fetch from EPSG.io
-                        console.log(`Projection ${inputValue} not found locally. Fetching from epsg.io...`);
-
-                        // Show loading state
-                        $('#projlabel').text(`EPSG:${inputValue} - Fetching definition...`);
-
-                        fetch(`https://epsg.io/${inputValue}.proj4`)
-                            .then(response => {
-                                if (!response.ok) throw new Error('Network response was not ok');
-                                return response.text();
-                            })
-                            .then(proj4String => {
-                                if (!proj4String || proj4String.includes('<!DOCTYPE html>')) {
-                                    throw new Error('Invalid proj4 string received');
-                                }
-
-                                console.log(`Fetched definition for ${inputValue}:`, proj4String);
-
-                                // Add to definitions
-                                const defName = `EPSG:${inputValue}`;
-                                proj4.defs(defName, proj4String);
-                                proj4defs[inputValue] = [defName, proj4String];
-
-                                // Update current projection
-                                currentproj = inputValue;
-                                $('#projlabel').text(`EPSG:${inputValue} - ${defName}`);
-
-                                // Update all coordinate displays
-                                refreshActiveBoxDisplay();
-                                $('#mouseposmerc').text(formatPoint(currentmouse, currentproj));
-                                $('#mapboundsmerc').text(formatBounds(map.getBounds(), currentproj));
-                                $('#centermerc').text(formatPoint(map.getCenter(), currentproj));
-
-                                updateProjectionInfo(inputValue);
-                                showToast(`Projection EPSG:${inputValue} loaded successfully!`, 'success', 2000);
-                            })
-                            .catch(error => {
-                                console.error('Failed to fetch projection:', error);
-                                $('#projlabel').text(`EPSG:${inputValue} - Fetch Failed`);
-                                showToast(`Could not load projection ${inputValue}.`, 'error');
-                                $(this).val(currentproj); // Revert to previous projection
-                            });
-                    }
-                }
-            });
-
-            // Set labels for output... left always 4326, right is proj selection
-            $('#wgslabel').text('EPSG:4326 - ' + proj4defs['4326'][0]);
-            $('#projlabel').text('EPSG:3857 - ' + proj4defs['3857'][0]);
-
-            updateProjectionInfo('3857');
-
-            // Try to load bbox from URL hash
-            setTimeout(() => {
-                if (loadBboxFromHash()) {
-                    showToast('Loaded bounding box from URL', 'success');
-                }
-            }, 500);
-        })
-        .catch(err => {
-            hideLoading();
-            console.error("Projection definitions load failed:", err);
-            showToast('Failed to load projection definitions', 'error');
-            // Still try to load features from URL hash even if projections failed
-            setTimeout(() => { loadBboxFromHash(); }, 500);
-        });
+    projectionInput.addEventListener('focus', suggestProjections);
+    projectionInput.addEventListener('input', () => {
+        requestNumber++;
+        suggestProjections();
+    });
+    projectionInput.addEventListener('change', applyProjection);
+    projectionInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            applyProjection();
+        }
+    });
+    $('#wgslabel').text('EPSG:4326 - WGS 84');
+    $('#projlabel').text('EPSG:3857 - Web Mercator');
+    updateProjectionInfo('3857');
 
     // Re-render display on any format change to update all coordinates
     $('input[name="coord-order"], #gdal').on('change', function () {
@@ -2421,21 +2473,22 @@ $(function () { // Modern equivalent of $(document).ready
             if (latlngs.length === 0) return layer.getBounds().getCenter();
             
             // If using a projection, calculate centroid in projected space for better accuracy
-            if (typeof currentproj !== 'undefined' && currentproj !== '4326' && typeof proj4 !== 'undefined') {
+            const leafletProjection = projdefs[currentproj];
+            const transformer = projectedTransformers.get(currentproj);
+            if (currentproj !== '4326' && (leafletProjection || transformer)) {
                 try {
                     let totalX = 0, totalY = 0;
-                    for (let i = 0; i < latlngs.length; i++) {
-                        // Project WGS84 [lng, lat] to current EPSG [x, y]
-                        const projected = proj4('EPSG:4326', 'EPSG:' + currentproj, [latlngs[i].lng, latlngs[i].lat]);
-                        totalX += projected[0];
-                        totalY += projected[1];
+                    for (const point of latlngs) {
+                        const projected = leafletProjection?.project(point);
+                        const [x, y] = projected ? [projected.x, projected.y] : transformer.forward([point.lng, point.lat]);
+                        totalX += x;
+                        totalY += y;
                     }
                     const avgX = totalX / latlngs.length;
                     const avgY = totalY / latlngs.length;
-                    
-                    // Un-project [x, y] back to [lng, lat]
-                    const unprojected = proj4('EPSG:' + currentproj, 'EPSG:4326', [avgX, avgY]);
-                    return L.latLng(unprojected[1], unprojected[0]);
+                    if (leafletProjection) return leafletProjection.unproject(L.point(avgX, avgY));
+                    const [lng, lat] = transformer.inverse([avgX, avgY]);
+                    if (Number.isFinite(lat) && Number.isFinite(lng)) return L.latLng(lat, lng);
                 } catch (e) {
                     console.warn('Projected centroid calculation failed, falling back to WGS84 average:', e);
                 }
@@ -2599,6 +2652,10 @@ $(function () { // Modern equivalent of $(document).ready
 
     // --- Keyboard Shortcuts ---
     $(document).on('keydown', function (e) {
+        if (e.key === 'Escape' && $('#rsidebar').is(':visible')) {
+            $('#create-geojson button').click();
+            return;
+        }
         // Skip if user is typing in an input, textarea, or contenteditable
         const tag = e.target.tagName.toLowerCase();
         if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
@@ -2669,6 +2726,40 @@ $(function () { // Modern equivalent of $(document).ready
                 break;
         }
     });
+
+    const sharedHash = location.hash;
+    restoringSharedMap = true;
+    try {
+        loadBboxFromHash();
+    } finally {
+        restoringSharedMap = false;
+    }
+    streetLayer.addTo(map);
+    display();
+
+    let resultViewer;
+    function openResults() {
+        if (!resultViewer) {
+            resultViewer = import('./results.js?v=1')
+                .then(module => module.initResultViewer(map, () => loadOptionalScript('h3')))
+                .catch(error => {
+                    resultViewer = undefined;
+                    throw error;
+                });
+        }
+        return resultViewer;
+    }
+    $('#open-mcp-result').on('click', () => {
+        openResults().then(viewer => {
+            if ($('#lsidebar').is(':visible')) $('#help button').click();
+            viewer.open();
+        }).catch(error => showToast(error.message, 'error'));
+    });
+    const demo = new URLSearchParams(location.search).get('demo');
+    if (demo || /(?:\||%7C)(?:H3|MCP):/.test(sharedHash)) {
+        openResults().then(viewer => viewer.loadLink(demo, sharedHash))
+            .catch(error => showToast(error.message, 'error'));
+    }
 });
 
 function updateBboxInfo(bounds) {
@@ -2711,7 +2802,7 @@ function updateBboxInfo(bounds) {
 
 function initH3Features() {
     // 1. Sidebar Toggle
-    $('#h3-tools button').on('click', function () {
+    $('#h3-tools button').on('click', async function () {
         const sidebar = $('#h3-sidebar');
         const isActive = $(this).hasClass('active');
 
@@ -2723,11 +2814,14 @@ function initH3Features() {
         if (!isActive) {
             sidebar.show();
             $(this).addClass('active');
-            updateH3Grid();
-
-            // Discovery: Remove badge on first click
-            localStorage.setItem('h3_badge_seen', 'true');
-            $('#h3-new-badge').fadeOut();
+            $('#h3-count').text('Loading H3…');
+            try {
+                await loadOptionalScript('h3');
+                updateH3Grid();
+            } catch (error) {
+                $('#h3-count').text('Could not load H3. Close and reopen to retry.');
+                showToast(error.message, 'error');
+            }
         } else {
             clearH3Grid();
         }
@@ -2770,7 +2864,7 @@ function initH3Features() {
 
     function updateH3Grid() {
         // Only update if sidebar is open
-        if (!$('#h3-sidebar').is(':visible')) return;
+        if (!$('#h3-sidebar').is(':visible') || !window.h3) return;
 
         // Check if bounds exist. 
         // We use activeBounds which is the global LatLngBounds object for the current box.
@@ -2836,7 +2930,9 @@ function initH3Features() {
             $('#h3-count').text(count.toLocaleString());
 
             if (count > MAX_H3_RENDER_CELLS) {
-                showToast(`Too many cells (${count}) to render. Previous grid still visible. Cells available for copy.`, 'info', 3000);
+                if (h3Layer) map.removeLayer(h3Layer);
+                h3Layer = null;
+                showToast(`Too many cells (${count}) to draw. You can copy the cell IDs.`, 'info', 3000);
                 currentH3Cells = cells;
                 updateH3Code(resolution, leafBounds.getCenter());
                 return;
@@ -2884,66 +2980,5 @@ function initH3Features() {
         const lng = center.lng.toFixed(4);
         const code = `import h3\n\n# Center point at Resolution ${res}\ncenter = h3.latlng_to_cell(${lat}, ${lng}, ${res})\n\n# Get neighbors\nring = h3.grid_disk(center, 1)\n`;
         $('#h3-code-output').val(code);
-    }
-
-    // 4. Feature Discovery
-    checkH3Discovery();
-}
-
-function checkH3Discovery() {
-    // 1. Badge logic
-    const seen = localStorage.getItem('h3_badge_seen');
-    if (seen) {
-        $('#h3-new-badge').hide();
-    }
-
-    // 2. Toast logic
-    const toastSeen = localStorage.getItem('h3_toast_shown');
-    if (!toastSeen) {
-        setTimeout(() => {
-            showToast("New: Uber H3 Hexagon Tools available!", 'info', 5000);
-            localStorage.setItem('h3_toast_shown', 'true');
-        }, 3000);
-    }
-}
-
-function checkMcpDiscovery() {
-    var MCP_BANNER_KEY = 'mcp_banner_dismissed';
-    var MCP_BANNER_EXPIRY_DAYS = 10;
-
-    var dismissed = localStorage.getItem(MCP_BANNER_KEY);
-    if (dismissed) {
-        var dismissedAt = parseInt(dismissed, 10);
-        var daysSince = (Date.now() - dismissedAt) / (1000 * 60 * 60 * 24);
-        if (daysSince < MCP_BANNER_EXPIRY_DAYS) {
-            return; // Still within the suppression window
-        }
-    }
-
-    // Show banner after a short delay
-    setTimeout(function () {
-        $('#mcp-banner').fadeIn(200);
-    }, 600);
-
-    // Dismiss handler
-    $('#mcp-banner-close').on('click', function () {
-        $('#mcp-banner').fadeOut(300);
-        localStorage.setItem(MCP_BANNER_KEY, String(Date.now()));
-    });
-}
-
-// Initialize MCP banner check on page load
-$(function () {
-    checkMcpDiscovery();
-    checkMarkerDiscovery();
-});
-
-function checkMarkerDiscovery() {
-    const toastSeen = localStorage.getItem('marker_name_toast_shown');
-    if (!toastSeen) {
-        setTimeout(() => {
-            showToast("New: You can now name and share your map markers!", 'info', 5000);
-            localStorage.setItem('marker_name_toast_shown', 'true');
-        }, 4000);
     }
 }

@@ -1,32 +1,25 @@
 {
-  "name": "com.vibhorsingh.bbox-mcp-server",
-  "title": "Bounding Box MCP Server",
-  "version": "1.3.0",
-  "description": "The geospatial toolkit for AI agents — query, convert, and verify spatial data with zero config. 6 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap queries, and shareable map verification links.",
+  "name": "io.github.iamvibhorsingh/bbox-mcp-server",
+  "title": "BoundingBox MCP",
+  "version": "1.6.0",
+  "description": "The geospatial toolkit for AI agents — query, route, elevate, convert, and verify spatial data with zero config. 11 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap Overpass queries, traffic control checks, OSRM routing, Copernicus DEM elevation, spatial geometry math, and shareable map verification links.",
   "homepage": "https://vibhorsingh.com/boundingbox/",
+  "documentation": "https://vibhorsingh.com/boundingbox/mcp/",
   "repository": {
     "url": "https://github.com/iamvibhorsingh/bbox-mcp-server",
     "source": "github"
   },
-  "author": {
-    "name": "Vibhor Singh",
-    "url": "https://vibhorsingh.com"
-  },
   "license": "MIT",
-  "remotes": [
-    {
-      "transportType": "stdio",
-      "url": "https://www.npmjs.com/package/bbox-mcp-server",
-      "supportedProtocolVersions": ["2024-11-05"]
-    }
-  ],
   "packages": [
     {
       "registryName": "npm",
       "name": "bbox-mcp-server",
-      "version": "1.3.0",
+      "version": "1.6.0",
       "runtime": "node",
-      "installArguments": ["-y", "bbox-mcp-server"]
+      "installArguments": [
+        "-y",
+        "bbox-mcp-server"
+      ]
     }
   ],
   "capabilities": {
@@ -37,47 +30,47 @@
   "tools": [
     {
       "name": "get_bounds",
-      "description": "Convert and project a bounding box across 6 input formats, 9 output formats, and 3,900+ EPSG coordinate systems."
+      "description": "Get converted coordinates for a bounding box or natural-language location search (powered by Nominatim with configurable Photon & optional Mapbox fallbacks). Supports parsing WKT, GeoJSON, ogrinfo extent, Web Mercator tiles ('z/x/y'), single points ('lat,lng'), and raw coordinate strings, plus optional metric buffering."
     },
     {
       "name": "get_h3_indices",
-      "description": "Generate Uber H3 hexagonal cell indices covering a bounding box at a specified resolution."
+      "description": "Get Uber H3 cell indices for a polygon (including interior holes), location boundary, or bounding box at a target resolution. When a WKT/GeoJSON polygon or named location boundary is provided, fills the exact polygon geometry (subtracting interior holes) rather than just its bounding rectangle."
     },
     {
       "name": "generate_share_url",
-      "description": "Generate a shareable map link to visualize a bounding box on vibhorsingh.com/boundingbox."
+      "description": "Generates a URL that links to the visual Bounding Box tool to display these coordinates on a map. Supports WKT, GeoJSON, ogrinfo extent, tile 'z/x/y', and raw coordinate strings as input."
+    },
+    {
+      "name": "reverse_geocode",
+      "description": "Reverse geocode latitude and longitude coordinates to discover context, place name, address components, and OSM details ('what is here?')."
     },
     {
       "name": "search_overpass",
-      "description": "Execute an Overpass QL query to find POIs, roads, or other OSM features within a bounding box or radius."
+      "description": "Execute an Overpass QL query to find POIs, roads, or other OSM features within an admin boundary area, bounding box, or radius. The server wraps your query in spatial filters, detects Overpass runtime errors, and returns structured JSON with provenance, completeness metadata, distance calculations, and a map link.\n\nSEARCH MODES:\n- Location / Admin Area: when 'location' resolves to an OSM boundary polygon (e.g. 'Manhattan', 'Seattle'), searches inside exact boundary polygon.\n- Bounding box (default): searches a rectangular area.\n- Circle: searches within an exact radius when 'radius_meters' is provided.\n- Fast Count: set 'count_only: true' to get instant element counts without downloading full element payloads.\n\nCOMMON TAG EXAMPLES:\n- Restaurants: `nwr[\"amenity\"=\"restaurant\"]`\n- Pizza: `nwr[\"amenity\"=\"fast_food\"][\"cuisine\"=\"pizza\"]`\n- Supermarkets: `nwr[\"shop\"=\"supermarket\"]`\n- Parks: `nwr[\"leisure\"=\"park\"]`\n- Hospitals: `nwr[\"amenity\"=\"hospital\"]`\n- EV Charging: `nwr[\"amenity\"=\"charging_station\"]`\n- Gyms: `nwr[\"leisure\"=\"fitness_centre\"]`\n- Banks: `nwr[\"amenity\"=\"bank\"]`"
     },
     {
       "name": "list_osm_tags",
-      "description": "Look up the correct OpenStreetMap tags for a given category before writing an Overpass query."
+      "description": "Discovery tool to look up the correct OpenStreetMap tags for any category. Uses built-in category index and live Taginfo API fallback to prevent tag hallucination."
     },
     {
       "name": "aggregate_overpass_h3",
-      "description": "Run an Overpass query and bin results into H3 hexagons for spatial density analysis."
+      "description": "Executes an Overpass query and bins the results into H3 hexagons at a specified resolution to analyze spatial density. Plots the top density hotspots on the shareable verification map."
+    },
+    {
+      "name": "calculate_route",
+      "description": "Calculate real-world travel distance, duration, turn-by-turn summary (with maneuver coordinates), GeoJSON route geometry, and route bounding box between two locations or coordinate pairs using OpenStreetMap routing (FOSSGIS / OSRM, or configurable OSRM_API_URL). Supports optional intermediate 'waypoints' and requesting 'alternatives' (up to 3 OSRM routes for side-by-side comparison with check_traffic_controls)."
+    },
+    {
+      "name": "get_elevation",
+      "description": "Query terrain elevation in meters above sea level using the Open-Meteo 90m Copernicus DEM API (free for non-commercial use; commercial use requires a paid key or self-hosted ELEVATION_API_URL). Supports querying specific point coordinates OR sampling an N×N point grid across a bounding box to compute sample statistics (note: finite grid sampling over a 90m DEM reports sample statistics, not guaranteed area-wide true minimum, maximum, or slope)."
+    },
+    {
+      "name": "spatial_calc",
+      "description": "Perform deterministic offline geometric calculations on bounding boxes, points, and polygons (with holes, zero network calls): 'relation' (intersects, contains, overlap area %, union & intersection bbox between two geometries), 'point_in_geometry' (check if a point is inside a bbox or WKT/GeoJSON polygon respecting interior holes), 'distance_bearing' (exact Haversine distance, initial compass bearing, and midpoint between two points), or 'split_grid' (subdivide a bbox into an N x M grid of sub-bboxes for chunked queries)."
+    },
+    {
+      "name": "check_traffic_controls",
+      "description": "Check OpenStreetMap for traffic signals (traffic lights) and stop signs at a junction, within a radius of a coordinate/place, across a bounding box/area, or along a route corridor. Returns explicit booleans (has_traffic_signal, has_stop_sign), junction classification (control_type: 'traffic_signals' | 'stop_sign' | 'both' | 'none'), separate counts, exact coordinates, and a shareable verification map.\n\nMODES:\n- Junction / Coordinate: pass a point in 'bbox' (e.g. '40.7580,-73.9855') with optional 'radius_meters' (defaults to 35m).\n- Bounding box / Area: pass a bbox or 'location' (without 'radius_meters') to count or list all traffic signals and stop signs inside.\n- Route corridor (by endpoints): pass 'origin' and 'destination' (plus optional 'profile': driving/walking/cycling) to route via OSRM and inspect traffic controls along the route in one call.\n- Route corridor (by geometry): pass 'route_geometry' (the GeoJSON LineString from calculate_route) with optional 'radius_meters' (defaults to 20m) to evaluate traffic signals and stop signs along a route in travel order."
     }
-  ],
-  "requires": {
-    "env": {
-      "MAPBOX_ACCESS_TOKEN": {
-        "description": "Enables natural language location search (e.g. 'San Francisco'). Optional.",
-        "required": false,
-        "sensitive": true
-      },
-      "OVERPASS_API_URL": {
-        "description": "Custom Overpass API endpoint. Defaults to rotating between overpass-api.de and kumi.systems.",
-        "required": false,
-        "sensitive": false
-      },
-      "MAX_H3_CELLS": {
-        "description": "Safety cap for H3 grid generation. Defaults to 50000.",
-        "required": false,
-        "sensitive": false
-      }
-    }
-  },
-  "keywords": ["mcp", "geospatial", "bounding-box", "openstreetmap", "overpass", "h3", "geocoding", "gis", "coordinates", "epsg", "wkt", "geojson", "ai-agents"]
+  ]
 }

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Try BoundingBox MCP sample maps and connect bbox-mcp-server to Claude Desktop, Cursor, Windsurf, or VS Code.">
+    <link rel="canonical" href="https://vibhorsingh.com/boundingbox/mcp/">
+    <link rel="stylesheet" href="../css/guides.css">
+    <title>BoundingBox MCP setup and sample maps</title>
+</head>
+<body>
+    <nav aria-label="BoundingBox">
+        <a href="../">Open BoundingBox map</a>
+        <a href="../guide/">Bounding box guide</a>
+        <a href="https://github.com/iamvibhorsingh/bbox-mcp-server">MCP server on GitHub</a>
+    </nav>
+    <main>
+        <h1>Inspect your agent’s results on a map</h1>
+        <p>BoundingBox MCP gives AI clients tools for place search, route calculations, H3 grids, and coordinate conversion. Open a sample map to see a result without installing MCP.</p>
+
+        <ul class="samples" aria-label="Sample maps">
+            <li><a href="../?demo=places">Explore a Places result</a><p>Filter an example list and choose a place to locate its pin.</p></li>
+            <li><a href="../#|H3:9,7,89196b84e53ffff.19,89196b84327ffff.4,89196b84e5bffff.12,89196b84e43ffff.6,89196b84e57ffff.2,89196b84ecfffff.8,89196b84ecbffff.3|MCP:eyJzb3VyY2UiOiJJbGx1c3RyYXRpdmUgSDMgY291bnRzIn0">Inspect H3 density</a><p>Select an example hexagon to see the count it represents.</p></li>
+            <li><a href="../#52.074,4.296,52.087,4.328">Open a bounding box</a><p>Inspect and export an extent around central The Hague.</p></li>
+        </ul>
+
+        <h2>Connect an MCP client</h2>
+        <p>Install Node.js 18 or later. Add the <code>bbox</code> entry alongside any existing MCP servers, then restart or reload the client.</p>
+        <ul>
+            <li><strong>Claude Desktop</strong> uses <code>claude_desktop_config.json</code>.</li>
+            <li><strong>Cursor</strong> uses <code>.cursor/mcp.json</code>.</li>
+            <li><strong>Windsurf</strong> uses <code>~/.codeium/windsurf/mcp_config.json</code>.</li>
+        </ul>
+        <pre><code>{
+  "mcpServers": {
+    "bbox": {
+      "command": "npx",
+      "args": ["-y", "bbox-mcp-server"]
+    }
+  }
+}</code></pre>
+        <details>
+            <summary>VS Code with GitHub Copilot</summary>
+            <p>Add this entry to <code>.vscode/mcp.json</code> in your workspace.</p>
+            <pre><code>{
+  "servers": {
+    "bbox": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "bbox-mcp-server"]
+    }
+  }
+}</code></pre>
+        </details>
+
+        <h2>Open a result</h2>
+        <ol>
+            <li>Ask your client to generate an H3 grid around a small bounding box or find cafes near a landmark.</li>
+            <li>Open the returned <code>share_url</code>. New H3 links can include the actual cells, with a count when the link shows a subset.</li>
+            <li>To inspect a larger result, save its structured JSON or GeoJSON from your client. In BoundingBox, choose <strong>Help → Open JSON or GeoJSON result</strong> and select or drop the file. The file is read in your browser.</li>
+        </ol>
+        <p>Supported files include Places responses, H3 cells and density, route geometry, and GeoJSON points, lines, and polygons. See the <a href="https://github.com/iamvibhorsingh/bbox-mcp-server#data-and-service-use">provider usage limits</a> for live queries.</p>
+    </main>
+</body>
+</html>

@@ -25,6 +25,7 @@
 
 /* Dark mode variables */
 body.dark-mode {
+    color-scheme: dark;
     --primary-bg: #1e1e1e;
     --secondary-bg: #2d2d2d;
     --border-color: #444;
@@ -184,13 +185,18 @@ body,
     align-items: center;
 }
 
-#info-toggle li {
+#info-toggle button {
     padding: 5px 10px;
     border-radius: 4px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
     font-weight: bold;
+    cursor: pointer;
 }
 
-#info-toggle li.active {
+#info-toggle button.active {
     background: var(--active-color);
     color: #000;
 }
@@ -200,6 +206,111 @@ body,
     flex-wrap: wrap;
     padding: 10px;
     gap: 15px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+}
+
+.guide-links {
+    display: grid;
+    gap: 8px;
+    padding-top: 12px;
+}
+
+.guide-links a {
+    color: var(--link-color);
+}
+
+.guide-links button {
+    justify-self: start;
+}
+
+#result-panel {
+    top: 12px;
+    right: 100px;
+    width: min(350px, calc(100vw - 130px));
+    max-height: min(52dvh, 470px);
+    min-height: 0;
+    resize: none;
+    z-index: 1002;
+    background: var(--primary-bg);
+}
+
+#result-panel[hidden] {
+    display: none;
+}
+
+#result-heading {
+    font-size: 15px;
+    margin: 0;
+}
+
+#result-panel .sidebar-content {
+    overflow: auto;
+    min-height: 0;
+    display: block;
+}
+
+#result-panel label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+#result-panel input {
+    max-width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+}
+
+#result-filter {
+    width: 100%;
+    padding: 6px;
+}
+
+#result-source, #result-count {
+    color: var(--label-color);
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+#result-items {
+    list-style: none;
+    padding: 0;
+}
+
+#result-items button {
+    width: 100%;
+    min-height: 44px;
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    background: var(--primary-bg);
+    color: var(--text-color);
+    padding: 8px;
+    font: inherit;
+    text-align: left;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+}
+
+#result-items button:hover {
+    background: var(--secondary-bg);
+}
+
+#result-items small {
+    display: block;
+    color: var(--label-color);
 }
 
 .coords {
@@ -902,6 +1013,22 @@ body.dark-mode .format-scope-note {
 /* --- Mobile Responsive --- */
 @media (max-width: 768px) {
 
+    #result-panel {
+        top: auto;
+        bottom: 10px;
+        max-height: 42dvh;
+        min-width: 0;
+    }
+
+    #coordinate-input, #result-filter {
+        font-size: 16px;
+    }
+
+    #info-toggle ul {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
     /* Toolbar: horizontal row at top */
     #map-ui {
         right: 10px;
@@ -1038,7 +1165,7 @@ body.dark-mode .format-scope-note {
         top: 45px;
     }
 
-    #info-toggle li {
+    #info-toggle button {
         padding: 4px 6px;
         font-size: 11px;
     }
@@ -1046,79 +1173,6 @@ body.dark-mode .format-scope-note {
     .simple-sidebar {
         min-width: unset;
         min-height: unset;
-    }
-}
-
-/* --- MCP Server Notification Banner --- */
-#mcp-banner {
-    position: fixed;
-    bottom: 20px;
-    left: 300px;
-    background: rgba(33, 33, 33, 0.92);
-    color: #e0e0e0;
-    padding: 10px 14px;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-    z-index: 1001;
-    display: none;
-    max-width: 320px;
-    font-size: 16px;
-    line-height: 1.5;
-    animation: mcpSlideUp 0.4s ease-out;
-    border: 2px solid rgba(255, 255, 255, 0.08);
-}
-
-@keyframes mcpSlideUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-#mcp-banner a {
-    color: #64b5f6;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-#mcp-banner a:hover {
-    text-decoration: underline;
-    color: #90caf9;
-}
-
-#mcp-banner-close {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    background: none;
-    border: none;
-    color: #999;
-    font-size: 16px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-}
-
-#mcp-banner-close:hover {
-    color: #fff;
-}
-
-body.dark-mode #mcp-banner {
-    background: rgba(48, 48, 48, 0.95);
-    border-color: rgba(255, 255, 255, 0.12);
-}
-
-@media (max-width: 768px) {
-    #mcp-banner {
-        left: 10px;
-        right: 10px;
-        bottom: 10px;
-        max-width: none;
     }
 }
 

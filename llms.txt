@@ -1,82 +1,29 @@
 # bbox-mcp-server
 
-> The geospatial toolkit for AI agents — query, convert, and verify spatial data with zero config.
+The geospatial toolkit for AI agents — query, route, elevate, convert, and verify spatial data with zero config. 11 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap Overpass queries, traffic control checks, OSRM routing, Copernicus DEM elevation, spatial geometry math, and shareable map verification links.
 
-**Version:** 1.3.0
-**Protocol:** Model Context Protocol (MCP)
-**Transport:** stdio
-**Install:** `npx -y bbox-mcp-server`
-**Homepage:** https://vibhorsingh.com/boundingbox/
-**Repository:** https://github.com/iamvibhorsingh/bbox-mcp-server
-**npm:** https://www.npmjs.com/package/bbox-mcp-server
-**License:** MIT
-**Agent Card:** https://vibhorsingh.com/.well-known/mcp-server-card.json
-
-## What This Server Does
-
-Gives any LLM or AI agent the ability to work with real geographic data using OpenStreetMap. No API keys required to start. Every response includes a shareable map link for visual verification.
+- Version: 1.6.0
+- Install: `npx -y bbox-mcp-server`
+- Setup and samples: https://vibhorsingh.com/boundingbox/mcp/
+- Repository: https://github.com/iamvibhorsingh/bbox-mcp-server
+- Server card: https://vibhorsingh.com/.well-known/mcp/server-card.json
 
 ## Tools
 
-### get_bounds
-Convert and project a bounding box across 6 input formats, 9 output formats, and 3,900+ EPSG coordinate systems.
-- Inputs: `bbox` (coordinates/WKT/GeoJSON/ogrinfo) or `location` (natural language, requires Mapbox token)
-- Optional: `epsg`, `format`, `coord_order`, `zoom`, `precision`
-- Example: "Get the bounding box for Central Park in WKT projected to EPSG:3857"
+- `get_bounds` — Get converted coordinates for a bounding box or natural-language location search (powered by Nominatim with configurable Photon & optional Mapbox fallbacks). Supports parsing WKT, GeoJSON, ogrinfo extent, Web Mercator tiles ('z/x/y'), single points ('lat,lng'), and raw coordinate strings, plus optional metric buffering.
+- `get_h3_indices` — Get Uber H3 cell indices for a polygon (including interior holes), location boundary, or bounding box at a target resolution. When a WKT/GeoJSON polygon or named location boundary is provided, fills the exact polygon geometry (subtracting interior holes) rather than just its bounding rectangle.
+- `generate_share_url` — Generates a URL that links to the visual Bounding Box tool to display these coordinates on a map. Supports WKT, GeoJSON, ogrinfo extent, tile 'z/x/y', and raw coordinate strings as input.
+- `reverse_geocode` — Reverse geocode latitude and longitude coordinates to discover context, place name, address components, and OSM details ('what is here?').
+- `search_overpass` — Execute an Overpass QL query to find POIs, roads, or other OSM features within an admin boundary area, bounding box, or radius. The server wraps your query in spatial filters, detects Overpass runtime errors, and returns structured JSON with provenance, completeness metadata, distance calculations, and a map link.
+- `list_osm_tags` — Discovery tool to look up the correct OpenStreetMap tags for any category. Uses built-in category index and live Taginfo API fallback to prevent tag hallucination.
+- `aggregate_overpass_h3` — Executes an Overpass query and bins the results into H3 hexagons at a specified resolution to analyze spatial density. Plots the top density hotspots on the shareable verification map.
+- `calculate_route` — Calculate real-world travel distance, duration, turn-by-turn summary (with maneuver coordinates), GeoJSON route geometry, and route bounding box between two locations or coordinate pairs using OpenStreetMap routing (FOSSGIS / OSRM, or configurable OSRM_API_URL). Supports optional intermediate 'waypoints' and requesting 'alternatives' (up to 3 OSRM routes for side-by-side comparison with check_traffic_controls).
+- `get_elevation` — Query terrain elevation in meters above sea level using the Open-Meteo 90m Copernicus DEM API (free for non-commercial use; commercial use requires a paid key or self-hosted ELEVATION_API_URL). Supports querying specific point coordinates OR sampling an N×N point grid across a bounding box to compute sample statistics (note: finite grid sampling over a 90m DEM reports sample statistics, not guaranteed area-wide true minimum, maximum, or slope).
+- `spatial_calc` — Perform deterministic offline geometric calculations on bounding boxes, points, and polygons (with holes, zero network calls): 'relation' (intersects, contains, overlap area %, union & intersection bbox between two geometries), 'point_in_geometry' (check if a point is inside a bbox or WKT/GeoJSON polygon respecting interior holes), 'distance_bearing' (exact Haversine distance, initial compass bearing, and midpoint between two points), or 'split_grid' (subdivide a bbox into an N x M grid of sub-bboxes for chunked queries).
+- `check_traffic_controls` — Check OpenStreetMap for traffic signals (traffic lights) and stop signs at a junction, within a radius of a coordinate/place, across a bounding box/area, or along a route corridor. Returns explicit booleans (has_traffic_signal, has_stop_sign), junction classification (control_type: 'traffic_signals' | 'stop_sign' | 'both' | 'none'), separate counts, exact coordinates, and a shareable verification map.
 
-### get_h3_indices
-Generate Uber H3 hexagonal cell indices covering a bounding box.
-- Inputs: `bbox` or `location`, `resolution` (0–15)
-- Optional: `compact`, `return_geometry`
-- Example: "Give me H3 cells at resolution 7 for downtown Chicago"
+## Map verification
 
-### generate_share_url
-Generate a shareable link to visualize a bounding box on an interactive map.
-- Inputs: `bbox`
-- Example: "Generate a share link for bbox 40.7128,-74.0060,40.7580,-73.9855"
+Open a tool's `share_url` to see its map preview. Open structured JSON or GeoJSON from the map's Help menu to inspect a larger result. Tool responses include provenance and warnings when available.
 
-### search_overpass
-Query OpenStreetMap via Overpass QL within a bounding box or radius. Returns names, coordinates, tags, and a map link pinning each result.
-- Inputs: `bbox` or `location`, `query` (Overpass QL)
-- Optional: `radius_meters` (for circle search), `limit`, `return_geometry`
-- Example: "Find all parking within 2km of JFK airport"
-- Example: "Find hospitals in Manhattan"
-
-### list_osm_tags
-Look up correct OpenStreetMap tags for a category before writing an Overpass query.
-- Inputs: `category` (e.g. "food", "health", "transport", "leisure", "retail")
-- Example: "What are the correct OSM tags for supermarkets?"
-
-### aggregate_overpass_h3
-Run an Overpass query and bin results into H3 hexagons for spatial density analysis.
-- Inputs: `bbox` or `location`, `query` (Overpass QL), `resolution` (H3 level)
-- Example: "Aggregate all hospitals in Seattle into H3 bins at resolution 7"
-
-## Configuration
-
-Optional environment variables:
-- `MAPBOX_ACCESS_TOKEN` — Enables natural language location search. Get a free token at mapbox.com.
-- `OVERPASS_API_URL` — Custom Overpass endpoint. Defaults to rotating between overpass-api.de and kumi.systems.
-- `MAX_H3_CELLS` — Safety cap for H3 grid generation. Default: 50000.
-
-## Supported Input Formats
-
-All tools accept any of these automatically:
-- Raw coordinates: `40.7128,-74.0060,40.7580,-73.9855`
-- WKT: `POLYGON((-74.006 40.712, ...))`
-- GeoJSON (Feature, FeatureCollection, Geometry, or `{"bbox": [...]}`)
-- ogrinfo extent: `Extent: (-74.006, 40.712) - (-73.985, 40.758)`
-
-## Data Sources
-
-- **OpenStreetMap** (ODbL) — https://openstreetmap.org
-- **Overpass API** (free, public) — https://overpass-api.de
-- **Mapbox Geocoding** (optional, requires token) — https://mapbox.com
-
-## Notes for AI Agents
-
-- `search_overpass` accepts Overpass QL *without* spatial filters — the server wraps them automatically.
-- Use `list_osm_tags` before writing Overpass queries to avoid hallucinated tags.
-- Use `radius_meters` only when the user specifies an explicit distance. Omit it for vague terms like "near".
-- All errors return `isError: true` with a descriptive message. The server never crashes on bad input.
-- Logs go to stderr; stdout is reserved for the MCP protocol.
+Respect the provider usage limits in the server README. Public endpoints are intended for light use.

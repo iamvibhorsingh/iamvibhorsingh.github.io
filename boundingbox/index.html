@@ -74,48 +74,29 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"
         crossorigin="anonymous" />
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css" crossorigin="anonymous">
-
-    <link rel="stylesheet" href="css/bbox.css" />
+    <link rel="stylesheet" href="css/bbox.css?v=2" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.css"
         crossorigin="anonymous" />
 
     <!-- Load jQuery first -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    <script defer src="https://code.jquery.com/jquery-3.7.1.min.js"
         integrity="sha384-1H217gwSVyLSIfaLxHbE7dRb3v4mYCKbpQvzx0cegeju1MVsGrX5xXxAvs/HgeFs"
-        crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"
-        integrity="sha384-oVpH0DXO9nadZxTmPSQo3YwWqfN/Up9aRDHCxLrw8A2LjkFNcM/XILw4KGMaL95z"
         crossorigin="anonymous"></script>
 
     <!-- Load Leaflet core before any Leaflet plugins -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"
         crossorigin="anonymous"></script>
 
     <!-- Load Leaflet plugins and dependencies after core -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"
         integrity="sha384-JP5UPxIO2Tm2o79Fb0tGYMa44jkWar53aBoCbd8ah0+LcCDoohTIYr+zIXyfGIJN"
         crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.11.0/proj4.js"
-        integrity="sha384-BIsA8GBrihzaRmijjpqTCihj8D5Vox3hyBFg9sJiTGAEOv6KusZ8QOCKbTFEAfhm"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4leaflet/1.0.2/proj4leaflet.js"
-        integrity="sha384-aDnBHDK9AhLbrYhThBxEVMriFbix8Sz2059IlD3HbZhz7+WNmz+pSkOcI7MY72cE"
-        crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.umd.js"
+    <script defer src="https://unpkg.com/leaflet-geosearch@4.0.0/dist/geosearch.umd.js"
         integrity="sha384-hRLVGjv/5g5uHvtM+2E7RVhdUxQrIBllMHa139zPNM8LGNAIdHNxKaTBNCsBSEBO"
         crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/h3-js@4.4.0/dist/h3-js.umd.js"
-        integrity="sha384-Nk1k8oEtywe2AB2bxte3YzJLs/iA2WDd/TxHoEzUxlrrqoAA38iRHP0PVNyID2Jj"
-        crossorigin="anonymous"></script>
-
-    <!-- Load custom scripts last -->
-    <script src="js/maps/wkt.parser.js?v=2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
-        integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H"
-        crossorigin="anonymous"></script>
-    <script src="js/bbox.js?v=4"></script>
+    <script defer src="js/maps/wkt.parser.js?v=2"></script>
+    <script defer src="js/bbox.js?v=5"></script>
 
 </head>
 
@@ -124,7 +105,9 @@
     <ul id="map-ui-proj">
         <li><label class="epsglabel" id="projection_label" for="projection"
                 title="EPSG projection code - 3857 (Web Mercator) or 4326 (WGS84)">EPSG:</label><input id="projection"
-                size="6" title="Change coordinate projection (3857=Web Mercator, 4326=WGS84)" /></li>
+                size="6" value="3857" inputmode="numeric" aria-describedby="projection-status"
+                title="Change coordinate projection (3857=Web Mercator, 4326=WGS84)" />
+            <span id="projection-status" class="visually-hidden" role="status"></span></li>
         <li id="manual-search" style="display: none;">
             <input type="text" id="location-search" placeholder="Search location..." size="20" />
             <button type="button" id="search-btn" title="Search">🔍</button>
@@ -133,7 +116,7 @@
 
     <ul id="map-ui">
         <li id="create-geojson">
-            <button type="button" title="Enter coordinates" aria-label="Enter coordinates"></button>
+            <button type="button" title="Enter coordinates" aria-label="Enter coordinates" aria-controls="rsidebar" aria-expanded="false"></button>
         </li>
         <li id="geolocation">
             <button type="button" title="My location" aria-label="My location" class="active"></button>
@@ -159,7 +142,6 @@
         <li id="h3-tools">
             <button type="button" title="H3 Polyfill Tools" aria-label="H3 Polyfill Tools">
                 <img src="images/h3Logo-color.svg" alt="H3" style="width: 22px; height: 22px; display: block;">
-                <span id="h3-new-badge" class="new-badge">New</span>
             </button>
         </li>
     </ul>
@@ -175,12 +157,12 @@
     <div id="rsidebar" class="simple-sidebar right-sidebar" style="display: none;">
         <div class="sidebar-header">
             <h3>Enter Coordinates</h3>
-            <button class="close-btn" onclick="$('#create-geojson button').click()">×</button>
+            <button type="button" class="close-btn" aria-label="Close coordinate entry" onclick="$('#create-geojson button').click()">×</button>
         </div>
         <div class="sidebar-content">
             <button id="add" type="button">Add</button>
             <button id="clear" type="button">Clear</button>
-            <textarea placeholder="Paste GeoJSON, WKT, ogrinfo extent output or a bbox..." title="Paste It!"></textarea>
+            <textarea id="coordinate-input" aria-label="Coordinates or geometry" placeholder="Paste GeoJSON, WKT, ogrinfo extent output or a bbox..."></textarea>
         </div>
     </div>
 
@@ -188,10 +170,15 @@
     <div id="lsidebar" class="simple-sidebar left-sidebar" style="display: none;">
         <div class="sidebar-header">
             <h3>Help - for support contact contact@vibhorsingh.com</h3>
-            <button class="close-btn" onclick="$('#help button').click()">×</button>
+            <button type="button" class="close-btn" aria-label="Close help" onclick="$('#help button').click()">×</button>
         </div>
         <div class="sidebar-content">
-            <textarea readonly placeholder="Looking for a little help?" title="Help Me"></textarea>
+            <textarea readonly aria-label="Map controls and keyboard shortcuts"></textarea>
+            <nav class="guide-links" aria-label="BoundingBox guides">
+                <a href="guide/">Draw and export a bounding box</a>
+                <a href="mcp/">MCP setup and examples</a>
+                <button type="button" id="open-mcp-result">Open JSON or GeoJSON result</button>
+            </nav>
         </div>
     </div>
 
@@ -273,14 +260,34 @@
     </div>
 
     <!-- Toast notification -->
-    <div id="toast-notification"></div>
+    <div id="toast-notification" role="status"></div>
+
+    <section id="result-panel" class="simple-sidebar" aria-labelledby="result-heading" hidden>
+        <header class="sidebar-header">
+            <h2 id="result-heading">Map result</h2>
+            <button type="button" class="close-btn" id="close-result" aria-label="Close map result">×</button>
+        </header>
+        <div class="sidebar-content">
+            <label for="result-file">Open JSON or GeoJSON</label>
+            <input type="file" id="result-file" accept=".json,.geojson,application/json,application/geo+json">
+            <p id="result-summary" role="status">Choose or drop a file here. It stays in your browser.</p>
+            <p id="result-source" hidden></p>
+            <ul id="result-warnings" aria-label="Result warnings" hidden></ul>
+            <div id="result-search" hidden>
+                <label for="result-filter">Filter places</label>
+                <input type="search" id="result-filter" autocomplete="off">
+                <p id="result-count" role="status"></p>
+            </div>
+            <ul id="result-items" aria-label="Map places" hidden></ul>
+        </div>
+    </section>
 
     <section id="info-box">
         <div id="info-toggle">
             <ul>
-                <li id="info-toggle-button">Hide Coordinates</li>
-                <li id="wgslabel" class="active"></li>
-                <li id="projlabel"></li>
+                <li><button type="button" id="info-toggle-button" aria-controls="info" aria-expanded="true">Hide Coordinates</button></li>
+                <li><button type="button" id="wgslabel" class="active" aria-pressed="true">EPSG:4326</button></li>
+                <li><button type="button" id="projlabel" aria-pressed="false">EPSG:3857</button></li>
             </ul>
         </div>
         <div id="info">
@@ -317,19 +324,19 @@
                 </div>
             </div>
             <div id="projcoords" class="coords">
-                <div id="bbounds">
-                    <span id="bbboundslabel" class="bboxlabel">Box</span>
+                <div>
+                    <span class="bboxlabel">Box</span>
                     <button type="button" id="boxboundsmercbtn" data-clipboard-target="boxboundsmerc"
                         title="Copy Box Projected" aria-label="Copy Box Projected"><img src="images/copy.png"
                             alt="Copy"></button>
                     <span id="boxboundsmerc" class="bboxprojpos"></span>
                 </div>
-                <div id="mcenter">
-                    <span id="mcenterlabel" class="bboxlabel">Center</span>
+                <div>
+                    <span class="bboxlabel">Center</span>
                     <span id="centermerc" class="bboxprojpossmall"></span>
                 </div>
-                <div id="mmouse">
-                    <span id="mmouselabel" class="bboxlabel">Mouse</span>
+                <div>
+                    <span class="bboxlabel">Mouse</span>
                     <span id="mouseposmerc" class="bboxprojpossmall"></span>
                 </div>
             </div>
@@ -387,14 +394,6 @@
             </div>
         </div>
     </section>
-
-    <!-- MCP Server notification banner -->
-    <div id="mcp-banner">
-        <button id="mcp-banner-close" title="Dismiss">×</button>
-        <span>🤖 <strong>New:</strong> Use this bounding box tool in your AI workflow!
-            <a href="https://www.npmjs.com/package/bbox-mcp-server" target="_blank" rel="noopener">bbox-mcp-server</a>
-            is available as an MCP server.</span>
-    </div>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GTJTE1MMWK"></script>

@@ -1,0 +1,13 @@
+{
+  "returned_count": 5,
+  "complete": true,
+  "provenance": { "provider": "Illustrative Places sample" },
+  "warnings": ["Example records showing how a Places response appears on the map."],
+  "places": [
+    { "name": "Canal Coffee", "basic_category": "Cafe", "coordinates": { "lat": 52.0788, "lon": 4.3109 }, "confidence": 0.94 },
+    { "name": "Market Bakery", "basic_category": "Bakery", "coordinates": { "lat": 52.0764, "lon": 4.3100 }, "confidence": 0.87 },
+    { "name": "Square Espresso", "basic_category": "Cafe", "coordinates": { "lat": 52.0805, "lon": 4.3139 }, "confidence": 0.91 },
+    { "name": "Garden Tea Room", "basic_category": "Tea house", "coordinates": { "lat": 52.0814, "lon": 4.3078 }, "confidence": 0.83 },
+    { "name": "Station Coffee", "basic_category": "Cafe", "coordinates": { "lat": 52.0782, "lon": 4.3169 }, "confidence": 0.89 }
+  ]
+}

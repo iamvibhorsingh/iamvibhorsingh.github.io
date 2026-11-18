@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Draw or paste a bounding box, check coordinate order, and copy a BBOX, WKT polygon, or GeoJSON from BoundingBox.">
+    <link rel="canonical" href="https://vibhorsingh.com/boundingbox/guide/">
+    <link rel="stylesheet" href="../css/guides.css">
+    <title>Draw and export a bounding box</title>
+</head>
+<body>
+    <nav aria-label="BoundingBox">
+        <a href="../">Open BoundingBox map</a>
+        <a href="../mcp/">MCP setup and examples</a>
+    </nav>
+    <main>
+        <h1>Draw and export a bounding box</h1>
+        <p>A bounding box is the rectangular extent of an area. It’s useful for limiting a GIS query, sharing an area of interest, or selecting the part of a map you want to export.</p>
+
+        <h2>Draw or paste an extent</h2>
+        <ol>
+            <li>Open <a href="../">BoundingBox</a> and zoom to your area.</li>
+            <li>Choose the rectangle tool or press <kbd>R</kbd>. Drag from one corner of the area to the opposite corner.</li>
+            <li>For exact coordinates, choose <strong>Enter coordinates</strong>. Paste four longitude/latitude values in west, south, east, north order and select <strong>Add</strong>.</li>
+        </ol>
+        <p class="example"><a href="../#52.074,4.296,52.087,4.328">Open the example extent around The Hague</a><br><code>4.296,52.074,4.328,52.087</code></p>
+
+        <h2>Use the box in an OGC API request</h2>
+        <p>Select <strong>Copy CSV</strong> under Box Formats, then use the four values as the <code>bbox</code> query parameter on your collection’s <code>items</code> endpoint.</p>
+        <pre><code>/collections/your-collection/items?bbox=4.296,52.074,4.328,52.087</code></pre>
+        <p>The example uses longitude, latitude in degrees. <strong>Copy GeoJSON Polygon</strong> gives you a geometry you can save to a <code>.geojson</code> file and open in QGIS. <strong>Copy WKT</strong> gives you the equivalent rectangle as text.</p>
+
+        <h2>Get a projected extent</h2>
+        <p>Enter a coordinate reference system in the <strong>EPSG</strong> field, then select its tab in the coordinate panel and use <strong>Copy Box Projected</strong>. The Box Formats buttons provide WGS84 formats. Use the display controls to adjust precision, axis order, or spaces for a GDAL command.</p>
+    </main>
+</body>
+</html>

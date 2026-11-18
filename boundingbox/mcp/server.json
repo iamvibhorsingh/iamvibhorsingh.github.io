@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.iamvibhorsingh/bbox-mcp-server",
+  "title": "BoundingBox MCP",
+  "description": "Geospatial tools with coordinate conversion, OpenStreetMap, H3, and shareable map results.",
+  "repository": {
+    "url": "https://github.com/iamvibhorsingh/bbox-mcp-server",
+    "source": "github"
+  },
+  "websiteUrl": "https://vibhorsingh.com/boundingbox/mcp/",
+  "version": "1.6.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "bbox-mcp-server",
+      "version": "1.6.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

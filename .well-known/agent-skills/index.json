@@ -4,9 +4,9 @@
     {
       "name": "bbox-mcp-server",
       "type": "skill-md",
-      "description": "The geospatial toolkit for AI agents — query, convert, and verify spatial data with zero config. 6 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap queries, and shareable map verification links.",
+      "description": "The geospatial toolkit for AI agents — query, route, elevate, convert, and verify spatial data with zero config. 11 tools for bounding boxes, coordinate projection, H3 indexing, OpenStreetMap Overpass queries, traffic control checks, OSRM routing, Copernicus DEM elevation, spatial geometry math, and shareable map verification links.",
       "url": "https://vibhorsingh.com/.well-known/agent-skills/bbox-mcp/SKILL.md",
-      "digest": "sha256:f152c946a7d227178c7f01e81d71dbcf104d391e96d0aad55716e60d29b518f9"
+      "digest": "sha256:69c49eb5f4bb676d73d5bd6280f7edbb8c1040820c84123299397b6e82074f64"
     }
   ]
 }
