@@ -354,7 +354,7 @@ function addLayer(layer, name, title, zIndex, on, callback) {
 
 const optionalScripts = {
     bboxWorldOverview: ['data/world-110m.js?v=2'],
-    bboxProjectionDefinitions: ['proj/proj4defs.js'],
+    bboxProjectionDefinitions: ['proj/proj4defs.js?v=2'],
     bboxProjectionPreview: ['js/projection-preview.js?v=2'],
     ol: [
         'https://cdn.jsdelivr.net/npm/ol@10.11.0/dist/ol.js',
@@ -2333,7 +2333,7 @@ $(function () { // Modern equivalent of $(document).ready
         } catch {
             projectionStatus.textContent = 'Projection suggestions unavailable. You can still enter a code.';
         }
-        const query = projectionInput.value.trim().toLowerCase();
+        const query = projectionInput.value.trim().replace(/^EPSG:\s*/i, '').toLowerCase();
         const suggestions = document.createDocumentFragment();
         const codes = [...new Set([...Object.keys(projectionNames), ...Object.keys(proj4defs)])];
         let count = 0;

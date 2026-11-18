@@ -3907,5 +3907,8 @@ window.bboxProjectionDefinitions = {"3819":["HD1909","+proj=longlat +ellps=besse
 "32759":["WGS 84 / UTM zone 59S","+proj=utm +zone=59 +south +datum=WGS84 +units=m +no_defs "],
 "32760":["WGS 84 / UTM zone 60S","+proj=utm +zone=60 +south +datum=WGS84 +units=m +no_defs "],
 "32761":["WGS 84 / UPS South","+proj=stere +lat_0=-90 +lat_ts=-90 +lon_0=0 +k=0.994 +x_0=2000000 +y_0=2000000 +datum=WGS84 +units=m +no_defs "],
-"32766":["WGS 84 / TM 36 SE","+proj=tmerc +lat_0=0 +lon_0=36 +k=0.9996 +x_0=500000 +y_0=10000000 +datum=WGS84 +units=m +no_defs "]
+"32766":["WGS 84 / TM 36 SE","+proj=tmerc +lat_0=0 +lon_0=36 +k=0.9996 +x_0=500000 +y_0=10000000 +datum=WGS84 +units=m +no_defs "],
+  "6931": ["WGS 84 / NSIDC EASE-Grid 2.0 North", "+proj=laea +lat_0=90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"],
+  "6932": ["WGS 84 / NSIDC EASE-Grid 2.0 South", "+proj=laea +lat_0=-90 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"],
+  "6933": ["WGS 84 / NSIDC EASE-Grid 2.0 Global", "+proj=cea +lat_ts=30 +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs +type=crs"]
 };
