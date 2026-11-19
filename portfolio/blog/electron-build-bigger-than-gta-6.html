@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Made an Electron app bigger than GTA 6 (by accident) | Vibhor Singh</title>
+    <meta name="description"
+        content="GTA 6 needs up to 212 GB. I used 318 GB trying to put one file in a folder. I found out while backing up my side projects.">
+    <meta name="author" content="Vibhor Singh">
+    <link rel="canonical" href="https://vibhorsingh.com/portfolio/blog/electron-build-bigger-than-gta-6.html">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Made an Electron app bigger than GTA 6 (by accident)">
+    <meta property="og:description"
+        content="GTA 6 needs up to 212 GB. I used 318 GB trying to put one file in a folder. I found out while backing up my side projects.">
+    <meta property="og:url" content="https://vibhorsingh.com/portfolio/blog/electron-build-bigger-than-gta-6.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .path-stats {
+            width: 100%;
+            margin: 0 0 1.5rem;
+            border-collapse: collapse;
+            text-align: left;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .path-stats th, .path-stats td {
+            padding: .5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-grid"></div>
+    <header class="navbar">
+        <div class="container">
+            <a href="../../index.html" class="logo">VS<span class="dot">.</span></a>
+            <nav>
+                <ul class="nav-links" id="site-menu">
+                    <li><a href="../../index.html#about_container">About</a></li>
+                    <li><a href="../../index.html#work_container">Projects</a></li>
+                    <li><a href="../../index.html#gallery_container">Gallery</a></li>
+                    <li><a href="../../index.html#contact_container">Contact</a></li>
+                    <li><button class="theme-toggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button></li>
+                </ul>
+            </nav>
+            <button type="button" class="hamburger" aria-label="Toggle navigation" aria-controls="site-menu"
+                style="background: transparent; border: 0">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <article class="blog-post-container">
+            <a href="../../index.html#blog_container" class="back-link"><i class="fas fa-arrow-left"></i> Back to Blog</a>
+            <header class="blog-header">
+                <h1 class="blog-title">Made an Electron app bigger than GTA 6 (by accident)</h1>
+                <div class="blog-meta">
+                    <span><i class="far fa-calendar"></i> <time datetime="2026-11-18">November 18, 2026</time></span>
+                    <span><i class="fas fa-tag"></i> Desktop Development</span>
+                </div>
+            </header>
+
+            <div class="blog-content">
+                <p>GTA 6 needs <a href="https://support.rockstargames.com/articles/M6h7B5fJZMwG1dnzQkt4Z/grand-theft-auto-vi-installation-requirements">up to 212 GB</a>
+                    of free space on a console. I used <strong>318 GB</strong> trying to put one file in a folder.</p>
+
+                <p>I found out while backing up my personal projects. My custom 7-Zip command skipped the stuff
+                    I could download again, but the scan still hit 619 GB. I have enough unfinished projects
+                    that I was willing to believe that number.</p>
+
+                <p>Then 7-Zip stopped. I recognized the Windows app in the last path it printed. A few folders
+                    further in, I recognized it again.</p>
+
+                <pre aria-label="Simplified folder path from the backup scan"><code>Windows app
+└── helper folder
+    └── Windows app
+        └── helper folder
+            └── …</code></pre>
+
+                <p>About half the entire scan came from that one app’s build folder. I’d expected an installer
+                    of a few hundred megabytes, so I went back to see what I’d asked it to include.</p>
+
+                <h2>I <em>accidently</em> told it to copy a folder into itself</h2>
+                <p>The helper was a Python program. I kept it in a folder called <code>dist</code> and told
+                    electron-builder to copy that folder into the Windows app. The mistake is easier to see
+                    when you write out where the copy was going.</p>
+
+                <pre aria-label="Source and destination of the copy"><code>From   dist/
+Into   dist/win-unpacked/resources/backend/</code></pre>
+
+                <p>Both paths start with <code>dist/</code>. As soon as the packager created its destination,
+                    there was a new folder inside the one it was still copying. Follow that folder and it could
+                    pick up the copy it had just made. One trip through the same three folder names, then another.</p>
+
+                <h2>One folder name, 1,054 times</h2>
+                <p>My first guess was that I’d rebuilt the app about ten times and doubled its size each time.
+                    Then I asked PowerShell for the deepest directory it could find.</p>
+
+                <table class="path-stats" aria-label="Deepest directory reported by PowerShell">
+                    <tbody>
+                        <tr><th scope="row">Occurrences of <code>win-unpacked</code></th><td>1,054</td></tr>
+                        <tr><th scope="row">Parts in the full path</th><td>3,168</td></tr>
+                        <tr><th scope="row">Characters in the full path</th><td>32,740</td></tr>
+                    </tbody>
+                </table>
+
+                <p>One bad build could explain all 1,054 levels. Divide the folder’s 296.48 GiB by that depth
+                    and it works out to about <strong>288 MiB per level</strong>. That fits a single copy
+                    adding roughly one app’s worth of files each time it went a level deeper.</p>
+
+                <h2>Room for 27 more characters</h2>
+                <p>One more <code>\resources\backend\win-unpacked</code> would have added 31 characters,
+                    taking the path to 32,771. Microsoft puts the
+                    <a href="https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation">Windows extended-length path limit at about 32,767 characters</a>.</p>
+
+                <p>My best guess is the build kept copying until Windows couldn’t fit another round of folder
+                    names. The scan shows how far PowerShell could follow it. I’d need the build error to say
+                    for sure what stopped it.</p>
+
+                <details>
+                    <summary>See the PowerShell depth check</summary>
+                    <p>From the project folder, I counted the parts of each directory’s full path, including
+                        the drive, and kept the deepest result. The scan skipped directories it couldn’t read.</p>
+                    <pre><code>Get-ChildItem .\dist -Recurse -Directory -Force -ErrorAction SilentlyContinue |
+    ForEach-Object {
+        [pscustomobject]@{
+            Depth   = $_.FullName.Split('\').Count
+            Repeats = ([regex]::Matches($_.FullName, 'win-unpacked')).Count
+            Len     = $_.FullName.Length
+        }
+    } |
+    Sort-Object Depth -Descending |
+    Select-Object -First 1</code></pre>
+                </details>
+
+                <h2>Getting my disk space back</h2>
+                <p>I gave finished builds their own folder and changed the copy rule to ask for the helper by
+                    name. That put the destination outside the folder being copied. The app itself still finds
+                    its helper in the same place.</p>
+
+                <p>Deleting the old copies took more work. The folders went so deep that Windows Explorer
+                    struggled to remove them. What finally worked was telling a Windows utility to make that
+                    build folder match an empty one.</p>
+
+                <details>
+                    <summary>See the exact fix in electron-builder</summary>
+                    <p>PyInstaller bundled the Flask backend as <code>dist/app.exe</code>. This was the part of
+                        <code>package.json</code> that told electron-builder to take the whole directory with it.</p>
+                    <pre><code>{
+  "build": {
+    "directories": { "output": "dist" },
+    "extraResources": [
+      { "from": "dist/", "to": "backend/", "filter": ["**/*"] }
+    ]
+  }
+}</code></pre>
+
+                    <p>The resulting paths looked like this in the 7-Zip scan.</p>
+                    <pre><code>…\resources\backend\win-unpacked\resources\backend\win-unpacked\…</code></pre>
+                    <p>I changed the output directory to <code>release</code> and the copy rule to a single file.
+                        Electron could still launch the backend from the same place.</p>
+                    <pre><code>{
+  "build": {
+    "directories": { "output": "release" },
+    "extraResources": [
+      { "from": "dist/app.exe", "to": "backend/app.exe" }
+    ]
+  }
+}</code></pre>
+
+                    <p>PowerShell counted 296.48 GiB of files under <code>dist</code>, or about 318 GB in
+                        decimal units. To remove the old files, I used <code>robocopy /MIR</code> with an empty
+                        directory as its source and this project’s disposable <code>dist</code> as its destination.</p>
+                </details>
+            </div>
+        </article>
+    </main>
+
+    <footer class="contact-section">
+        <div class="container">
+            <p class="copyright">&copy; 2026 Vibhor Singh. Built with <i class="fas fa-code"></i> and
+                <i class="fas fa-coffee"></i>.</p>
+        </div>
+    </footer>
+    <script src="../js/main.js"></script>
+</body>
+
+</html>
